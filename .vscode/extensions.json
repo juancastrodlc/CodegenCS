@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-vscode.powershell"
+    ],
+    "unwantedRecommendations": [
+        "ms-dotnettools.csharp-omnisharp",
+        "jchannon.csharpextensions",
+        "kreativ-software.csharpextensions",
+        "platformio.platformio-ide",
+        "ms-vscode-remote.remote-containers",
+        "ms-azuretools.vscode-docker"
+    ]
+}

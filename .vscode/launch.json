@@ -1,0 +1,107 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Unit Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/src/Core/CodegenCS.Tests/CodegenCS.Tests.csproj",
+                "--logger:console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/.tmp",
+                "TMP": "${workspaceFolder}/.tmp",
+                "TEMP": "${workspaceFolder}/.tmp"
+            }
+        },
+        {
+            "name": "Debug Tool Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/src/Tools/Tests/CodegenCS.Tools.Tests.csproj",
+                "--logger:console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/.tmp",
+                "TMP": "${workspaceFolder}/.tmp",
+                "TEMP": "${workspaceFolder}/.tmp"
+            }
+        },
+        {
+            "name": "Debug Source Generator Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/src/SourceGenerator/CodegenCS.SourceGenerator.Tests/CodegenCS.SourceGenerator.Tests.csproj",
+                "--logger:console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/.tmp",
+                "TMP": "${workspaceFolder}/.tmp",
+                "TEMP": "${workspaceFolder}/.tmp"
+            }
+        },
+        {
+            "name": "Debug CLI Tool Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/src/Tools/CodegenCS.Tools.CliTool.Tests/CodegenCS.Tools.CliTool.Tests.csproj",
+                "--logger:console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/.tmp",
+                "TMP": "${workspaceFolder}/.tmp",
+                "TEMP": "${workspaceFolder}/.tmp"
+            }
+        },
+        {
+            "name": "Debug dotnet-codegencs CLI",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cli",
+            "program": "${workspaceFolder}/src/Tools/dotnet-codegencs/bin/Debug/net8.0/dotnet-codegencs.dll",
+            "args": ["template", "run", "MyTemplate.cs"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/.tmp",
+                "TMP": "${workspaceFolder}/.tmp",
+                "TEMP": "${workspaceFolder}/.tmp"
+            }
+        },
+        {
+            "name": "Attach to Process",
+            "type": "coreclr",
+            "request": "attach",
+            "justMyCode": false
+        }
+    ]
+}

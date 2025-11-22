@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "create-tmp-dir",
+            "type": "shell",
+            "command": "mkdir",
+            "args": ["-p", "${workspaceFolder}/.tmp"],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-Command",
+                    "New-Item -ItemType Directory -Force -Path '${workspaceFolder}\\.tmp' | Out-Null"
+                ]
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build",
+            "dependsOn": ["create-tmp-dir"],
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/CodegenCS.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-cli",
+            "dependsOn": ["create-tmp-dir"],
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Tools/dotnet-codegencs/dotnet-codegencs.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "dependsOn": ["create-tmp-dir"],
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/src/CodegenCS.sln",
+                "--logger:console;verbosity=detailed"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "options": {
+                "env": {
+                    "TMPDIR": "${workspaceFolder}/.tmp",
+                    "TMP": "${workspaceFolder}/.tmp",
+                    "TEMP": "${workspaceFolder}/.tmp"
+                }
+            }
+        },
+        {
+            "label": "show-workspace-folder",
+            "type": "shell",
+            "command": "echo",
+            "args": ["${workspaceFolder}"],
+            "problemMatcher": []
+        }
+    ]
+}

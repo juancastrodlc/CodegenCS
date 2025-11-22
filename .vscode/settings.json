@@ -1,0 +1,146 @@
+{
+    // C# Configuration - Using C# Dev Kit (Roslyn Language Server)
+    "dotnet.defaultSolution": "src/CodegenCS.sln",
+
+    // Enable semantic highlighting
+    "editor.semanticHighlighting.enabled": true,
+
+    // C# Dev Kit settings (replaces OmniSharp)
+    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
+    "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles",
+    "dotnet.codeLens.enableReferencesCodeLens": false,
+    "dotnet.inlayHints.enableInlayHintsForParameters": false,
+    "dotnet.inlayHints.enableInlayHintsForLiteralParameters": false,
+    "dotnet.inlayHints.enableInlayHintsForIndexerParameters": false,
+    "dotnet.inlayHints.enableInlayHintsForObjectCreationParameters": false,
+    "dotnet.inlayHints.enableInlayHintsForOtherParameters": false,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatDifferOnlyBySuffix": true,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchMethodIntent": true,
+    "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchArgumentName": true,
+
+    // Legacy OmniSharp settings (if using old C# extension)
+    "omnisharp.enableEditorConfigSupport": false,
+    "omnisharp.enableRoslynAnalyzers": false,
+
+    // Files to exclude from IntelliSense
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true
+    },
+
+    // Search exclusions
+    "search.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/node_modules": true,
+        "**/.vs": true,
+        "**/packages": true,
+        "**/packages-local": true
+    },
+
+    // File associations
+    "files.associations": {
+        "*.csx": "csharp"
+    },
+
+    // Editor settings
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "never"
+    },
+
+    // Delay validation while typing (reduces red squiggles)
+    "editor.quickSuggestionsDelay": 100,
+    "editor.snippetSuggestions": "top",
+    "editor.suggest.localityBonus": true,
+    "editor.suggest.shareSuggestSelections": false,
+
+    // Disable problematic IntelliSense features
+    "csharp.inlayHints.enableInlayHintsForImplicitObjectCreation": false,
+    "csharp.inlayHints.enableInlayHintsForImplicitVariableTypes": false,
+    "csharp.inlayHints.enableInlayHintsForLambdaParameterTypes": false,
+    "csharp.inlayHints.enableInlayHintsForTypes": false,
+    "csharp.suppressHiddenDiagnostics": true,
+    "csharp.showOmnisharpLogOnError": false,
+
+    // Terminal
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.env.linux": {
+        "TMPDIR": "${workspaceFolder}/.tmp",
+        "TMP": "${workspaceFolder}/.tmp",
+        "TEMP": "${workspaceFolder}/.tmp"
+    },
+    "terminal.integrated.env.osx": {
+        "TMPDIR": "${workspaceFolder}/.tmp",
+        "TMP": "${workspaceFolder}/.tmp",
+        "TEMP": "${workspaceFolder}/.tmp"
+    },
+    "terminal.integrated.env.windows": {
+        "TMP": "${workspaceFolder}\\.tmp",
+
+
+        "TEMP": "${workspaceFolder}\\.tmp"
+    },
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": false,
+    "dotnet.completion.showNameCompletionSuggestions": true,
+    "dotnet.formatting.organizeImportsOnFormat": false,
+    "dotnet.projects.enableAutomaticRestore": false,
+    "dotnet-test-explorer.testProjectPath": "**/*Tests.csproj",
+
+    // Environment variables for C# Dev Kit test debugging
+    "dotnet.unitTestDebuggingOptions": {
+        "env": {
+            "TMPDIR": "${workspaceFolder}/.tmp",
+            "TMP": "${workspaceFolder}/.tmp",
+            "TEMP": "${workspaceFolder}/.tmp"
+        }
+    },
+
+    // Environment variables for C# extension test runner (when clicking "Run Test" in code lens)
+    "csharp.debug.envFile": "${workspaceFolder}/.vscode/.env",
+
+    // For older test explorer extensions
+    "dotnet-test-explorer.envVars": {
+        "TMPDIR": "${workspaceFolder}/.tmp",
+        "TMP": "${workspaceFolder}/.tmp",
+        "TEMP": "${workspaceFolder}/.tmp"
+    },
+    "dotnet.server.useOmnisharp": false,
+    "omnisharp.useModernNet": false,
+    "csharp.semanticHighlighting.enabled": true,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.hg/store/**": true,
+        "**/.tmp/**": true,
+        "**/bin/**": true,
+        "**/obj/**": true,
+        "**/packages-local/**": true,
+        "**/External/**": true
+    },
+    "files.maxMemoryForLargeFilesMB": 4096,
+    "telemetry.telemetryLevel": "off",
+    "C_Cpp.files.exclude": {
+        "**/.tmp/**": true,
+        "**/bin/**": true,
+        "**/obj/**": true,
+        "**/packages-local/**": true,
+        "**/External/command-line-api/**": true,
+        "**/External/**/bin":true,
+        "**/External/**/obj":true
+    },
+
+    // Explicitly disable unwanted extensions for this workspace
+    "extensions.autoCheckUpdates": false,
+    "remote.extensionKind": {
+        "platformio.platformio-ide": ["workspace"],
+        "ms-vscode-remote.remote-containers": ["workspace"],
+        "ms-azuretools.vscode-docker": ["workspace"]
+    },
+
+    // Disable Copilot auto-completions (can re-enable via status bar or Ctrl+I for manual trigger)
+    "github.copilot.editor.enableAutoCompletions": false,
+    "dotnet.preferCSharpExtension": true
+}
