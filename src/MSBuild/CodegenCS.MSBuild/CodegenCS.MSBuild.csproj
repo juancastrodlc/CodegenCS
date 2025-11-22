@@ -111,7 +111,7 @@
         <ProjectReference Include="..\..\Core\CodegenCS\CodegenCS.Core.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Core\CodegenCS.Models\CodegenCS.Models.csproj" PrivateAssets="all" />
-        <ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.Dotnet.csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj" PrivateAssets="all" />
       </ItemGroup>
@@ -165,8 +165,8 @@
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\nswag.core.yaml.14.0.7\lib\netstandard2.0\NSwag.Core.Yaml.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\njsonschema.11.0.0\lib\netstandard2.0\NJsonSchema.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\njsonschema.annotations.11.0.0\lib\netstandard2.0\NJsonSchema.Annotations.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\system.commandline.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\system.commandline.namingconventionbinder.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.NamingConventionBinder.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
+    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\System.CommandLine.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
+    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\System.CommandLine.NamingConventionBinder.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.NamingConventionBinder.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
   </ItemGroup>
   
   <!-- No nuget for these, always build output from project references -->

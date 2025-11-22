@@ -8,7 +8,17 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Drizin/CodegenCS/</PackageProjectUrl>
     <LangVersion>preview</LangVersion>
+    <!-- Skip this project on non-Windows platforms -->
+    <IsWindowsOnlyProject Condition="'$(OS)' != 'Windows_NT' OR !$([MSBuild]::IsOsPlatform('Windows'))">true</IsWindowsOnlyProject>
   </PropertyGroup>
+  
+  <!-- Skip all targets on non-Windows platforms -->
+  <Target Name="Build" Condition="'$(IsWindowsOnlyProject)' == 'true'">
+    <Message Text="Skipping CodegenCS.VisualStudio.Tests build on non-Windows platform" Importance="high" />
+  </Target>
+  <Target Name="Rebuild" Condition="'$(IsWindowsOnlyProject)' == 'true'" />
+  <Target Name="Clean" Condition="'$(IsWindowsOnlyProject)' == 'true'" />
+  <Target Name="Restore" Condition="'$(IsWindowsOnlyProject)' == 'true'" />
 
   <Choose>
     <When Condition="'$(Configuration)' == 'Debug'">

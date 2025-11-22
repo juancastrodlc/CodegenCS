@@ -21,3 +21,12 @@ This project uses PowerShell scripts for cross-platform builds:
 ## Code Style
 
 Follow .NET Core guidelines as specified in the CONTRIBUTING.md files found in the repository.
+
+## Commit Messages
+
+When generating commit messages, follow these guidelines:
+- Use conventional commit format
+- Focus on code changes only - ignore VS Code configuration files (.vscode/*, *.code-workspace)
+- First line (title) must not exceed 52 characters
+- All subsequent lines must not exceed 72 characters
+- Wrap body text at 72 characters for readability

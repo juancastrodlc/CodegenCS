@@ -8,7 +8,7 @@ param(
 # How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
 
 
-. $PSScriptRoot\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
@@ -53,7 +53,7 @@ try {
 	$build_args += "/p:Configuration=$configuration"
 	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
-	$packagesLocalPath = Join-Path $PSScriptRoot "packages-local"
+	$packagesLocalPath = Join-Path $script:PSScriptRoot "packages-local"
 	Copy-Item ".\VisualStudio\VS2022Extension\bin\$configuration\CodegenCS.VisualStudio.VS2022Extension.vsix" $packagesLocalPath
 
 	dotnet restore ".\VisualStudio\VS2019Extension\VS2019Extension.csproj"

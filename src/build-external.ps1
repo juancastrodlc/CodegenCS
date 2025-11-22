@@ -8,15 +8,24 @@ param(
 
 . .\build-include.ps1
 
-$scriptpath = $MyInvocation.MyCommand.Path
-$dir = Split-Path $scriptpath
-Push-Location $dir
+# Use script:PSScriptRoot from build-include.ps1 (which forces symlink path on Linux)
+Push-Location $script:PSScriptRoot
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
 	if (Test-Path Release.snk) { $configuration = "Release"; } else { $configuration = "Debug"; }
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
+
+# Create workspace temp directory for cross-platform compatibility
+$workspaceTempPath = Join-Path $script:PSScriptRoot ".tmp"
+New-Item -ItemType Directory -Force -Path $workspaceTempPath -ErrorAction Ignore | Out-Null
+# Set TMPDIR (standard Unix environment variable for temp directory) which .NET Core/5+ respects
+if (-not $script:isWindowsPlatform) {
+    # Resolve to absolute path so it works even when we Push-Location to submodules
+    $env:TMPDIR = (Resolve-Path $workspaceTempPath).Path
+    Write-Host "Using workspace temp directory: $($env:TMPDIR)" -ForegroundColor Cyan
+}
 
 New-Item -ItemType Directory -Force -Path ".\packages-local"
 

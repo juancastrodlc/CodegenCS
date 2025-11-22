@@ -24,7 +24,8 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
 
 try {
-	$packagesPath = Join-Path $PSScriptRoot "packages-local"
+	# Use script:PSScriptRoot from build-include.ps1 (which forces symlink path on Linux)
+	$packagesPath = Join-Path $script:PSScriptRoot "packages-local"
 
 	# CodegenCS.Core + nupkg/snupkg
 	dotnet restore ".\Core\CodegenCS\CodegenCS.Core.csproj"

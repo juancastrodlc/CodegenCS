@@ -1,11 +1,11 @@
 {
-    // C# Configuration - Using C# Dev Kit (Roslyn Language Server)
+    // C# Configuration - Using OmniSharp (C# extension with modern .NET)
     "dotnet.defaultSolution": "src/CodegenCS.sln",
 
     // Enable semantic highlighting
     "editor.semanticHighlighting.enabled": true,
 
-    // C# Dev Kit settings (replaces OmniSharp)
+    // Language server settings (works with both OmniSharp and Roslyn)
     "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
     "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles",
     "dotnet.codeLens.enableReferencesCodeLens": false,
@@ -24,8 +24,8 @@
 
     // Files to exclude from IntelliSense
     "files.exclude": {
-        "**/bin": true,
-        "**/obj": true,
+        "**/bin": false,
+        "**/obj": false,
         "**/.vs": true
     },
 
@@ -67,20 +67,13 @@
     // Terminal
     "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.env.linux": {
-        "TMPDIR": "${workspaceFolder}/.tmp",
-        "TMP": "${workspaceFolder}/.tmp",
-        "TEMP": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.osx": {
-        "TMPDIR": "${workspaceFolder}/.tmp",
-        "TMP": "${workspaceFolder}/.tmp",
-        "TEMP": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.windows": {
-        "TMP": "${workspaceFolder}\\.tmp",
-
-
-        "TEMP": "${workspaceFolder}\\.tmp"
+        "TMPDIR": "${workspaceFolder}\\.tmp"
     },
     "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": false,
     "dotnet.completion.showNameCompletionSuggestions": true,
@@ -106,8 +99,8 @@
         "TMP": "${workspaceFolder}/.tmp",
         "TEMP": "${workspaceFolder}/.tmp"
     },
-    "dotnet.server.useOmnisharp": false,
-    "omnisharp.useModernNet": false,
+    "dotnet.server.useOmnisharp": true,
+    "omnisharp.useModernNet": true,
     "csharp.semanticHighlighting.enabled": true,
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -142,5 +135,5 @@
 
     // Disable Copilot auto-completions (can re-enable via status bar or Ctrl+I for manual trigger)
     "github.copilot.editor.enableAutoCompletions": false,
-    "dotnet.preferCSharpExtension": true
+    "dotnet.preferCSharpExtension": false
 }

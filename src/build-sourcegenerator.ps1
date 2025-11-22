@@ -40,7 +40,7 @@ if (Test-Path "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe") {
 # Source Generator(CodegenCS.SourceGenerator)
 # How to run: .\build-sourcegenerator.ps1
 
-. $PSScriptRoot\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
@@ -59,7 +59,7 @@ Remove-Item -Recurse -Force -ErrorAction Ignore $nugetPackagesPath
 
 # Set up workspace temp directory on Linux to avoid permission issues
 if (-not $script:isWindowsPlatform) {
-    $workspaceTempPath = Join-Path $PSScriptRoot ".tmp"
+    $workspaceTempPath = Join-Path $script:PSScriptRoot ".tmp"
     if (-not (Test-Path $workspaceTempPath)) {
         New-Item -ItemType Directory -Path $workspaceTempPath | Out-Null
     }
@@ -81,7 +81,7 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 # Unfortunately Roslyn Analyzers, Source Generators, and MS Build Tasks they all have terrible support for referencing other assemblies without having those added (and conflicting) to the client project
 # To get a Nupkg with SourceLink/Deterministic PDB we have to embed the extract the PDBs from their symbol packages so we can embed them into our published package
 
-$symbolsDir = Join-Path $PSScriptRoot "ExternalSymbolsToEmbed"
+$symbolsDir = Join-Path $script:PSScriptRoot "ExternalSymbolsToEmbed"
 mkdir $symbolsDir -EA Ignore | Out-Null
 $snupkgs = @(
     "interpolatedcolorconsole.1.0.3.snupkg",
@@ -99,7 +99,7 @@ foreach ($snupkg in $snupkgs){
         curl "https://globalcdn.nuget.org/symbol-packages/$snupkg" -o $snupkgPath
     }
 }
-$packagesLocalPath = Join-Path $PSScriptRoot "packages-local"
+$packagesLocalPath = Join-Path $script:PSScriptRoot "packages-local"
 copy (Join-Path $packagesLocalPath "System.CommandLine.2.0.0-codegencs.snupkg") $symbolsDir
 copy (Join-Path $packagesLocalPath "System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg") $symbolsDir
 

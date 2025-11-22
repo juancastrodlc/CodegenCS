@@ -1,5 +1,8 @@
 #!/usr/bin/env pwsh
-Push-Location $PSScriptRoot
+# Load build-include.ps1 first to get forced symlink path
+. "$(Split-Path $MyInvocation.MyCommand.Path)\build-include.ps1"
+
+Push-Location $script:PSScriptRoot
 
 # Detect home directory cross-platform
 $homeDir = if ($IsWindows -or $env:OS -match "Windows") {

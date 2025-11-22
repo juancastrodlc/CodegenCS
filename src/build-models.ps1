@@ -19,7 +19,8 @@ if (-not $PSBoundParameters.ContainsKey('configuration'))
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
-$packagesPath = Join-Path $PSScriptRoot "packages-local"
+# Use script:PSScriptRoot from build-include.ps1 (which forces symlink path on Linux)
+$packagesPath = Join-Path $script:PSScriptRoot "packages-local"
 
 # CodegenCS.Models.DbSchema + nupkg/snupkg
 dotnet restore ".\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj"

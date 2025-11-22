@@ -21,6 +21,9 @@ if (-not $PSBoundParameters.ContainsKey('configuration'))
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
+# Use script:PSScriptRoot from build-include.ps1 (which forces symlink path on Linux)
+$packagesPath = Join-Path $script:PSScriptRoot "packages-local"
+
 # TemplateBuilder
 dotnet restore .\Tools\TemplateBuilder\CodegenCS.Tools.TemplateBuilder.csproj
 $build_args = @()
@@ -53,7 +56,6 @@ if (! $?) { throw "msbuild failed" }
 
 # dotnet-codegencs (DotnetTool nupkg/snupkg)
 dotnet restore ".\Tools\dotnet-codegencs\dotnet-codegencs.csproj"
-$packagesPath = Join-Path $PSScriptRoot "packages-local"
 if ($dotnetcodegencsTargetFrameworks.IndexOf(";") -eq -1) {
     # single target
     $maxVer = $dotnetcodegencsTargetFrameworks.Substring($dotnetcodegencsTargetFrameworks.Length-1)

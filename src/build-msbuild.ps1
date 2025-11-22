@@ -36,11 +36,10 @@ if ($script:isWindowsPlatform) {
 # MSBuild Task (CodegenCS.MSBuild)
 # How to run: .\build-msbuildtask.ps1
 
-. $PSScriptRoot\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
-$scriptpath = $MyInvocation.MyCommand.Path
-$dir = Split-Path $scriptpath
-Push-Location $dir
+# Use the symlink-aware path from build-include.ps1
+Push-Location $script:PSScriptRoot
 
 # Cross-platform NuGet packages cleanup
 if ($script:isWindowsPlatform) {
@@ -59,7 +58,7 @@ if (-not $PSBoundParameters.ContainsKey('configuration'))
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
 # Create workspace temp directory for cross-platform compatibility
-$workspaceTempPath = Join-Path $PSScriptRoot ".tmp"
+$workspaceTempPath = Join-Path $script:PSScriptRoot ".tmp"
 New-Item -ItemType Directory -Force -Path $workspaceTempPath -ErrorAction Ignore | Out-Null
 # Set TMPDIR (standard Unix environment variable for temp directory) which .NET Core/5+ respects
 if (-not $script:isWindowsPlatform) {
@@ -121,7 +120,7 @@ Write-Host "`nBuilding CodegenCS.MSBuild..." -ForegroundColor Yellow
 Write-Host "============================================" -ForegroundColor Yellow
 
 dotnet restore .\MSBuild\CodegenCS.MSBuild\CodegenCS.MSBuild.csproj
-$packagesPath = Join-Path $PSScriptRoot "packages-local"
+$packagesPath = Join-Path $script:PSScriptRoot "packages-local"
 $build_args = @()
 if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
 $build_args += ".\MSBuild\CodegenCS.MSBuild\CodegenCS.MSBuild.csproj", "/t:Restore", "/t:Build", "/t:Pack"

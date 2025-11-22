@@ -16,9 +16,7 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${workspaceFolder}/.tmp"
             }
         },
         {
@@ -36,9 +34,7 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${workspaceFolder}/.tmp"
             }
         },
         {
@@ -56,9 +52,7 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${workspaceFolder}/.tmp"
             }
         },
         {
@@ -76,9 +70,7 @@
             "stopAtEntry": false,
             "console": "internalConsole",
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${workspaceFolder}/.tmp"
             }
         },
         {
