@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
@@ -6,8 +7,35 @@ param(
 $ErrorActionPreference="Stop"
 
 $version = "3.5.2"
-$nugetPE = "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe"
-$7z = "C:\Program Files\7-Zip\7z.exe"
+
+# Detect 7z (cross-platform)
+$7z = $null
+if (Get-Command 7z -ErrorAction SilentlyContinue) {
+    $7z = (Get-Command 7z).Source
+} elseif (Get-Command 7za -ErrorAction SilentlyContinue) {
+    $7z = (Get-Command 7za).Source
+} elseif (Get-Command 7zr -ErrorAction SilentlyContinue) {
+    $7z = (Get-Command 7zr).Source
+} elseif (Test-Path "C:\Program Files\7-Zip\7z.exe") {
+    $7z = "C:\Program Files\7-Zip\7z.exe"
+}
+
+# Detect NuGet Package Explorer (Windows-only)
+$nugetPE = $null
+if (Test-Path "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe") {
+    $nugetPE = "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe"
+}
+
+# Detect decompiler tools
+$decompiler = $null
+$decompilerType = $null
+if (Test-Path "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe") {
+    $decompiler = "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe"
+    $decompilerType = "dnspy"
+} elseif (Get-Command ilspycmd -ErrorAction SilentlyContinue) {
+    $decompiler = (Get-Command ilspycmd).Source
+    $decompilerType = "ilspy"
+}
 
 # Source Generator(CodegenCS.SourceGenerator)
 # How to run: .\build-sourcegenerator.ps1
@@ -18,11 +46,30 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-Remove-Item -Recurse -Force -ErrorAction Ignore "$env:HOMEDRIVE$env:HOMEPATH\.nuget\packages\codegencs.sourcegenerator"
-# CompilerServer: server failed - server rejected the request due to analyzer / generator issues 'analyzer assembly '<source>\CodegenCS\src\SourceGenerator\CodegenCS.SourceGenerator\bin\Release\netstandard2.0\CodegenCS.SourceGenerator.dll' 
+# Cross-platform NuGet package cache cleanup
+if ($script:isWindowsPlatform) {
+    $nugetPackagesPath = Join-Path "$env:HOMEDRIVE$env:HOMEPATH" ".nuget\packages\codegencs.sourcegenerator"
+} else {
+    $nugetPackagesPath = Join-Path $env:HOME ".nuget/packages/codegencs.sourcegenerator"
+}
+Remove-Item -Recurse -Force -ErrorAction Ignore $nugetPackagesPath
+
+# CompilerServer: server failed - server rejected the request due to analyzer / generator issues 'analyzer assembly '<source>\CodegenCS\src\SourceGenerator\CodegenCS.SourceGenerator\bin\Release\netstandard2.0\CodegenCS.SourceGenerator.dll'
 # has MVID '<someguid>' but loaded assembly 'C:\Users\<user>\AppData\Local\Temp\VBCSCompiler\AnalyzerAssemblyLoader\<randompath>\CodegenCS.SourceGenerator.dll' has MVID '<otherguid>'' - SampleProjectWithSourceGenerator (netstandard2.0)
+
+# Set up workspace temp directory on Linux to avoid permission issues
+if (-not $script:isWindowsPlatform) {
+    $workspaceTempPath = Join-Path $PSScriptRoot ".tmp"
+    if (-not (Test-Path $workspaceTempPath)) {
+        New-Item -ItemType Directory -Path $workspaceTempPath | Out-Null
+    }
+    $env:TMPDIR = $workspaceTempPath
+}
+
 gci $env:TEMP -r -filter CodegenCS.SourceGenerator.dll -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
-gci "$($env:TEMP)\VBCSCompiler\AnalyzerAssemblyLoader" -r -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
+if ($script:isWindowsPlatform) {
+    gci "$($env:TEMP)\VBCSCompiler\AnalyzerAssemblyLoader" -r -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
+}
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -34,7 +81,8 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 # Unfortunately Roslyn Analyzers, Source Generators, and MS Build Tasks they all have terrible support for referencing other assemblies without having those added (and conflicting) to the client project
 # To get a Nupkg with SourceLink/Deterministic PDB we have to embed the extract the PDBs from their symbol packages so we can embed them into our published package
 
-mkdir .\ExternalSymbolsToEmbed -EA Ignore | Out-Null
+$symbolsDir = Join-Path $PSScriptRoot "ExternalSymbolsToEmbed"
+mkdir $symbolsDir -EA Ignore | Out-Null
 $snupkgs = @(
     "interpolatedcolorconsole.1.0.3.snupkg",
     "newtonsoft.json.13.0.3.snupkg",
@@ -46,60 +94,107 @@ $snupkgs = @(
 
 foreach ($snupkg in $snupkgs){
     Write-Host $snupkg
-    if (-not (Test-Path ".\ExternalSymbolsToEmbed\$snupkg")) {
-        curl "https://globalcdn.nuget.org/symbol-packages/$snupkg" -o ".\ExternalSymbolsToEmbed\$snupkg"
+    $snupkgPath = Join-Path $symbolsDir $snupkg
+    if (-not (Test-Path $snupkgPath)) {
+        curl "https://globalcdn.nuget.org/symbol-packages/$snupkg" -o $snupkgPath
     }
 }
-copy .\packages-local\System.CommandLine.2.0.0-codegencs.snupkg .\ExternalSymbolsToEmbed\
-copy .\packages-local\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg .\ExternalSymbolsToEmbed\
-$snupkgs = gci .\ExternalSymbolsToEmbed\*.snupkg
-foreach ($snupkg in $snupkgs){
-    $name = $snupkg.Name
-    $name = $name.Substring(0, $name.Length-7)
-    $zipContents = (& $7z l -ba -slt "ExternalSymbolsToEmbed\$name.snupkg" | Out-String) -split"`r`n"
-    $zipContents | Select-String "Path = " 
-    mkdir "ExternalSymbolsToEmbed\$name\" -ea Ignore | out-null
-    & $7z x "ExternalSymbolsToEmbed\$name.snupkg" "-oExternalSymbolsToEmbed\$name\" *.pdb -r -aoa
+$packagesLocalPath = Join-Path $PSScriptRoot "packages-local"
+copy (Join-Path $packagesLocalPath "System.CommandLine.2.0.0-codegencs.snupkg") $symbolsDir
+copy (Join-Path $packagesLocalPath "System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg") $symbolsDir
+
+if ($7z) {
+    $snupkgs = gci (Join-Path $symbolsDir "*.snupkg")
+    foreach ($snupkg in $snupkgs){
+        $name = $snupkg.Name
+        $name = $name.Substring(0, $name.Length-7)
+
+        # Use cross-platform path with forward slashes for 7z
+        $snupkgFile = Join-Path $symbolsDir "$name.snupkg"
+        $snupkgFileForward = $snupkgFile -replace '\\', '/'
+
+        $zipContents = (& $7z l -ba -slt $snupkgFileForward | Out-String) -split"`n"
+        $zipContents | Select-String "Path = "
+
+        # NuGet packages are already lowercase from CDN, so we keep the original name
+        $extractPath = Join-Path $symbolsDir $name
+        mkdir $extractPath -ea Ignore | out-null
+
+        $extractPathForward = $extractPath -replace '\\', '/'
+        & $7z x $snupkgFileForward "-o$extractPathForward" *.pdb -r -aoa
+    }
+} else {
+    Write-Host "WARNING: 7z not available. Skipping PDB extraction from symbol packages." -ForegroundColor Yellow
 }
 
 
 
 dotnet restore .\SourceGenerator\CodegenCS.SourceGenerator\CodegenCS.SourceGenerator.csproj
-& $msbuild ".\SourceGenerator\CodegenCS.SourceGenerator\CodegenCS.SourceGenerator.csproj" `
-           /t:Restore /t:Build /t:Pack                                          `
-           /p:PackageOutputPath="..\..\packages-local\"      `
-           /p:Configuration=$configuration                                      `
-           /verbosity:minimal                                                   `
-           /p:IncludeSymbols=true                                  `
-           /p:ContinuousIntegrationBuild=true `
 
+$build_args = @()
+if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+$build_args += ".\SourceGenerator\CodegenCS.SourceGenerator\CodegenCS.SourceGenerator.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+$build_args += "/p:PackageOutputPath=$packagesLocalPath", "/p:Configuration=$configuration"
+$build_args += "/verbosity:minimal", "/p:IncludeSymbols=true", "/p:ContinuousIntegrationBuild=true"
+& $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
 
-if (Test-Path $nugetPE) { & $nugetPE ".\packages-local\CodegenCS.SourceGenerator.$version.nupkg" }
-if (Test-Path $7z) {
-    $zipContents = (& $7z l -ba -slt .\packages-local\CodegenCS.SourceGenerator.$version.nupkg | Out-String) -split"`r`n"
+if ($nugetPE) {
+    & $nugetPE (Join-Path $packagesLocalPath "CodegenCS.SourceGenerator.$version.nupkg")
+} else {
+    Write-Host "WARNING: NuGet Package Explorer not available (Windows-only tool). Skipping package inspection." -ForegroundColor Yellow
+}
+
+if ($7z) {
+    $nupkgPath = Join-Path $packagesLocalPath "CodegenCS.SourceGenerator.$version.nupkg"
+    $nupkgPathForward = $nupkgPath -replace '\\', '/'
+
+    if ($script:isWindowsPlatform) {
+        $zipContents = (& $7z l -ba -slt $nupkgPathForward | Out-String) -split"`n"
+    } else {
+        $zipContents = (& $7z l $nupkgPathForward | Out-String) -split"`n"
+    }
+
     Write-Host "------------" -ForegroundColor Yellow
     $zipContents|Select-String "Path ="
-    sleep 2
+    Start-Sleep -Seconds 2
 
     # sanity check: nupkg should have debug-build dlls, pdb files, source files, etc.
-    if (-not ($zipContents|Select-String "Path = "|Select-String "CodegenCS.Core.dll")) { throw "msbuild failed" } 
-    if (-not ($zipContents|Select-String "Path = "|Select-String "CodegenCS.Core.pdb") -and $configuration -eq "Debug") { throw "msbuild failed" } 
+    if ($script:isWindowsPlatform) {
+        if (-not ($zipContents|Select-String "Path = "|Select-String "CodegenCS.Core.dll")) { throw "msbuild failed" }
+        if (-not ($zipContents|Select-String "Path = "|Select-String "CodegenCS.Core.pdb") -and $configuration -eq "Debug") { throw "msbuild failed" }
+    } else {
+        # On Linux, 7z output format is different - just check for the file names
+        if (-not ($zipContents|Select-String "CodegenCS.Core.dll")) { throw "msbuild failed" }
+        if (-not ($zipContents|Select-String "CodegenCS.Core.pdb") -and $configuration -eq "Debug") { throw "msbuild failed" }
+    }
 }
 
 
+# SourceGenerator1 test - run on all platforms to catch C# path handling bugs
 #dotnet clean ..\Samples\SourceGenerator1\SourceGenerator1.csproj
 dotnet restore ..\Samples\SourceGenerator1\SourceGenerator1.csproj
-& $msbuild "..\Samples\SourceGenerator1\SourceGenerator1.csproj" `
-           /t:Restore /t:Rebuild                                           `
-           /p:Configuration=$configuration                                      `
-           /verbosity:normal                                                   
+
+$build_args = @()
+if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+$build_args += "..\Samples\SourceGenerator1\SourceGenerator1.csproj", "/t:Restore", "/t:Rebuild"
+$build_args += "/p:Configuration=$configuration", "/verbosity:normal"
+& $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
 
 Write-Host "------------" -ForegroundColor Yellow
-C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe ..\Samples\SourceGenerator1\bin\$configuration\netstandard2.0\SourceGenerator1.dll -t MyFirstClass
-C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe ..\Samples\SourceGenerator1\bin\$configuration\netstandard2.0\SourceGenerator1.dll -t AnotherSampleClass # should show some methods that were generated on the fly
-if (! $?) { throw "Template failed (classes were not added to the compilation)" }
+if ($decompiler) {
+    if ($decompilerType -eq "dnspy") {
+        & $decompiler ..\Samples\SourceGenerator1\bin\$configuration\netstandard2.0\SourceGenerator1.dll -t MyFirstClass
+        & $decompiler ..\Samples\SourceGenerator1\bin\$configuration\netstandard2.0\SourceGenerator1.dll -t AnotherSampleClass # should show some methods that were generated on the fly
+        if (! $?) { throw "Template failed (classes were not added to the compilation)" }
+    } elseif ($decompilerType -eq "ilspy") {
+        Write-Host "Decompiling with ILSpy..." -ForegroundColor Cyan
+        & $decompiler ../Samples/SourceGenerator1/bin/$configuration/netstandard2.0/SourceGenerator1.dll -t MyFirstClass 2>&1 | Write-Output
+        & $decompiler ../Samples/SourceGenerator1/bin/$configuration/netstandard2.0/SourceGenerator1.dll -t AnotherSampleClass 2>&1 | Write-Output
+    }
+} else {
+    Write-Host "WARNING: Decompiler not available. Install ilspycmd with: dotnet tool install -g ilspycmd" -ForegroundColor Yellow
+}
 
 Pop-Location
-

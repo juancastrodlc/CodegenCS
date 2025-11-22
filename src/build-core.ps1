@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
@@ -23,51 +24,46 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
 
 try {
-
+	$packagesPath = Join-Path $PSScriptRoot "packages-local"
 
 	# CodegenCS.Core + nupkg/snupkg
 	dotnet restore ".\Core\CodegenCS\CodegenCS.Core.csproj"
-	& $msbuild ".\Core\CodegenCS\CodegenCS.Core.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\Core\CodegenCS\CodegenCS.Core.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+	$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+	$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
-			   
 
 	# CodegenCS.Models + nupkg/snupkg
 	dotnet restore ".\Core\CodegenCS.Models\CodegenCS.Models.csproj"
-	& $msbuild ".\Core\CodegenCS.Models\CodegenCS.Models.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\Core\CodegenCS.Models\CodegenCS.Models.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+	$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+	$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
 
 	# CodegenCS.Runtime + nupkg/snupkg
 	dotnet restore ".\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj"
-	& $msbuild ".\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj"                          `
-			   /t:Restore /t:Build /t:Pack                             `
-			   /p:PackageOutputPath="..\..\packages-local\"               `
-			   /p:Configuration=$configuration                         `
-			   /p:IncludeSymbols=true                                  `
-			   /verbosity:minimal                                      `
-			   /p:ContinuousIntegrationBuild=true
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+	$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+	$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
 
 	# CodegenCS.DotNet + nupkg/snupkg
 	dotnet restore ".\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj"
-	& $msbuild ".\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+	$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+	$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
 
 } finally {

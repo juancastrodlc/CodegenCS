@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)]
@@ -7,6 +8,8 @@ param(
 )
 
 # How to run: .\build.ps1
+
+. $PSScriptRoot\build-include.ps1
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -18,11 +21,15 @@ $ErrorActionPreference="Stop"
 
 $dotnetSdk = (& dotnet --list-sdks | %{ $_.Substring(0, $_.IndexOf(".")) } | Sort-Object Descending | Select-Object -First 1)
 
-$hasNet472 = Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse |
-    Get-ItemProperty -name Version, Release -EA 0 |
-    Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} |
-    Select-Object @{name = "NETFramework"; expression = {$_.PSChildName}}, Version, Release |
-    Where-Object { $_.NETFramework -eq "Full" -and $_.Release -gt 461814 }
+# .NET Framework detection (Windows only)
+$hasNet472 = $false
+if ($script:isWindowsPlatform) {
+    $hasNet472 = Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse -ErrorAction SilentlyContinue |
+        Get-ItemProperty -name Version, Release -EA 0 |
+        Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} |
+        Select-Object @{name = "NETFramework"; expression = {$_.PSChildName}}, Version, Release |
+        Where-Object { $_.NETFramework -eq "Full" -and $_.Release -gt 461814 }
+}
 
 if ($configuration -eq "Release") {
     # dotnet-codegencs is released for multiple targets.
@@ -31,68 +38,75 @@ if ($configuration -eq "Release") {
     if (-not $dotnetSdk -or -not $hasNet472) { throw "Can't find .NET or .NET Framework'" }
 } else {
     # For debug use latest dotnet SDK or (if not found) use net472
-    if ($dotnetSdk) { 
-        $dotnetcodegencsTargetFrameworks = "net" + $dotnetSdk 
-    } elseif ($hasNet472) { 
-        $dotnetcodegencsTargetFrameworks = "net472" 
+    if ($dotnetSdk) {
+        $dotnetcodegencsTargetFrameworks = "net" + $dotnetSdk
+    } elseif ($hasNet472) {
+        $dotnetcodegencsTargetFrameworks = "net472"
     } else { throw "Can't find .NET or .NET Framework'" }
 }
 
-. .\build-clean.ps1
+. $PSScriptRoot\build-clean.ps1
 
 New-Item -ItemType Directory -Force -Path ".\packages-local"
 
-$commandLinePkg1 =".\External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.nupkg"
-$commandLinePkg2 =".\External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.snupkg"
-$commandLinePkg3 =".\External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.nupkg"
-$commandLinePkg4 =".\External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg"
+$commandLinePkg1 = Join-Path $PSScriptRoot "External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.nupkg"
+$commandLinePkg2 = Join-Path $PSScriptRoot "External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.snupkg"
+$commandLinePkg3 = Join-Path $PSScriptRoot "External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.nupkg"
+$commandLinePkg4 = Join-Path $PSScriptRoot "External\command-line-api\artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg"
 
 if ((Test-Path $commandLinePkg1) -and (Test-Path $commandLinePkg2) -and (Test-Path $commandLinePkg3) -and (Test-Path $commandLinePkg4))
 {
     # no need to rebuild this huge package every time, unless you modify it
-    copy $commandLinePkg1 .\packages-local\
-    copy $commandLinePkg2 .\packages-local\
-    copy $commandLinePkg3 .\packages-local\
-    copy $commandLinePkg4 .\packages-local\
+    Copy-Item $commandLinePkg1 ".\packages-local\"
+    Copy-Item $commandLinePkg2 ".\packages-local\"
+    Copy-Item $commandLinePkg3 ".\packages-local\"
+    Copy-Item $commandLinePkg4 ".\packages-local\"
 } else {
-    . .\build-external.ps1 -Configuration $configuration
+    . $PSScriptRoot\build-external.ps1 -Configuration $configuration
 }
 
-. .\build-core.ps1 -Configuration $configuration
+. $PSScriptRoot\build-core.ps1 -Configuration $configuration
 
-. .\build-models.ps1 -Configuration $configuration
+. $PSScriptRoot\build-models.ps1 -Configuration $configuration
 
-if ($configuration -eq "Release") 
+if ($configuration -eq "Release")
 {
 	# For release builds we clear bin/obj again to ensure that all further builds will use the locally published nugets
-    Get-ChildItem .\Core\ -Recurse | Where{$_.FullName -CMatch ".*\\bin$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-    Get-ChildItem .\Core\ -Recurse | Where{$_.FullName -CMatch ".*\\obj$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-    Get-ChildItem .\Models\ -Recurse | Where{$_.FullName -CMatch ".*\\bin$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-    Get-ChildItem .\Models\ -Recurse | Where{$_.FullName -CMatch ".*\\obj$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
+    Get-ChildItem .\Core\ -Recurse | Where-Object { $_.Name -eq "bin" -and $_.PSIsContainer } | Remove-Item -Recurse -Force -ErrorAction Ignore
+    Get-ChildItem .\Core\ -Recurse | Where-Object { $_.Name -eq "obj" -and $_.PSIsContainer } | Remove-Item -Recurse -Force -ErrorAction Ignore
+    Get-ChildItem .\Models\ -Recurse | Where-Object { $_.Name -eq "bin" -and $_.PSIsContainer } | Remove-Item -Recurse -Force -ErrorAction Ignore
+    Get-ChildItem .\Models\ -Recurse | Where-Object { $_.Name -eq "obj" -and $_.PSIsContainer } | Remove-Item -Recurse -Force -ErrorAction Ignore
 }
 
-. .\build-tools.ps1 -Configuration $configuration -dotnetcodegencsTargetFrameworks $dotnetcodegencsTargetFrameworks
+. $PSScriptRoot\build-tools.ps1 -Configuration $configuration -dotnetcodegencsTargetFrameworks $dotnetcodegencsTargetFrameworks
 
 if ($configuration -eq "Release") {
-  . .\build-sourcegenerator.ps1
-  . .\build-msbuild.ps1
+  . $PSScriptRoot\build-sourcegenerator.ps1
 }
 
-# Unit tests # TODO: break this into CORE tests, MODEL tests, CLITESTS 
+. $PSScriptRoot\build-msbuild.ps1
+
+# Unit tests # TODO: break this into CORE tests, MODEL tests, CLITESTS
 if ($RunTests) {
-    dotnet restore .\Core\CodegenCS.Tests\CodegenCS.Tests.csproj
-    dotnet build --configuration $configuration .\Core\CodegenCS.Tests\CodegenCS.Tests.csproj
-    dotnet test --configuration $configuration .\Core\CodegenCS.Tests\CodegenCS.Tests.csproj
+    $coreTestsProj = Join-Path $PSScriptRoot "Core\CodegenCS.Tests\CodegenCS.Tests.csproj"
+    dotnet restore $coreTestsProj
+    dotnet build --configuration $configuration $coreTestsProj
+    dotnet test --configuration $configuration $coreTestsProj
 
-    dotnet restore .\Tools\Tests\CodegenCS.Tools.Tests.csproj
-    #dotnet build --configuration $configuration --runtime net8 .\Tools\Tests\CodegenCS.Tools.Tests.csproj # TODO: $dotnetcodegencsTargetFrameworks
-    & $msbuild ".\Tools\Tests\CodegenCS.Tools.Tests.csproj" /t:Restore /t:Build /p:Configuration=$configuration /p:targetFrameworks=net8 # TODO: $dotnetcodegencsTargetFrameworks
-    dotnet test --configuration $configuration /p:targetFrameworks=net8 .\Tools\Tests\CodegenCS.Tools.Tests.csproj
+    $toolsTestsProj = Join-Path $PSScriptRoot "Tools\Tests\CodegenCS.Tools.Tests.csproj"
+    dotnet restore $toolsTestsProj
+    #dotnet build --configuration $configuration --runtime net8 $toolsTestsProj # TODO: $dotnetcodegencsTargetFrameworks
+    $build_args = @()
+    if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+    $build_args += $toolsTestsProj, "/t:Restore", "/t:Build"
+    $build_args += "/p:Configuration=$configuration", "/p:targetFrameworks=net8"
+    & $msbuild @build_args
+    dotnet test --configuration $configuration /p:targetFrameworks=net8 $toolsTestsProj
 }
 
-if ($hasNet472) {
+if ($script:isWindowsPlatform -and $hasNet472) {
     $env:VSToolsPath="C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Microsoft\VisualStudio\v17.0"
-    . .\build-visualstudio.ps1 -Configuration $configuration
+    . $PSScriptRoot\build-visualstudio.ps1 -Configuration $configuration
 }
 
 

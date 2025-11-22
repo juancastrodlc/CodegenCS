@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
@@ -18,38 +19,36 @@ if (-not $PSBoundParameters.ContainsKey('configuration'))
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
+$packagesPath = Join-Path $PSScriptRoot "packages-local"
 
 # CodegenCS.Models.DbSchema + nupkg/snupkg
 dotnet restore ".\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj"
-& $msbuild ".\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj" `
-           /t:Restore /t:Build /t:Pack                             `
-           /p:PackageOutputPath="..\..\packages-local\"               `
-           /p:Configuration=$configuration                         `
-           /p:IncludeSymbols=true                                  `
-           /verbosity:minimal                                      `
-           /p:ContinuousIntegrationBuild=true
+$build_args = @()
+if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+$build_args += ".\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+& $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
 
+# CodegenCS.Models.DbSchema.Extractor (build only, no pack)
 dotnet restore ".\Models\CodegenCS.Models.DbSchema.Extractor\CodegenCS.Models.DbSchema.Extractor.csproj"
-& $msbuild ".\Models\CodegenCS.Models.DbSchema.Extractor\CodegenCS.Models.DbSchema.Extractor.csproj" `
-           /t:Restore /t:Build                                                  `
-           /p:Configuration=$configuration                                      `
-           /p:IncludeSymbols=true                                               `
-           /verbosity:minimal                                                   `
-           /p:ContinuousIntegrationBuild=true
+$build_args = @()
+if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+$build_args += ".\Models\CodegenCS.Models.DbSchema.Extractor\CodegenCS.Models.DbSchema.Extractor.csproj", "/t:Restore", "/t:Build"
+$build_args += "/p:Configuration=$configuration", "/p:IncludeSymbols=true"
+$build_args += "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+& $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
-
 
 # CodegenCS.Models.NSwagAdapter + nupkg/snupkg
 dotnet restore ".\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj"
-& $msbuild ".\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj"        `
-           /t:Restore /t:Build /t:Pack                             `
-           /p:PackageOutputPath="..\..\packages-local\"               `
-           /p:Configuration=$configuration                         `
-           /p:IncludeSymbols=true                                  `
-           /verbosity:minimal                                      `
-           /p:ContinuousIntegrationBuild=true
+$build_args = @()
+if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+$build_args += ".\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+$build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
+$build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+& $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
-
 
 Pop-Location

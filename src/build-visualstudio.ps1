@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
@@ -7,7 +8,7 @@ param(
 # How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
 
 
-. .\build-include.ps1
+. $PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
@@ -20,6 +21,13 @@ if (-not $PSBoundParameters.ContainsKey('configuration'))
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
+# Visual Studio extensions are Windows-only
+if (-not $script:isWindowsPlatform) {
+    Write-Host "Skipping Visual Studio extension build (Windows-only - requires Visual Studio SDK)" -ForegroundColor Yellow
+    Pop-Location
+    exit 0
+}
+
 try {
 
 	# This component is hard to debug (fragile dependencies) so it's better to clean on each build
@@ -30,29 +38,32 @@ try {
 
 	# CodegenCS.Runtime.VisualStudio
 	dotnet restore ".\VisualStudio\CodegenCS.Runtime.VisualStudio\CodegenCS.Runtime.VisualStudio.csproj"
-	& $msbuild ".\VisualStudio\CodegenCS.Runtime.VisualStudio\CodegenCS.Runtime.VisualStudio.csproj"                          `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration                         `
-			   /p:IncludeSymbols=true                                  `
-			   /verbosity:minimal                                      `
-			   /p:ContinuousIntegrationBuild=true
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\VisualStudio\CodegenCS.Runtime.VisualStudio\CodegenCS.Runtime.VisualStudio.csproj", "/t:Restore", "/t:Build"
+	$build_args += "/p:Configuration=$configuration", "/p:IncludeSymbols=true"
+	$build_args += "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
 
 	dotnet restore ".\VisualStudio\VS2022Extension\VS2022Extension.csproj"
-	& $msbuild ".\VisualStudio\VS2022Extension\VS2022Extension.csproj"   `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\VisualStudio\VS2022Extension\VS2022Extension.csproj", "/t:Restore", "/t:Build"
+	$build_args += "/p:Configuration=$configuration"
+	& $msbuild @build_args
 	if (! $?) { throw "msbuild failed" }
-	copy .\VisualStudio\VS2022Extension\bin\$configuration\CodegenCS.VisualStudio.VS2022Extension.vsix .\packages-local\
-	
-	dotnet restore ".\VisualStudio\VS2022Extension\VS2019Extension.csproj"
-	& $msbuild ".\VisualStudio\VS2019Extension\VS2019Extension.csproj"   `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration                        		   
-	if (! $?) { throw "msbuild failed" }
-	copy .\VisualStudio\VS2019Extension\bin\$configuration\CodegenCS.VisualStudio.VS2019Extension.vsix .\packages-local\
+	$packagesLocalPath = Join-Path $PSScriptRoot "packages-local"
+	Copy-Item ".\VisualStudio\VS2022Extension\bin\$configuration\CodegenCS.VisualStudio.VS2022Extension.vsix" $packagesLocalPath
 
-	# The secret to VSIX painless-troubleshooting is inspecting the VSIX package:
+	dotnet restore ".\VisualStudio\VS2019Extension\VS2019Extension.csproj"
+	$build_args = @()
+	if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
+	$build_args += ".\VisualStudio\VS2019Extension\VS2019Extension.csproj", "/t:Restore", "/t:Build"
+	$build_args += "/p:Configuration=$configuration"
+	& $msbuild @build_args
+	if (! $?) { throw "msbuild failed" }
+	Copy-Item ".\VisualStudio\VS2019Extension\bin\$configuration\CodegenCS.VisualStudio.VS2019Extension.vsix" $packagesLocalPath	# The secret to VSIX painless-troubleshooting is inspecting the VSIX package:
 	# & "C:\Program Files\7-Zip\7zFM.exe" .\VisualStudio\VS2022Extension\bin\Debug\CodegenCS.VSExtensions.VisualStudio2022.vsix
 	# Sometimes command-line shows errors that Visual Studio ignores
 	# Sometimes in the extension folder we will have ZERO-bytes files
