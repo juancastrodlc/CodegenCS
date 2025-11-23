@@ -6,7 +6,7 @@ FOUNDATION (No dependencies):
 
 CORE LAYER (depends on Core):
 - CodegenCS.Runtime → Core
-- CodegenCS.Models → Core  
+- CodegenCS.Models → Core
 - CodegenCS.DotNet → Core
 
 MODELS LAYER:
@@ -20,7 +20,7 @@ TOOLS LAYER:
 - CodegenCS.Tools.TemplateBuilder → Core, Runtime, Models, DotNet, DbSchema, NSwagAdapter
 
 TOP-LEVEL PACKAGES:
-- dotnet-codegencs (CLI) → Core, Runtime, Models, DbSchema, DbSchema.Extractor, 
+- dotnet-codegencs (CLI) → Core, Runtime, Models, DbSchema, DbSchema.Extractor,
                            TemplateBuilder, TemplateLauncher, TemplateDownloader
 
 - CodegenCS.MSBuild → Core, Runtime, Models, DotNet, DbSchema, NSwagAdapter,
