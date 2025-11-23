@@ -2,7 +2,9 @@
 
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
+indent_size = 2
+indent_style = space
 
 [*.csproj]
-indent_style = space 
+indent_style = space
 indent_size = 2
