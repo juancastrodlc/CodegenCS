@@ -1,3 +1,23 @@
+#!/usr/bin/env pwsh
+# ===================================================================
+# BUILD INCLUDE - Common Configuration for All Build Scripts
+# ===================================================================
+# WARNING: This script is meant to be DOT-SOURCED by other scripts,
+#          not executed directly. It provides shared configuration,
+#          platform detection, and tool paths for all build-*.ps1 scripts.
+#
+# Usage: . $PSScriptRoot\build-include.ps1
+# ===================================================================
+
+# Detect if being run standalone (not dot-sourced)
+if ($MyInvocation.InvocationName -ne '.' -and $MyInvocation.InvocationName -notlike '*\build-include.ps1') {
+    Write-Warning "=========================================="
+    Write-Warning "This script should be DOT-SOURCED, not run directly!"
+    Write-Warning "Usage: . .\build-include.ps1"
+    Write-Warning "=========================================="
+    exit 1
+}
+
 # ===================================================================
 # PATH CONFIGURATION: Use actual script location, support symlinks
 # ===================================================================
@@ -91,3 +111,16 @@ if ($script:isWindowsPlatform -and (Test-Path "C:\ProgramData\chocolatey\lib\dns
     $script:decompiler = (Get-Command ilspycmd).Source
     $script:decompilerType = "ilspy"
 }
+
+# ===================================================================
+# Display exported variables to calling script
+# ===================================================================
+Write-Host "Variables exported to the calling script:" -ForegroundColor Cyan
+Write-Host "  `$script:PSScriptRoot      = $script:PSScriptRoot" -ForegroundColor Gray
+Write-Host "  `$script:isWindowsPlatform = $script:isWindowsPlatform" -ForegroundColor Gray
+Write-Host "  `$script:msbuild           = $script:msbuild" -ForegroundColor Gray
+Write-Host "  `$script:7z                = $script:7z" -ForegroundColor Gray
+Write-Host "  `$script:nugetPE           = $script:nugetPE" -ForegroundColor Gray
+Write-Host "  `$script:decompiler        = $script:decompiler" -ForegroundColor Gray
+Write-Host "  `$script:decompilerType    = $script:decompilerType" -ForegroundColor Gray
+
