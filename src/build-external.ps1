@@ -4,9 +4,11 @@ param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
+$ErrorActionPreference="Stop"
+
 # How to run: .\build-external.ps1   or   .\build-external.ps1 -configuration Debug
 
-. .\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 # Use script:PSScriptRoot from build-include.ps1 (which forces symlink path on Linux)
 Push-Location $script:PSScriptRoot

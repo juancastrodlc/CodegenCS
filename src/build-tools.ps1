@@ -5,15 +5,18 @@ param(
     [Parameter(Mandatory=$False)][string]$dotnetcodegencsTargetFrameworks="net8"
 )
 
+$ErrorActionPreference="Stop"
+
 # CLI tool (dotnet-codegencs)
-# How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
+# How to run: .\build-tools.ps1   or   .\build-tools.ps1 -configuration Debug
 
-
-. .\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
+
+try {
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -97,5 +100,6 @@ if (Test-Path $codegencs) {
 	dotnet-codegencs --version
 }
 
-
-Pop-Location
+} finally {
+	Pop-Location
+}

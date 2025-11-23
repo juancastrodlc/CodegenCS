@@ -4,13 +4,14 @@ param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
+$ErrorActionPreference="Stop"
+
 # How to run:
 # .\build-core.ps1
 # or
 # .\build-core.ps1 -configuration Debug
 
-
-. .\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath

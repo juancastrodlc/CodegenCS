@@ -8,39 +8,10 @@ $ErrorActionPreference="Stop"
 
 $version = "3.5.2"
 
-# Detect 7z (cross-platform)
-$7z = $null
-if (Get-Command 7z -ErrorAction SilentlyContinue) {
-    $7z = (Get-Command 7z).Source
-} elseif (Get-Command 7za -ErrorAction SilentlyContinue) {
-    $7z = (Get-Command 7za).Source
-} elseif (Get-Command 7zr -ErrorAction SilentlyContinue) {
-    $7z = (Get-Command 7zr).Source
-} elseif (Test-Path "C:\Program Files\7-Zip\7z.exe") {
-    $7z = "C:\Program Files\7-Zip\7z.exe"
-}
-
-# Detect NuGet Package Explorer (Windows-only)
-$nugetPE = $null
-if (Test-Path "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe") {
-    $nugetPE = "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe"
-}
-
-# Detect decompiler tools
-$decompiler = $null
-$decompilerType = $null
-if (Test-Path "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe") {
-    $decompiler = "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe"
-    $decompilerType = "dnspy"
-} elseif (Get-Command ilspycmd -ErrorAction SilentlyContinue) {
-    $decompiler = (Get-Command ilspycmd).Source
-    $decompilerType = "ilspy"
-}
-
 # Source Generator(CodegenCS.SourceGenerator)
 # How to run: .\build-sourcegenerator.ps1
 
-. .\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath

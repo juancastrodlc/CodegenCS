@@ -8,33 +8,8 @@ $ErrorActionPreference="Stop"
 
 $version = "3.5.2"
 
-# Cross-platform tool paths
-if ($script:isWindowsPlatform) {
-    $nugetPE = "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe"
-    $7z = "C:\Program Files\7-Zip\7z.exe"
-    $decompiler = "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe"
-    $decompilerType = "dnspy"
-} else {
-    # On Linux, check for 7z variants (7z, 7za, 7zr) - NOT unzip (different syntax)
-    $7z = (Get-Command 7z -ErrorAction SilentlyContinue).Source
-    if (-not $7z) { $7z = (Get-Command 7za -ErrorAction SilentlyContinue).Source }
-    if (-not $7z) { $7z = (Get-Command 7zr -ErrorAction SilentlyContinue).Source }
-    if (-not $7z) {
-        Write-Warning "7z not found. Install with: sudo apt-get install p7zip-full"
-    }
-    $nugetPE = $null
-    # Check for ilspycmd (cross-platform .NET decompiler)
-    if (Get-Command ilspycmd -ErrorAction SilentlyContinue) {
-        $decompiler = (Get-Command ilspycmd).Source
-        $decompilerType = "ilspy"
-    } else {
-        $decompiler = $null
-        $decompilerType = $null
-    }
-}
-
 # MSBuild Task (CodegenCS.MSBuild)
-# How to run: .\build-msbuildtask.ps1
+# How to run: .\build-msbuild.ps1
 
 . $script:PSScriptRoot\build-include.ps1
 
@@ -50,6 +25,8 @@ if ($script:isWindowsPlatform) {
 gci $env:TEMP -r -filter CodegenCS.MSBuild.dll -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
 #gci "$($env:TEMP)\VBCSCompiler\AnalyzerAssemblyLoader" -r -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
 if (Test-Path .\packages\) { gci .\packages\ -filter CodegenCS.MSBuild.* | Remove-Item -Force -Recurse -ErrorAction Ignore }
+
+try {
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -254,6 +231,7 @@ if ($script:isWindowsPlatform) {
     Write-Host "Skipping MSBuild2 tests (Windows-only .NET Framework web application)" -ForegroundColor Yellow
 }
 
-
-Pop-Location
+} finally {
+	Pop-Location
+}
 

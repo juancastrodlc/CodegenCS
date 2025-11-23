@@ -2,12 +2,14 @@
 # FORCED PATH CONFIGURATION: Work exclusively in ~/source/repos/CodegenCS
 # ===================================================================
 if ($PSVersionTable.PSVersion.Major -ge 6 -and -not $IsWindows) {
-    # Force all build operations to occur in the symlink directory
+    # Force all build operations to occur in the symlink directory if it exists
     $FORCED_SRC_DIR = "$HOME/source/repos/CodegenCS/src"
-    Set-Location $FORCED_SRC_DIR
-    Write-Host "ENFORCED: Build will execute in $FORCED_SRC_DIR" -ForegroundColor Yellow
-    # Override PSScriptRoot to use forced directory instead of resolved real path
-    $script:PSScriptRoot = $FORCED_SRC_DIR
+    if (Test-Path $FORCED_SRC_DIR) {
+        Set-Location $FORCED_SRC_DIR
+        Write-Host "Running from $FORCED_SRC_DIR" -ForegroundColor Yellow
+        # Override PSScriptRoot to use forced directory instead of resolved real path
+        $script:PSScriptRoot = $FORCED_SRC_DIR
+    }
 }
 
 # Platform detection - export to caller's scope
@@ -50,4 +52,40 @@ if (-not (Test-Path $targetNugetExe)) {
 	$sourceNugetExe = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 	Invoke-WebRequest $sourceNugetExe -OutFile $targetNugetExe
 	Set-Alias nuget $targetNugetExe -Scope Global -Verbose
+}
+
+# ===================================================================
+# EXTERNAL TOOL DETECTION: 7z, NuGet Package Explorer, Decompilers
+# ===================================================================
+
+# Detect 7z (cross-platform archive tool)
+$script:7z = $null
+if (Get-Command 7z -ErrorAction SilentlyContinue) {
+    $script:7z = (Get-Command 7z).Source
+} elseif (Get-Command 7za -ErrorAction SilentlyContinue) {
+    $script:7z = (Get-Command 7za).Source
+} elseif (Get-Command 7zr -ErrorAction SilentlyContinue) {
+    $script:7z = (Get-Command 7zr).Source
+} elseif (Test-Path "C:\Program Files\7-Zip\7z.exe") {
+    $script:7z = "C:\Program Files\7-Zip\7z.exe"
+}
+if (-not $script:7z -and -not $script:isWindowsPlatform) {
+    Write-Warning "7z not found. Install with: sudo apt-get install p7zip-full"
+}
+
+# Detect NuGet Package Explorer (Windows-only GUI tool)
+$script:nugetPE = $null
+if ($script:isWindowsPlatform -and (Test-Path "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe")) {
+    $script:nugetPE = "C:\ProgramData\chocolatey\bin\NuGetPackageExplorer.exe"
+}
+
+# Detect decompiler tools
+$script:decompiler = $null
+$script:decompilerType = $null
+if ($script:isWindowsPlatform -and (Test-Path "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe")) {
+    $script:decompiler = "C:\ProgramData\chocolatey\lib\dnspyex\tools\dnSpy.Console.exe"
+    $script:decompilerType = "dnspy"
+} elseif (Get-Command ilspycmd -ErrorAction SilentlyContinue) {
+    $script:decompiler = (Get-Command ilspycmd).Source
+    $script:decompilerType = "ilspy"
 }

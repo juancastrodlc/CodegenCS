@@ -4,8 +4,10 @@ param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
+$ErrorActionPreference="Stop"
+
 # Visual Studio Extensions
-# How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
+# How to run: .\build-visualstudio.ps1   or   .\build-visualstudio.ps1 -configuration Debug
 
 
 . $script:PSScriptRoot\build-include.ps1

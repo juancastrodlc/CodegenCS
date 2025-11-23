@@ -4,14 +4,17 @@ param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
-# How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
+$ErrorActionPreference="Stop"
 
+# How to run: .\build-models.ps1   or   .\build-models.ps1 -configuration Debug
 
-. .\build-include.ps1
+. $script:PSScriptRoot\build-include.ps1
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
+
+try {
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -46,10 +49,12 @@ if (! $?) { throw "msbuild failed" }
 dotnet restore ".\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj"
 $build_args = @()
 if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
-$build_args += ".\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj", "/t:Restore", "/t:Build", "/t:Pack"
+$build_args += "./Models/CodegenCS.Models.NSwagAdapter/CodegenCS.Models.NSwagAdapter.csproj", "/t:Restore", "/t:Build", "/t:Pack"
 $build_args += "/p:PackageOutputPath=$packagesPath", "/p:Configuration=$configuration"
 $build_args += "/p:IncludeSymbols=true", "/verbosity:minimal", "/p:ContinuousIntegrationBuild=true"
 & $msbuild @build_args
 if (! $?) { throw "msbuild failed" }
 
-Pop-Location
+} finally {
+	Pop-Location
+}
