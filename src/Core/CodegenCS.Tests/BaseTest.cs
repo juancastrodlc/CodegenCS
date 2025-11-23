@@ -1,5 +1,6 @@
 ﻿using CodegenCS.IO;
 using CodegenCS.Models.DbSchema;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -147,5 +148,48 @@ internal class BaseTest
 
 
     #endregion
+    protected void AssertAreEqualNewLines(string v1, string v2)
+    {
+        Assert.AreEqual(v1.NormalizeLineEndings(),v2.NormalizeLineEndings());
+    }
 
+
+}
+
+internal static class BaseTestExtensions
+{
+    internal static string RemoveLeadingNewLines(this string value)
+    {
+        return NormalizeLineEndings(value)
+            .TrimStart(Environment.NewLine.ToCharArray());
+    }
+
+    /// <summary>
+    /// Normalizes line endings to Environment.NewLine for cross-platform test compatibility.
+    /// Converts all CRLF (\r\n) and LF (\n) to the current platform's line ending.
+    /// </summary>
+    internal static string NormalizeLineEndings(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        // Replace all line endings with Environment.NewLine
+        // First normalize CRLF to LF, then LF to Environment.NewLine
+        return text.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+    }
+
+    /// <summary>
+    /// Assert that two strings are equal after normalizing line endings.
+    /// This allows tests to pass on both Windows (CRLF) and Linux/macOS (LF).
+    /// </summary>
+    internal static void AssertEqualSystemLineEndings(this object _, string expected, string actual)
+    {
+        var expected_normal = expected.NormalizeLineEndings();
+        var actual_normal = actual.NormalizeLineEndings();
+        Assert.AreEqual(
+            expected_normal,
+            actual_normal,
+            "Expected {0} but received {1}", expected_normal, actual_normal
+        );
+    }
 }

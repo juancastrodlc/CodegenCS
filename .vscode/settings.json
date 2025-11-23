@@ -1,6 +1,6 @@
 {
     // C# Configuration - Using OmniSharp (C# extension with modern .NET)
-    "dotnet.defaultSolution": "src/CodegenCS.sln",
+    "dotnet.defaultSolution": "src/CodegenCS-Linux.slnf",
 
     // Enable semantic highlighting
     "editor.semanticHighlighting.enabled": true,
@@ -22,8 +22,8 @@
 
     // Legacy OmniSharp settings (if using old C# extension)
     "omnisharp.enableEditorConfigSupport": false,
-    "omnisharp.enableRoslynAnalyzers": false,
-
+    "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
+    "omnisharp.projectFilesExcludePattern": "**/VisualStudio/**",
     // Files to exclude from IntelliSense
     "files.exclude": {
         "**/bin": false,
@@ -156,5 +156,7 @@
         "chmod": false,
         "chown": false,
         "/^Remove-Item\\b/i": false
-    }
+    },
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
 }

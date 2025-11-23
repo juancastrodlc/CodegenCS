@@ -15,7 +15,7 @@ namespace CodegenCS.Tests.SchemaTests
         public async Task LoadValidDatabaseSchema()
         {
             string folder = GetCurrentFolder();
-            string jsonPath = Path.Combine(folder, @"..\..\..\Models\CodegenCS.Models.DbSchema.SampleDatabases\AdventureWorksSchema.json");
+            string jsonPath = Path.Combine(folder, @"../../../Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json");
             string jsonModel = File.ReadAllText(jsonPath);
             var dbSchema = await DatabaseSchema.TryParseAsync(jsonModel);
             //File.WriteAllText(jsonPath, JsonConvert.SerializeObject(dbSchema, Formatting.Indented));

@@ -244,8 +244,10 @@ namespace MyPocos
                 Testing {{var}}{0} {1} {3}
                    {5}
                 """);
-            Assert.AreEqual("Testing variable{0} {1} {3}\r\n   {5}", _w.GetContents());
+            AssertAreEqualNewLines("Testing variable{0} {1} {3}\r\n   {5}", _w.GetContents());
         }
+
+        
 
         [Test]
         public void LiteralBraces2()
@@ -380,9 +382,9 @@ namespace MyPocos
                 Line3
                 """);
 
-            Assert.AreEqual("Line1\r\nLine2\r\nLine3", _w.GetContents());
+            AssertAreEqualNewLines("Line1\r\nLine2\r\nLine3", _w.GetContents());
             _w.ClearLastLine();
-            Assert.AreEqual("Line1\r\nLine2\r\n", _w.GetContents());
+            AssertAreEqualNewLines("Line1\r\nLine2\r\n", _w.GetContents());
         }
         [Test]
         public void TestRemoveLastLine()
@@ -393,9 +395,9 @@ namespace MyPocos
                 Line3
                 """);
 
-            Assert.AreEqual("Line1\r\nLine2\r\nLine3", _w.GetContents());
+            AssertAreEqualNewLines("Line1\r\nLine2\r\nLine3", _w.GetContents());
             _w.RemoveLastLine();
-            Assert.AreEqual("Line1\r\nLine2", _w.GetContents());
+            AssertAreEqualNewLines("Line1\r\nLine2", _w.GetContents());
         }
         #endregion
     }

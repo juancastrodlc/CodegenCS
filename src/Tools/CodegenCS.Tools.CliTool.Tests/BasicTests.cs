@@ -17,9 +17,10 @@ namespace CodegenCS.Tools.CliTool.Tests
         {
             var result = await Run("/?");
             Assert.AreEqual(0, result.ExitCode);
+            // Tool always outputs "dotnet-codegencs.exe" in banner regardless of platform
             StringAssert.Contains($"dotnet-codegencs.exe version {typeof(DotNetTool.Program).Assembly.GetName().Version}", _stdOut);
             StringAssert.Contains($"CodegenCS.Core.dll version {typeof(CodegenCS.CodegenContext).Assembly.GetName().Version}", _stdOut);
-            StringAssert.Contains("Usage:\r\n  dotnet-codegencs [command] [options]\r\n", _stdOut);
+            StringAssert.Contains($"Usage:{Environment.NewLine}  dotnet-codegencs [command] [options]{Environment.NewLine}", _stdOut);
         }
 
         #region Template Clone
@@ -29,25 +30,27 @@ namespace CodegenCS.Tools.CliTool.Tests
             var result = await Run("template clone simplepocos");
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("""
-                Output file 'SimplePocos.cs'
+                Output file 'net9.0/SimplePocos.cs'
                 Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
-                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
+                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'net9.0/SimplePocos.cs'
                 Building 'SimplePocos.cs'...
                 """, _stdOut);
             StringAssert.Contains("""
-                Successfully built template into 'SimplePocos.dll'.
+                Successfully built template into 'net9.0/SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
+                """,_stdOut);
+            StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
                 Template entry-point: 'SimplePOCOGenerator.Render()'...
                 To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'
                 For help: 'dotnet-codegencs model dbschema extract /?'
                 For a sample schema please check out: 'https://github.com/Drizin/CodegenCS/blob/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json'
-                To run this template use: 'dotnet-codegencs template run SimplePocos.dll <DatabaseSchemaModel>'
+                To run this template use: 'dotnet-codegencs template run net9.0/SimplePocos.dll <DatabaseSchemaModel>'
                 For help: 'dotnet-codegencs template run /?'
                 """, _stdOut);
             StringAssert.Contains("To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'", _stdOut);
-            FileAssert.Exists("SimplePocos.cs");
-            FileAssert.Exists("SimplePocos.dll");
+            FileAssert.Exists("net9.0/SimplePocos.cs");
+            FileAssert.Exists("net9.0/SimplePocos.dll");
         }
 
         [Test]
@@ -56,9 +59,9 @@ namespace CodegenCS.Tools.CliTool.Tests
             var result = await Run("template clone https://github.com/CodegenCS/Templates/DatabaseSchema/SimplePocos/SimplePocos.cs");
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("""
-                Output file 'SimplePocos.cs'
+                Output file 'net9.0/SimplePocos.cs'
                 Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
-                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
+                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'net9.0/SimplePocos.cs'
                 Building 'SimplePocos.cs'...
                 """, _stdOut);
             StringAssert.Contains("""
@@ -113,7 +116,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             if (File.Exists(localPath))
                 File.Delete(localPath);
             await new WebClient().DownloadFileTaskAsync(new Uri(url), localPath);
-            FileAssert.Exists(localPath);           
+            FileAssert.Exists(localPath);
         }
 
         [Test]
@@ -142,7 +145,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
                 class MyTemplate
                 {
-                    async Task<FormattableString> Main(ILogger logger) 
+                    async Task<FormattableString> Main(ILogger logger)
                     {
                         XmlDocument doc = new XmlDocument();
                         await logger.WriteLineAsync($"Generating MyTemplate...");
@@ -248,7 +251,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
                 class MyTemplate
                 {
-                    async Task<FormattableString> Main(ILogger logger) 
+                    async Task<FormattableString> Main(ILogger logger)
                     {
                         XmlDocument doc = new XmlDocument();
                         await logger.WriteLineAsync($"Generating MyTemplate...");
@@ -360,7 +363,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains($"Successfully executed template '{templateAlias}.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists($"{templateAlias}.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(($"{templateAlias}.g.cs"))); 
+            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(($"{templateAlias}.g.cs")));
         }
         #endregion
     }

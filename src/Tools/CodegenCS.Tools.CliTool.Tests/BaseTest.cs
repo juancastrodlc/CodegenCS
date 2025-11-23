@@ -36,7 +36,10 @@ internal class BaseTest
         _stdOutBuffer = new StringBuilder();
         _stdErrBuffer = new StringBuilder();
 
-        var result = await Cli.Wrap(Path.Combine(Directory.GetCurrentDirectory(), "dotnet-codegencs.exe"))
+        string exeName = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+            ? "dotnet-codegencs.exe"
+            : "dotnet-codegencs";
+        var result = await Cli.Wrap(Path.Combine(Directory.GetCurrentDirectory(), exeName))
             .WithArguments(arguments)
             .WithWorkingDirectory(Directory.GetCurrentDirectory())
             .WithValidation(CommandResultValidation.None)
