@@ -1,12 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Skip this project on non-Windows platforms -->
-  <PropertyGroup>
-    <BuildDependsOn Condition="'$(OS)' != 'Windows_NT'">SkipBuild</BuildDependsOn>
-  </PropertyGroup>
-  <Target Name="SkipBuild">
-    <Message Text="Skipping VS2019Extension build on non-Windows platform" Importance="high" />
+  <Target Name="Build" Condition="'$(OS)' != 'Windows_NT'">
+    <Message Text="Skipping VS2019Extension build on non-Windows platform ($(OS))" Importance="high" />
   </Target>
+  <Target Name="Rebuild" Condition="'$(OS)' != 'Windows_NT'">
+    <Message Text="Skipping VS2019Extension rebuild on non-Windows platform ($(OS))" Importance="high" />
+  </Target>
+  <Target Name="Clean" Condition="'$(OS)' != 'Windows_NT'">
+    <Message Text="Skipping VS2019Extension clean on non-Windows platform ($(OS))" Importance="high" />
+  </Target>
+  <Target Name="VSTest" Condition="'$(OS)' != 'Windows_NT'">
+    <Message Text="Skipping VS2019Extension tests on non-Windows platform ($(OS))" Importance="high" />
+  </Target>
+  
+  <!-- Original Build target for Windows -->
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -212,9 +220,9 @@
       <Name>CodegenCS.Runtime.VisualStudio</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="'$(OS)' == 'Windows_NT'" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' And '$(OS)' == 'Windows_NT'" />
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <PreBuildEvent>copy $(ProjectDir)\source.extension.$(Configuration).vsixmanifest $(ProjectDir)\source.extension.vsixmanifest</PreBuildEvent>
 	<PostBuildEvent>del $(ProjectDir)\source.extension.vsixmanifest</PostBuildEvent>
   </PropertyGroup>

@@ -9,6 +9,8 @@
     "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
     "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles",
     "dotnet.codeLens.enableReferencesCodeLens": false,
+    "dotnet.maxProjectFileCountForDiagnosticAnalysis": 1000,
+    "dotnet.backgroundAnalysis.projectAnalysisEnabled": false,
     "dotnet.inlayHints.enableInlayHintsForParameters": false,
     "dotnet.inlayHints.enableInlayHintsForLiteralParameters": false,
     "dotnet.inlayHints.enableInlayHintsForIndexerParameters": false,
@@ -67,19 +69,25 @@
     // Terminal
     "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.env.linux": {
-        "TMPDIR": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp",
+        "TMP": "${workspaceFolder}/.tmp",
+        "TEMP": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.osx": {
-        "TMPDIR": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp",
+        "TMP": "${workspaceFolder}/.tmp",
+        "TEMP": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.windows": {
-        "TMPDIR": "${workspaceFolder}\\.tmp"
+        "TMP": "${workspaceFolder}\\.tmp",
+        "TEMP": "${workspaceFolder}\\.tmp"
     },
     "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": false,
     "dotnet.completion.showNameCompletionSuggestions": true,
     "dotnet.formatting.organizeImportsOnFormat": false,
     "dotnet.projects.enableAutomaticRestore": false,
     "dotnet-test-explorer.testProjectPath": "**/*Tests.csproj",
+    "dotnet.unitTests.runSettingsPath": "${workspaceFolder}/.vscode/test.runsettings",
 
     // Environment variables for C# Dev Kit test debugging
     "dotnet.unitTestDebuggingOptions": {
@@ -99,8 +107,8 @@
         "TMP": "${workspaceFolder}/.tmp",
         "TEMP": "${workspaceFolder}/.tmp"
     },
-    "dotnet.server.useOmnisharp": true,
-    "omnisharp.useModernNet": true,
+    "dotnet.server.useOmnisharp": false,
+    "omnisharp.useModernNet": false,
     "csharp.semanticHighlighting.enabled": true,
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -135,5 +143,18 @@
 
     // Disable Copilot auto-completions (can re-enable via status bar or Ctrl+I for manual trigger)
     "github.copilot.editor.enableAutoCompletions": false,
-    "dotnet.preferCSharpExtension": false
+
+    // Auto-approve safe terminal commands, require approval for dangerous ones
+    "chat.tools.terminal.autoApprove": {
+        "rm": false,
+        "rmdir": false,
+        "del": false,
+        "kill": false,
+        "curl": false,
+        "wget": false,
+        "eval": false,
+        "chmod": false,
+        "chown": false,
+        "/^Remove-Item\\b/i": false
+    }
 }

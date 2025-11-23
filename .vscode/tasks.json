@@ -5,7 +5,10 @@
             "label": "create-tmp-dir",
             "type": "shell",
             "command": "mkdir",
-            "args": ["-p", "${workspaceFolder}/.tmp"],
+            "args": [
+                "-p",
+                "${workspaceFolder}/.tmp"
+            ],
             "windows": {
                 "command": "powershell",
                 "args": [
@@ -20,7 +23,9 @@
         },
         {
             "label": "build",
-            "dependsOn": ["create-tmp-dir"],
+            "dependsOn": [
+                "create-tmp-dir"
+            ],
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -33,7 +38,9 @@
         },
         {
             "label": "build-cli",
-            "dependsOn": ["create-tmp-dir"],
+            "dependsOn": [
+                "create-tmp-dir"
+            ],
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -46,7 +53,9 @@
         },
         {
             "label": "test",
-            "dependsOn": ["create-tmp-dir"],
+            "dependsOn": [
+                "create-tmp-dir"
+            ],
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -61,7 +70,9 @@
             },
             "options": {
                 "env": {
-                    "TMPDIR": "${workspaceFolder}/.tmp"
+                    "TMPDIR": "${workspaceFolder}/.tmp",
+                    "TMP": "${workspaceFolder}/.tmp",
+                    "TEMP": "${workspaceFolder}/.tmp"
                 }
             }
         },
@@ -69,8 +80,37 @@
             "label": "show-workspace-folder",
             "type": "shell",
             "command": "echo",
-            "args": ["${workspaceFolder}"],
+            "args": [
+                "${workspaceFolder}"
+            ],
             "problemMatcher": []
+        },
+        {
+            "label": "dotnet: build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/CodegenCS.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/maxcpucount:1"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "create-tmp-dir"
+            ],
+            "options": {
+                "env": {
+                    "TMPDIR": "${workspaceFolder}/.tmp",
+                    "TMP": "${workspaceFolder}/.tmp",
+                    "TEMP": "${workspaceFolder}/.tmp"
+                }
+            }
         }
     ]
 }
