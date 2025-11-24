@@ -385,7 +385,7 @@ jobs:
 - [x] Configure `version.json`:
   ```json
   {
-    "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+    "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
     "version": "4.0-alpha",
     "publicReleaseRefSpec": [
       "^refs/heads/master$",
@@ -398,9 +398,10 @@ jobs:
     }
   }
   ```
-- [x] Remove hardcoded `<Version>` tags from .csproj files
+- [x] Remove hardcoded `<Version>` tags from .csproj files (removed from 14 projects)
 - [x] Add `<PackageReference Include="Nerdbank.GitVersioning" />` to Directory.Build.props
-- [ ] Test version generation: `nbgv get-version`
+- [x] Test version generation: `nbgv get-version` (verified: generates 4.0.0.x versions)
+- [x] Merge duplicate Directory.build.props files (removed lowercase version)
 - [ ] Update build scripts to use nbgv-generated versions
 - [ ] Document versioning strategy in repository
 
