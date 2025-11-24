@@ -345,7 +345,8 @@ ASALocalRun/
 !**/Snapshots/*.cs
 
 /src/Models/CodegenCS.Models.NSwagAdapter/CodegenCS.Models.NSwagAdapter.xml
-dotnet-tools.json
+# Keep track of dotnet tool manifests for reproducible builds
+# dotnet-tools.json
 /Samples/PrebuildEvent/DapperExtensionPocos.dll
 /src/MSBuild/CodegenCS.MSBuild/CodegenCS.MSBuild.xml
 /nuget.exe

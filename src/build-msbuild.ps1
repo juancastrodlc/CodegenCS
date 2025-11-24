@@ -6,12 +6,70 @@ param(
 
 $ErrorActionPreference="Stop"
 
-$version = "3.5.2"
-
 # MSBuild Task (CodegenCS.MSBuild)
 # How to run: .\build-msbuild.ps1
 
 . $script:PSScriptRoot\build-include.ps1
+
+# Validate required tools for cross-platform build
+
+# Check for 7zip (should have been offered for installation in build-include.ps1)
+if (-not $script:7z) {
+    Write-Host ""
+    Write-Host "ERROR: 7-Zip is required but not found." -ForegroundColor Red
+    Write-Host "The build-include.ps1 script should have offered to install it." -ForegroundColor Yellow
+    if ($script:isWindowsPlatform) {
+        Write-Host "Manual installation options:" -ForegroundColor Yellow
+        Write-Host "  Chocolatey: choco install 7zip" -ForegroundColor Gray
+        Write-Host "  Winget: winget install 7zip.7zip" -ForegroundColor Gray
+        Write-Host "  Direct: https://www.7-zip.org/download.html" -ForegroundColor Gray
+    } else {
+        Write-Host "Install via package manager:" -ForegroundColor Yellow
+        Write-Host "  Ubuntu/Debian: sudo apt-get install p7zip-full" -ForegroundColor Gray
+        Write-Host "  macOS: brew install p7zip" -ForegroundColor Gray
+    }
+    Write-Host ""
+    throw "Required tool '7z' not found. Cannot continue."
+}
+
+# Offer to install ilspycmd if not found
+if (-not $script:decompiler) {
+    $installed = Install-DotnetTool -ToolName "ilspycmd" -PackageId "ilspycmd" -Description "Cross-platform .NET decompiler for testing"
+    if ($installed) {
+        # Re-check if tool is available
+        if (Test-DotnetTool "ilspycmd") {
+            $script:decompiler = "ilspycmd"
+            $script:decompilerType = "ilspy"
+        }
+    }
+    
+    if (-not $script:decompiler) {
+        Write-Host ""
+        Write-Host "ERROR: Required tool 'ilspycmd' not found." -ForegroundColor Red
+        Write-Host "Cannot continue without a decompiler." -ForegroundColor Red
+        throw "Required tool 'ilspycmd' not found. Cannot continue."
+    }
+}
+
+if (-not $script:nugetPackageVersion) {
+    Write-Host ""
+    Write-Host "ERROR: Could not determine package version from nbgv." -ForegroundColor Red
+    Write-Host "This could mean:" -ForegroundColor Yellow
+    Write-Host "  1. nbgv was just installed and requires a terminal restart" -ForegroundColor Gray
+    Write-Host "  2. version.json is not properly configured" -ForegroundColor Gray
+    Write-Host "  3. Not in a git repository" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "If nbgv was just installed, please restart your terminal and try again." -ForegroundColor Cyan
+    Write-Host ""
+    throw "Could not determine package version."
+}
+
+$version = $script:nugetPackageVersion
+
+# Set up decompiler command (using dotnet prefix for local tools)
+# For local tools, we invoke as: dotnet ilspycmd <args>
+$decompilerCmd = "dotnet"
+$decompilerTool = $script:decompiler  # "ilspycmd"
 
 # Use the symlink-aware path from build-include.ps1
 Push-Location $script:PSScriptRoot
@@ -156,17 +214,9 @@ Write-Host "------------" -ForegroundColor Yellow
 
 if (-not (gci ..\Samples\MSBuild1\*.g.cs)){ throw "Template failed (classes were not added to the compilation)" }
 
-if ($decompiler) {
-    if ($decompilerType -eq "dnspy") {
-        & $decompiler ..\Samples\MSBuild1\bin\$configuration\net8.0\MSBuild1.dll -t MyFirstClass
-        if (! $?) { throw "Template failed (classes were not added to the compilation)" }
-    } elseif ($decompilerType -eq "ilspy") {
-        Write-Host "Decompiling with ILSpy..." -ForegroundColor Cyan
-        & $decompiler ../Samples/MSBuild1/bin/$configuration/net8.0/MSBuild1.dll -t MyFirstClass 2>&1 | Write-Output
-    }
-} else {
-    Write-Warning "Decompiler not available. Install ilspycmd with: dotnet tool install -g ilspycmd"
-}
+Write-Host "Decompiling with $decompilerTool..." -ForegroundColor Cyan
+& $decompilerCmd $decompilerTool ..\Samples\MSBuild1\bin\$configuration\net8.0\MSBuild1.dll -t MyFirstClass 2>&1 | Write-Output
+if (! $?) { throw "Template failed (classes were not added to the compilation)" }
 
 # Test with SDK-Project using dotnet build (.NET Core)
 Remove-Item ..\Samples\MSBuild1\*.g.cs -ErrorAction Ignore
@@ -183,17 +233,9 @@ Write-Host "------------" -ForegroundColor Yellow
 
 if (-not (gci ..\Samples\MSBuild1\*.g.cs)){ throw "Template failed (classes were not added to the compilation)" }
 
-if ($decompiler) {
-    if ($decompilerType -eq "dnspy") {
-        & $decompiler ..\Samples\MSBuild1\bin\$configuration\net8.0\MSBuild1.dll -t MyFirstClass
-        if (! $?) { throw "Template failed (classes were not added to the compilation)" }
-    } elseif ($decompilerType -eq "ilspy") {
-        Write-Host "Decompiling with ILSpy..." -ForegroundColor Cyan
-        & $decompiler ../Samples/MSBuild1/bin/$configuration/net8.0/MSBuild1.dll -t MyFirstClass 2>&1 | Write-Output
-    }
-} else {
-    Write-Warning "Decompiler not available. Install ilspycmd with: dotnet tool install -g ilspycmd"
-}
+Write-Host "Decompiling with $decompilerTool..." -ForegroundColor Cyan
+& $decompilerCmd $decompilerTool ..\Samples\MSBuild1\bin\$configuration\net8.0\MSBuild1.dll -t MyFirstClass 2>&1 | Write-Output
+if (! $?) { throw "Template failed (classes were not added to the compilation)" }
 
 # Test with non-SDK-Project (Microsoft Framework Web Application) using msbuild (.NET Framework)
 # This test is Windows-only as it requires Visual Studio MSBuild targets
@@ -201,8 +243,8 @@ if ($script:isWindowsPlatform) {
     Remove-Item ..\Samples\MSBuild2\*.g.cs -ErrorAction Ignore
     Remove-Item ..\Samples\MSBuild2\*.generated.cs -ErrorAction Ignore
     #dotnet clean ..\Samples\MSBuild2\WebApplication.csproj
-    #dotnet restore ..\Samples\MSBuild2\WebApplication.csproj
-    nuget restore -PackagesDirectory .\packages ..\Samples\MSBuild2\WebApplication.csproj
+    # Use msbuild /t:Restore instead of nuget for cross-platform compatibility
+    # nuget restore -PackagesDirectory .\packages ..\Samples\MSBuild2\WebApplication.csproj
     $build_args = @()
     if ($msbuild -eq "dotnet") { $build_args += "msbuild" }
     $build_args += "..\Samples\MSBuild2\WebApplication.csproj", "/t:Restore", "/t:Rebuild"
@@ -214,17 +256,9 @@ if ($script:isWindowsPlatform) {
 
     if (-not (gci ..\Samples\MSBuild2\*.g.cs)){ throw "Template failed (classes were not added to the compilation)" }
 
-    if ($decompiler) {
-        if ($decompilerType -eq "dnspy") {
-            & $decompiler ..\Samples\MSBuild2\bin\WebApplication.dll -t MyFirstClass
-            if (! $?) { throw "Template failed (classes were not added to the compilation)" }
-        } elseif ($decompilerType -eq "ilspy") {
-            Write-Host "Decompiling with ILSpy..." -ForegroundColor Cyan
-            & $decompiler ../Samples/MSBuild2/bin/WebApplication.dll -t MyFirstClass 2>&1 | Write-Output
-        }
-    } else {
-        Write-Warning "Decompiler not available. Install ilspycmd with: dotnet tool install -g ilspycmd"
-    }
+    Write-Host "Decompiling with $decompilerTool..." -ForegroundColor Cyan
+    & $decompilerCmd $decompilerTool ..\Samples\MSBuild2\bin\$configuration\net472\WebApplication.dll -t MyFirstClass 2>&1 | Write-Output
+    if (! $?) { throw "Template failed (classes were not added to the compilation)" }
 
     # Test with non-SDK-Project (Microsoft Framework Web Application) using dotnet build (.NET Core) - doesnt work
 } else {
