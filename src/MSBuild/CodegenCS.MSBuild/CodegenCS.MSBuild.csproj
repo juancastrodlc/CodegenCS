@@ -13,7 +13,6 @@
     <Description>CodegenCS MSBuild Task can be used to augment code (generating more code) during compilation.</Description>
     <Copyright>Rick Drizin</Copyright>
     <Company>Rick Drizin</Company>
-    <Version>3.5.2</Version>
     <DocumentationFile>CodegenCS.MSBuild.xml</DocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
