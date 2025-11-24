@@ -65,3 +65,55 @@ This project uses Nerdbank.GitVersioning (nbgv):
 - Do not manually edit `<Version>` tags in `.csproj` files
 - Build automatically generates version from git history
 - Use `dotnet nbgv get-version` to check current version
+
+## Dependency Injection Principles
+
+This project uses Testably.Abstractions for file system abstraction and follows strict DI principles:
+
+### Pure Constructor Injection - REQUIRED
+
+**✅ ALWAYS DO THIS**:
+```csharp
+// Primary constructor with ALL required dependencies (no optional parameters)
+public MyClass(IFileSystem fileSystem, ILogger logger)
+{
+    _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+}
+
+// Optional: Convenience constructor for backward compatibility (delegates to primary)
+public MyClass() : this(new FileSystem(), new ConsoleLogger()) { }
+```
+
+**❌ NEVER DO THIS** - Anti-patterns:
+```csharp
+// Anti-pattern #1: Optional parameters with null-coalescing
+public MyClass(IFileSystem fileSystem = null)  // DON'T
+{
+    _fileSystem = fileSystem ?? new FileSystem();  // Hides dependencies
+}
+
+// Anti-pattern #2: Multiple constructors with different dependency sets
+public MyClass(IFileSystem fileSystem) { }  // DON'T
+public MyClass(ILogger logger) { }  // Which is primary?
+public MyClass(IFileSystem fileSystem, ILogger logger) { }  // Ambiguous
+```
+
+### Why Pure Constructor Injection
+
+1. **Explicit dependencies** - Clear what each class needs
+2. **Single composition root** - One place creates real implementations
+3. **Testability** - Easy to pass mocks to primary constructor
+4. **Null safety** - ArgumentNullException makes requirements explicit
+5. **DI container friendly** - No ambiguity about which constructor to use
+6. **Maintainability** - Dependency graph is clear and traceable
+
+### File System Abstraction
+
+- Use `IFileSystem` from Testably.Abstractions
+- Inject via constructor (never use optional parameters)
+- Production: pass `new FileSystem()`
+- Testing: pass `new MockFileSystem()`
+- Register in DependencyContainer: `container.RegisterSingleton<IFileSystem>(fileSystem)`
+
+See `docs/development/filesystem-abstraction-roadmap.md` for migration details.

@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Assert = NUnit.Framework.Legacy.ClassicAssert;
+using Path = System.IO.Path;
 
 namespace CodegenCS.Tests;
 
 internal class BaseTest
 {
     protected static string GetCurrentFolder([CallerFilePath] string path = null) => Path.GetDirectoryName(path);
-
     #region Sample Inputs
     #region DatabaseSchema
     public DatabaseSchema MyDbSchema { get; } =

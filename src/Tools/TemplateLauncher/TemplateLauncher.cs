@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using CodegenCS.IO;
 using CodegenCS.Runtime.Reflection;
 using ExecutionContext = CodegenCS.Runtime.ExecutionContext;
+using Path= System.IO.Path;
 
 namespace CodegenCS.TemplateLauncher
 {
@@ -78,7 +79,7 @@ namespace CodegenCS.TemplateLauncher
             /// Path for Template (DLL that will be executed)
             /// </summary>
             public string Template { get; set; }
-            
+
             /// <summary>
             /// Path for the Models (if any)
             /// </summary>
@@ -124,7 +125,7 @@ namespace CodegenCS.TemplateLauncher
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="templateDll"></param>
         /// <param name="providedModels">If there are multiple constructors or multiple entrypoints it will pick the overload where the number of provided models match the expected models</param>
@@ -151,7 +152,7 @@ namespace CodegenCS.TemplateLauncher
             await _logger?.WriteLineAsync(ConsoleColor.Cyan, $"Template entry-point: {ConsoleColor.White}'{_entryPointClass.Name}.{_entryPointMethod.Name}()'{PREVIOUS_COLOR}...");
 
             if (_templatingInterface != null) // old interfaces already define _expectedModels/_model1Type/_model2Type
-            {                
+            {
                 //TODO: check that constructor doesn't get same models that are expected by Render entrypoint...
                 return new TemplateLoadResponse() { ReturnCode = 0, Model1Type = _model1Type, Model2Type = _model2Type };
             }
@@ -169,7 +170,7 @@ namespace CodegenCS.TemplateLauncher
 
 
 
-            // Models required by the entry point method 
+            // Models required by the entry point method
             var entrypointModels = _entryPointMethod.GetParameters().Select(p => p.ParameterType).Where(p => _modelFactory.CanCreateModel(p)).ToList();
 
             // Models required by ctor
@@ -201,7 +202,7 @@ namespace CodegenCS.TemplateLauncher
         {
 
             if (_entryPointMethod != null && _entryPointClass != null) // previously calculated
-                return true; 
+                return true;
 
             var asm = Assembly.LoadFile(_templateFile.FullName); // LoadFile will automatically load a matching pdb file if available (filename looked up based on assemblyName defined in CSharpCompilation)
 
@@ -391,7 +392,7 @@ namespace CodegenCS.TemplateLauncher
                 ParameterType = type;
             }
         }
-        
+
         /// <summary>
         /// Given a list of overloads (for method or constructor) will find the best match
         /// </summary>
@@ -458,7 +459,7 @@ namespace CodegenCS.TemplateLauncher
             _ctx.DefaultOutputFile.RelativePath = _defaultOutputFile;
 
             _ctx.DependencyContainer.ParentContainer = _dependencyContainer;
-            
+
             _dependencyContainer.RegisterSingleton<ILogger>(_logger);
 
             // CommandLineArgs can be injected in the template constructor (or in any dependency like "TemplateArgs" nested class), and will bring all command-line arguments that were not captured by dotnet-codegencs tool
@@ -608,7 +609,7 @@ namespace CodegenCS.TemplateLauncher
                     {
                         Assembly.LoadFrom(reference);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine(ex.ToString());
                     }
@@ -682,13 +683,13 @@ namespace CodegenCS.TemplateLauncher
                     Type returnType = _entryPointMethod.ReturnType;
                     object result = _entryPointMethod.Invoke(instance, entryPointMethodArgs);
                     Type[] genericTypes;
-                    
+
                     // Tasks should be executed/awaited
                     if (IsAssignableToType(returnType, typeof(Task)))
                     {
                         var task = (Task)result;
                         await task;
-                        
+
                         // and result should be unwrapped
                         if (IsAssignableToGenericType(returnType, typeof(Task<>)) && (genericTypes = returnType.GetGenericArguments()) != null)
                         {
@@ -727,7 +728,7 @@ namespace CodegenCS.TemplateLauncher
                             return (int)result;
                         }
                     }
-                    else if (returnType == typeof(void)) 
+                    else if (returnType == typeof(void))
                     {
                         // a void method should write directly to output streams
                     }

@@ -46,6 +46,9 @@
         "*.csx": "csharp"
     },
 
+    // Trailing Spaces extension settings - disable live trimming
+    "trailing-spaces.liveMatching": false,
+
     // Editor settings
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
@@ -158,7 +161,7 @@
         "/^Remove-Item\\b/i": false
     },
     "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 1000,
+    "files.autoSaveDelay": 3000,
     "github.copilot.enable": {
         "*": false
     },

@@ -50,7 +50,7 @@ namespace CodegenCS.IO
                     else
                         throw new Exception($"{nameof(context.DefaultOutputFile.RelativePath)} was not defined for {nameof(ICodegenOutputFile)}");
                 }
-                string absolutePath = Path.Combine(outputFolder, file.RelativePath);
+                string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
                 FileInfo fi = new FileInfo(absolutePath);
                 absolutePath = fi.FullName;
 
@@ -70,7 +70,7 @@ namespace CodegenCS.IO
             // Then save.
             foreach (var file in context.OutputFiles)
             {
-                string absolutePath = Path.Combine(outputFolder, file.RelativePath);
+                string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
                 FileInfo fi = new FileInfo(absolutePath);
                 absolutePath = fi.FullName;
                 savedFiles.Add(absolutePath);
@@ -110,7 +110,7 @@ namespace CodegenCS.IO
                 encoding = Encoding.UTF8;
 
             outputFolder = new DirectoryInfo(outputFolder).FullName;
-            string absolutePath = Path.Combine(outputFolder, file.RelativePath);
+            string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
             FileInfo fi = new FileInfo(absolutePath);
             absolutePath = fi.FullName;
 

@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Assert = NUnit.Framework.Legacy.ClassicAssert;
+using Path = System.IO.Path;
 
 namespace CodegenCS.Tests.CoreTests
 {
@@ -66,7 +67,7 @@ namespace CodegenCS.Tests.CoreTests
                 f1.Write("Test");
             }
             var f2 = _ctx["Subfolder/File2.cs"];
-            
+
             var f3 = _ctx["SUBFOLDER/File2.cs"];
 
             Assert.That(_ctx.OutputFiles.Count == 2);
