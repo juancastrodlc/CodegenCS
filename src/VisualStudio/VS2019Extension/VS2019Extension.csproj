@@ -126,7 +126,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.69" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2186" />
     <PackageReference Include="InterpolatedColorConsole" Version="1.0.3" />
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
