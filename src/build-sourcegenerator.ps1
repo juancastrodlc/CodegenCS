@@ -6,12 +6,13 @@ param(
 
 $ErrorActionPreference="Stop"
 
-$version = "3.5.2"
-
 # Source Generator(CodegenCS.SourceGenerator)
 # How to run: .\build-sourcegenerator.ps1
 
 . $script:PSScriptRoot\build-include.ps1
+
+# Get version from nbgv
+$version = $script:nugetPackageVersion
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath

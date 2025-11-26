@@ -1,22 +1,25 @@
-$expectedVersion="3.5.0"
+# Note: This sample uses dotnet-codegencs CLI tool.
+# Version is managed by the local tool manifest (.config/dotnet-tools.json) if available,
+# or can be installed globally with: dotnet tool install --global dotnet-codegencs
+# For global installation you may want to specify --version
 
 # How to install tool globally:
-# dotnet tool install --global dotnet-codegencs --version $expectedVersion
+# dotnet tool install --global dotnet-codegencs
 
 # Let's check if it's already there
 #$alreadyInstalled = $(dotnet tool list -g dotnet-codegencs) | out-string -stream | select-string $expectedVersion
 $codegencs = "$($env:USERPROFILE)\.dotnet\tools\dotnet-codegencs.exe"
 
-# If not there install globally
+# If not there install globally (without version to get latest)
 if (-not (Test-Path $codegencs)) {
-    dotnet tool install --global dotnet-codegencs --version $expectedVersion
+    dotnet tool install --global dotnet-codegencs
     $codegencs = "$($env:USERPROFILE)\.dotnet\tools\dotnet-codegencs.exe"
 }
 
 # Or if global installation failed install locally (in a manifest)
 if (-not (Test-Path $codegencs)) {
     dotnet new tool-manifest
-    dotnet tool install dotnet-codegencs --version $expectedVersion
+    dotnet tool install dotnet-codegencs
     $codegencs = "dotnet-codegencs" # all tools added to the manifest will be automatically available
 }
 

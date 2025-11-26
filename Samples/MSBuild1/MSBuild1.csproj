@@ -5,7 +5,8 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CodegenCS.MSBuild" Version="3.5.2" PrivateAssets="All" />
+		<!-- Use wildcard to pick up latest version from packages-local -->
+		<PackageReference Include="CodegenCS.MSBuild" Version="*" PrivateAssets="All" />
 	</ItemGroup>
 
 </Project>
