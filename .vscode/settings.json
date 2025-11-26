@@ -72,14 +72,10 @@
     // Terminal
     "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.env.linux": {
-        "TMPDIR": "${workspaceFolder}/.tmp",
-        "TMP": "${workspaceFolder}/.tmp",
-        "TEMP": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.osx": {
-        "TMPDIR": "${workspaceFolder}/.tmp",
-        "TMP": "${workspaceFolder}/.tmp",
-        "TEMP": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp"
     },
     "terminal.integrated.env.windows": {
         "TMP": "${workspaceFolder}\\.tmp",
@@ -95,9 +91,7 @@
     // Environment variables for C# Dev Kit test debugging
     "dotnet.unitTestDebuggingOptions": {
         "env": {
-            "TMPDIR": "${workspaceFolder}/.tmp",
-            "TMP": "${workspaceFolder}/.tmp",
-            "TEMP": "${workspaceFolder}/.tmp"
+            "TMPDIR": "${workspaceFolder}/.tmp"
         }
     },
 
@@ -106,9 +100,7 @@
 
     // For older test explorer extensions
     "dotnet-test-explorer.envVars": {
-        "TMPDIR": "${workspaceFolder}/.tmp",
-        "TMP": "${workspaceFolder}/.tmp",
-        "TEMP": "${workspaceFolder}/.tmp"
+        "TMPDIR": "${workspaceFolder}/.tmp"
     },
     "dotnet.server.useOmnisharp": false,
     "omnisharp.useModernNet": false,

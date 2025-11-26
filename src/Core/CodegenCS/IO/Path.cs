@@ -3,7 +3,7 @@ using System.IO.Abstractions;
 
 namespace CodegenCS.IO
 {
-    public static class Path_
+    public static class Pathy
     {
         internal static IPath CurrentPath {get; private set;}
         public static void Reset()

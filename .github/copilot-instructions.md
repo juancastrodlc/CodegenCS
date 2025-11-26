@@ -15,6 +15,12 @@ Exception: The following operations are acceptable:
 - `git commit --amend --no-edit` to add forgotten files to the last commit
 - `git push --force-with-lease` when explicitly requested for fixing commit messages
 
+**CRITICAL REMINDER - Before Pushing**:
+- ⚠️ Check `BEFORE-PUSH.md` file at repository root for any pending cleanup tasks
+- ⚠️ Current pending: Fix `Path_` references to proper naming before pushing
+- Files using `Path_`: `Path.cs`, `IOExtensions.cs`, `TestablePathTests.cs`
+- Must squash commits to avoid pushing temporary naming conventions
+
 ## Build System
 
 This project uses PowerShell scripts for cross-platform builds:

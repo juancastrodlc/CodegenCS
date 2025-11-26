@@ -11,7 +11,7 @@ namespace CodegenCS.Tests.IO
 {
     public class TestablePathTests
     {
-        Path_.TestablePath testablePath;
+        Pathy.TestablePath testablePath;
         IFileSystem mockFileSystem;
         [SetUp]
         public void Setup()
@@ -24,13 +24,8 @@ namespace CodegenCS.Tests.IO
                 .WithSubdirectory("tests")
                 .Initialized(d => d.WithFile("Tests.cs"))
                 .WithFile("README.md");
-            testablePath = new Path_.TestablePath(mockFileSystem.Path);
+            testablePath = new Pathy.TestablePath(mockFileSystem.Path);
         }
 
-        [Test]
-        public void Test1()
-        {
-            Assert.Fail();
-        }
     }
 }

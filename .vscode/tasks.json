@@ -70,9 +70,7 @@
             },
             "options": {
                 "env": {
-                    "TMPDIR": "${workspaceFolder}/.tmp",
-                    "TMP": "${workspaceFolder}/.tmp",
-                    "TEMP": "${workspaceFolder}/.tmp"
+                    "TMPDIR": "${workspaceFolder}/.tmp"
                 }
             }
         },
@@ -106,9 +104,7 @@
             ],
             "options": {
                 "env": {
-                    "TMPDIR": "${workspaceFolder}/.tmp",
-                    "TMP": "${workspaceFolder}/.tmp",
-                    "TEMP": "${workspaceFolder}/.tmp"
+                    "TMPDIR": "${workspaceFolder}/.tmp"
                 }
             }
         }

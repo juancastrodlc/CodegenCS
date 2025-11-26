@@ -21,6 +21,8 @@
       <PropertyGroup>
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\debug.snk</AssemblyOriginatorKeyFile>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
         <!-- PublicKeyToken=f75721f2e3128173 -->
         <!-- PublicKey=0024000004800000940000000602000000240000525341310004000001000100f98cb5b97282e4ddf4bb9d07d9860c6741dbc45eb22b46e33d7b57ace52dcb0d07e8b5756958445114ddffaf2101050e58be2e1ce8aa659cc6166bc0d61c9045877790b07571c6007256762fd6d91717827b751c36a613523a870d66e004cc7aa75c2b90e690c313a4ef34d6599264ab1c5e0c44c597f5d36dedfedee1b376d7 -->
       </PropertyGroup>

@@ -25,7 +25,7 @@ namespace CodegenCS.IO
         /// <param name="encoding">If not specified will save as UTF-8</param>
         /// <param name="autoCreateFolders">Automatically create folders if they don't exist (default is true)</param>
         /// <param name="getUnknownFiles">If true (default is false) will return <see cref="SaveFilesResult.UnknownFiles"/> with a list
-        /// of files that exist under outputFolder and that were NOT saved as part of this ICodegenContext. 
+        /// of files that exist under outputFolder and that were NOT saved as part of this ICodegenContext.
         /// Useful to cleanup unknown files (but beware that files deleted using File.Delete do NOT get moved to Recycle bin)</param>
         /// <exception cref="System.IO.DirectoryNotFoundException"></exception>
         /// <exception cref="Exception">If context has any error</exception>
@@ -50,7 +50,7 @@ namespace CodegenCS.IO
                     else
                         throw new Exception($"{nameof(context.DefaultOutputFile.RelativePath)} was not defined for {nameof(ICodegenOutputFile)}");
                 }
-                string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
+                string absolutePath = Path.Combine(outputFolder, file.RelativePath);
                 FileInfo fi = new FileInfo(absolutePath);
                 absolutePath = fi.FullName;
 
@@ -70,7 +70,7 @@ namespace CodegenCS.IO
             // Then save.
             foreach (var file in context.OutputFiles)
             {
-                string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
+                string absolutePath = Path.Combine(outputFolder, file.RelativePath);
                 FileInfo fi = new FileInfo(absolutePath);
                 absolutePath = fi.FullName;
                 savedFiles.Add(absolutePath);
@@ -110,7 +110,7 @@ namespace CodegenCS.IO
                 encoding = Encoding.UTF8;
 
             outputFolder = new DirectoryInfo(outputFolder).FullName;
-            string absolutePath = Path_.Combine(outputFolder, file.RelativePath);
+            string absolutePath = Path.Combine(outputFolder, file.RelativePath);
             FileInfo fi = new FileInfo(absolutePath);
             absolutePath = fi.FullName;
 

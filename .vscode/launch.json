@@ -14,11 +14,10 @@
             ],
             "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${env:HOME}/.temp"
             }
         },
         {
@@ -34,11 +33,10 @@
             ],
             "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${env:HOME}/.temp"
             }
         },
         {
@@ -54,11 +52,10 @@
             ],
             "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${env:HOME}/.temp"
             }
         },
         {
@@ -74,11 +71,10 @@
             ],
             "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${env:HOME}/.temp"
             }
         },
         {
@@ -86,15 +82,29 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-cli",
-            "program": "${workspaceFolder}/src/Tools/dotnet-codegencs/bin/Debug/net8.0/dotnet-codegencs.dll",
+            "program": "${workspaceFolder}/src/Tools/dotnet-codegencs/bin/Debug/net9.0/dotnet-codegencs.dll",
             "args": ["template", "run", "MyTemplate.cs"],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/src/Tools/CodegenCS.Tools.CliTool.Tests/bin/Debug/net9.0",
             "stopAtEntry": false,
-            "console": "internalConsole",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "env": {
-                "TMPDIR": "${workspaceFolder}/.tmp",
-                "TMP": "${workspaceFolder}/.tmp",
-                "TEMP": "${workspaceFolder}/.tmp"
+                "TMPDIR": "${env:HOME}/.temp"
+            }
+        },
+        {
+            "name": "Debug dotnet-codegencs template clone",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cli",
+            "program": "${workspaceFolder}/src/Tools/dotnet-codegencs/bin/Debug/net9.0/dotnet-codegencs.dll",
+            "args": ["template", "clone", "https://github.com/CodegenCS/Templates/DatabaseSchema/SimplePocos/SimplePocos.cs"],
+            "cwd": "${workspaceFolder}/src/Tools/CodegenCS.Tools.CliTool.Tests/bin/Debug/net9.0",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "TMPDIR": "${env:HOME}/.temp"
             }
         },
         {
@@ -102,6 +112,25 @@
             "type": "coreclr",
             "request": "attach",
             "justMyCode": false
+        },
+        {
+            "name": "Debug dotnet-codegencs (direct)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cli",
+            "program": "${workspaceFolder}/src/Tools/dotnet-codegencs/bin/Debug/net9.0/dotnet-codegencs.dll",
+            "args": [
+                "template",
+                "build",
+                "net9.0/SimplePocos"
+            ],
+            "cwd": "${workspaceFolder}/src/Tools/CodegenCS.Tools.CliTool.Tests/bin/Debug/net9.0",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "TMPDIR": "${env:HOME}/.temp"
+            }
         }
     ]
 }
