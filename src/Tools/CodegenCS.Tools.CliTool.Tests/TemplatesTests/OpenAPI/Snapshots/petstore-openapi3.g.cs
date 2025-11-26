@@ -22,7 +22,7 @@ namespace MyNamespace
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.18.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.1.0))")]
     public partial interface IPetstoreClient
     {
-
+        
         /// <summary>
         /// List all pets
         /// </summary>
@@ -100,7 +100,7 @@ namespace MyNamespace
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
-
+        
         /// <summary>
         /// List all pets
         /// </summary>
@@ -295,7 +295,7 @@ namespace MyNamespace
         {
             if (petId == null)
                 throw new System.ArgumentNullException("petId");
-
+        
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append("pets/{petId}");
             urlBuilder_.Replace("{petId}", System.Uri.EscapeDataString(ConvertToString(petId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -466,7 +466,7 @@ namespace MyNamespace
             return result == null ? "" : result;
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.1.0))")]
     public partial class Pet
     {

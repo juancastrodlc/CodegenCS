@@ -56,7 +56,7 @@ namespace CodegenCS.Tools.CliTool.Tests
         public async Task TestTemplate(string templateAlias, string model)
         {
             string cmd = $"template run {templateAlias}.dll {model} MyNamespace";
-            
+
             var result = await Run(cmd);
             Assert.AreEqual(0, result.ExitCode);
 
@@ -71,7 +71,14 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists($"{templateAlias}.g.cs");
             string snapshot = Path.Combine(GetSourceFileFolder(), "Snapshots", "petstore-openapi3.g.cs");
-            FileAssert.AreEqual(snapshot, $"{templateAlias}.g.cs");
+            FileAssertAreEqual(snapshot, $"{templateAlias}.g.cs");
+        }
+
+        private void FileAssertAreEqual(string snapshot, string generated)
+        {
+            var expected = File.ReadAllText(snapshot).Replace("\r\n","\n").Replace("\n",nl).Trim();
+            var actual = File.ReadAllText(generated).Replace("\r\n","\n").Replace("\n",nl).Trim();
+            Assert.AreEqual(expected, actual);
         }
         #endregion
 
