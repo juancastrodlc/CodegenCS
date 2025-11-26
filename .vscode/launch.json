@@ -122,7 +122,7 @@
             "args": [
                 "template",
                 "build",
-                "net9.0/SimplePocos"
+                "SimplePocos"
             ],
             "cwd": "${workspaceFolder}/src/Tools/CodegenCS.Tools.CliTool.Tests/bin/Debug/net9.0",
             "stopAtEntry": false,

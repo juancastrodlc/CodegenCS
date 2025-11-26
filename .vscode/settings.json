@@ -157,4 +157,6 @@
     "github.copilot.enable": {
         "*": false
     },
+    "editor.renderWhitespace": "all",
+    "editor.renderControlCharacters": true
 }

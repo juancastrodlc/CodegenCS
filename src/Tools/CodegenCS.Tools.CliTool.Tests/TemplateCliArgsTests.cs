@@ -16,14 +16,13 @@ namespace CodegenCS.Tools.CliTool.Tests
 {
     internal class TemplateCliArgsTests : BaseTest
     {
-        string _dbschemaModelPath = Path.Combine(GetSourceFileFolder(), @"..\..\Models\CodegenCS.Models.DbSchema.SampleDatabases\AdventureWorksSchema.json");
+        string _dbschemaModelPath = Path.Combine(GetSourceFileFolder(), @"../../Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json");
 
         [SetUp]
-        public void Setup()
+        public new void Setup()
         {
             Assert.That(File.Exists(_dbschemaModelPath));
         }
-
 
         [Test]
         public async Task SimpleBuild()
@@ -44,7 +43,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "Hello World" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "Hello World" + nl);
         }
 
 
@@ -57,7 +56,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             //TODO: case insensitive?
             var args = new string[] { "template", "run", "template.cs", "--OutputFolder", @".\folder", "--File", "defaultfile.cs", fakeModel, "--verbose", "now", "comes", "template-specific", "options", "and", "args" };
             var parser = _cliCommandParser.Parser;
-            var parseResult = parser.Parse(args);            
+            var parseResult = parser.Parse(args);
             Assert.AreEqual(0, parseResult.Errors.Count);
             Assert.AreEqual(args.Length, parseResult.Tokens.Count);
             Assert.AreEqual("run", parseResult.CommandResult.Command.Name);
@@ -105,7 +104,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "2" + "\r\n" + "arg1" + "\r\n" + "arg2" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "2" + nl + "arg1" + nl + "arg2" + nl);
         }
 
 
@@ -134,7 +133,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 """;
 
             await BuildAsync(template);
-            
+
             var exitCode = await LaunchAsync(templateArgs: new string[] { "arg1", "arg2" });
             Assert.AreEqual(-2, exitCode); // unrecognized parameters
 
@@ -142,11 +141,11 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(-2, exitCode); // missing required argument (namespace)
 
             exitCode = await LaunchAsync(templateArgs: new string[] { "MyNamespace" });
-            
+
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl);
         }
 
         [Test]
@@ -189,7 +188,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl);
         }
 
 
@@ -234,7 +233,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl);
         }
 
         [Test]
@@ -254,7 +253,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                         writer.WriteLine(_args.Namespace);
                         writer.WriteLine(schema.Tables.Count());
                     }
-                
+
                     private static Argument<string> argNamespace = new Argument<string>("Namespace", description: "Namespace of generated POCOs") { Arity = ArgumentArity.ExactlyOne };
                     public static void ConfigureCommand(Command command)
                     {
@@ -273,7 +272,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "91" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl + "91" + nl);
         }
 
 
@@ -309,7 +308,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "MyOwnModel" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl + "MyOwnModel" + nl);
         }
 
         [Test]
@@ -354,7 +353,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "MyOwnModel" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + nl + "MyOwnModel" + nl);
         }
 
 

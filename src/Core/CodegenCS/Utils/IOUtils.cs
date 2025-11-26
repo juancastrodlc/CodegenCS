@@ -29,7 +29,7 @@ namespace CodegenCS.Utils
         }
         public static String MakeRelativePath(String toPath)
         {
-            string fromPath = Directory.GetCurrentDirectory() + "\\";
+            string fromPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
             return MakeRelativePath(fromPath, toPath);
         }
     }

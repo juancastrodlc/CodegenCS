@@ -19,6 +19,7 @@ namespace CodegenCS.Tools.CliTool.Tests;
 
 internal class BaseTest
 {
+    protected readonly string nl=Environment.NewLine;
     protected static string GetSourceFileFolder([CallerFilePath] string path = null) => Path.GetDirectoryName(path);
 
     #region CLI

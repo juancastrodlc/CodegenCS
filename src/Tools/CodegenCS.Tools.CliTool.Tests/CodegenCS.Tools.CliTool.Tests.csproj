@@ -37,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\Models\CodegenCS.Models.DbSchema.SampleDatabases\AdventureWorksSchema.json" Link="AdventureWorksSchema.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CliWrap" Version="3.6.6" />
     <PackageReference Include="nunit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
