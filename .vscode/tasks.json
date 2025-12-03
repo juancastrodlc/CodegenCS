@@ -107,6 +107,21 @@
                     "TMPDIR": "${workspaceFolder}/.tmp"
                 }
             }
+        },
+        {
+            "label": "build-generator-host",
+            "dependsOn": [
+                "create-tmp-dir"
+            ],
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SourceGenerator/GeneratorHost/GeneratorHost.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }

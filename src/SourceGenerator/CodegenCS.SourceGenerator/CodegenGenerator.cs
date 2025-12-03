@@ -58,6 +58,13 @@ namespace CodegenCS.CodeGenerator
 
         public void Initialize(GeneratorInitializationContext initializationContext)
         {
+// #if DEBUG
+//             if (!System.Diagnostics.Debugger.IsAttached)
+//             {
+//                 System.Diagnostics.Debugger.Launch();
+//             }
+//             System.Diagnostics.Debugger.Break();
+// #endif
         }
 
         public void Execute(GeneratorExecutionContext executionContext)
@@ -72,7 +79,7 @@ namespace CodegenCS.CodeGenerator
                     executionContext.AnalyzerConfigOptions.GetOptions(template).TryGetValue("build_metadata.AdditionalFiles.CodegenCSOutput", out var outputType);
                     if (string.IsNullOrEmpty(Path.GetExtension(template.Path)) || !validExtensions.Contains(Path.GetExtension(template.Path).ToLower()))
                         continue;
-                    if (outputType != null && 
+                    if (outputType != null &&
                         !outputType.Equals("File", StringComparison.InvariantCultureIgnoreCase) &&
                         !outputType.Equals("Memory", StringComparison.InvariantCultureIgnoreCase))
                     {

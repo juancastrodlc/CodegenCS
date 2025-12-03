@@ -1,0 +1,73 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="arm64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Core/">
+    <Project Path="Core/CodegenCS.DotNet/CodegenCS.DotNet.csproj" />
+    <Project Path="Core/CodegenCS.Models/CodegenCS.Models.csproj" />
+    <Project Path="Core/CodegenCS.Runtime/CodegenCS.Runtime.csproj" />
+    <Project Path="Core/CodegenCS.Tests/CodegenCS.Tests.csproj" />
+    <Project Path="Core/CodegenCS/CodegenCS.Core.csproj" />
+  </Folder>
+  <Folder Name="/Models/">
+    <Project Path="Models/CodegenCS.Models.DbSchema.Extractor/CodegenCS.Models.DbSchema.Extractor.csproj" />
+    <Project Path="Models/CodegenCS.Models.DbSchema/CodegenCS.Models.DbSchema.csproj" />
+    <Project Path="Models/CodegenCS.Models.NSwagAdapter/CodegenCS.Models.NSwagAdapter.csproj" />
+  </Folder>
+  <Folder Name="/MSBuild/">
+    <Project Path="MSBuild/CodegenCS.MSBuild/CodegenCS.MSBuild.csproj">
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="build-clean.ps1" />
+    <File Path="build-core.ps1" />
+    <File Path="build-external.ps1" />
+    <File Path="build-include.ps1" />
+    <File Path="build-models.ps1" />
+    <File Path="build-msbuild.ps1" />
+    <File Path="build-sourcegenerator.ps1" />
+    <File Path="build-tools.ps1" />
+    <File Path="build-visualstudio.ps1" />
+    <File Path="build.ps1" />
+  </Folder>
+  <Folder Name="/SourceGenerator/">
+    <Project Path="SourceGenerator/CodegenCS.SourceGenerator.Tests/CodegenCS.SourceGenerator.Tests.csproj" />
+    <Project Path="SourceGenerator/CodegenCS.SourceGenerator/CodegenCS.SourceGenerator.csproj" />
+    <Project Path="SourceGenerator/GeneratorHost/GeneratorHost.csproj" />
+  </Folder>
+  <Folder Name="/SourceGeneratorNg/">
+    <Project Path="SourceGeneratorNg/CodegenCS.SourceGeneratorNg/CodegenCS.SourceGeneratorNg.Sample/CodegenCS.SourceGeneratorNg.Sample.csproj" />
+    <Project Path="SourceGeneratorNg/CodegenCS.SourceGeneratorNg/CodegenCS.SourceGeneratorNg.Tests/CodegenCS.SourceGeneratorNg.Tests.csproj" />
+    <Project Path="SourceGeneratorNg/CodegenCS.SourceGeneratorNg/CodegenCS.SourceGeneratorNg/CodegenCS.SourceGeneratorNg.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/CodegenCS.Tools.CliTool.Tests/CodegenCS.Tools.CliTool.Tests.csproj" />
+    <Project Path="Tools/dotnet-codegencs/dotnet-codegencs.csproj" />
+    <Project Path="Tools/TemplateBuilder/CodegenCS.Tools.TemplateBuilder.csproj" />
+    <Project Path="Tools/TemplateDownloader/CodegenCS.Tools.TemplateDownloader.csproj" />
+    <Project Path="Tools/TemplateLauncher/CodegenCS.Tools.TemplateLauncher.csproj" />
+    <Project Path="Tools/Tests/CodegenCS.Tools.Tests.csproj" />
+  </Folder>
+  <Folder Name="/VisualStudio/">
+    <Project Path="VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj">
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+    <Project Path="VisualStudio/Tests/CodegenCS.VisualStudio.Tests.csproj">
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+    <Project Path="VisualStudio/VS2019Extension/VS2019Extension.csproj">
+      <Platform Solution="*|arm64" Project="arm64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+    <Project Path="VisualStudio/VS2022Extension/VS2022Extension.csproj">
+      <Platform Solution="*|arm64" Project="arm64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+  </Folder>
+</Solution>

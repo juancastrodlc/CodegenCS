@@ -131,6 +131,34 @@
             "env": {
                 "TMPDIR": "${env:HOME}/.temp"
             }
+        },
+        {
+            "name": "Debug GeneratorHost",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-generator-host",
+            "program": "${workspaceFolder}/src/SourceGenerator/GeneratorHost/bin/Debug/net9.0/GeneratorHost.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SourceGenerator/GeneratorHost",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Debug Source Generator (Roslyn)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-generator-host",
+            "program": "${workspaceFolder}/src/SourceGenerator/GeneratorHost/bin/Debug/net9.0/GeneratorHost.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SourceGenerator/GeneratorHost",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "TMPDIR": "${env:HOME}/.temp",
+                "ROSLYN_DEBUG": "1"
+            }
         }
     ]
 }
