@@ -76,7 +76,10 @@ namespace CodegenCS.CodeGenerator
                 string[] validExtensions = new string[] { ".csx", ".cs", ".cgcs" };
                 foreach (AdditionalText template in executionContext.AdditionalFiles)
                 {
-                    executionContext.AnalyzerConfigOptions.GetOptions(template).TryGetValue("build_metadata.AdditionalFiles.CodegenCSOutput", out var outputType);
+
+                    var found= executionContext.AnalyzerConfigOptions.GetOptions(template).TryGetValue("build_metadata.AdditionalFiles.CodegenCSOutput", out var outputType);
+                    if (!found)
+                        outputType = "Disk";
                     if (string.IsNullOrEmpty(Path.GetExtension(template.Path)) || !validExtensions.Contains(Path.GetExtension(template.Path).ToLower()))
                         continue;
                     if (outputType != null &&

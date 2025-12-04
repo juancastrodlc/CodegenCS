@@ -4,6 +4,19 @@
     <Platform Name="arm64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/BuildScripts/">
+    <File Path=".editorconfig" />
+    <File Path="build-clean.ps1" />
+    <File Path="build-core.ps1" />
+    <File Path="build-external.ps1" />
+    <File Path="build-include.ps1" />
+    <File Path="build-models.ps1" />
+    <File Path="build-msbuild.ps1" />
+    <File Path="build-sourcegenerator.ps1" />
+    <File Path="build-tools.ps1" />
+    <File Path="build-visualstudio.ps1" />
+    <File Path="build.ps1" />
+  </Folder>
   <Folder Name="/Core/">
     <Project Path="Core/CodegenCS.DotNet/CodegenCS.DotNet.csproj" />
     <Project Path="Core/CodegenCS.Models/CodegenCS.Models.csproj" />
@@ -20,19 +33,6 @@
     <Project Path="MSBuild/CodegenCS.MSBuild/CodegenCS.MSBuild.csproj">
       <Build Solution="Debug|Any CPU" Project="false" />
     </Project>
-  </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path=".editorconfig" />
-    <File Path="build-clean.ps1" />
-    <File Path="build-core.ps1" />
-    <File Path="build-external.ps1" />
-    <File Path="build-include.ps1" />
-    <File Path="build-models.ps1" />
-    <File Path="build-msbuild.ps1" />
-    <File Path="build-sourcegenerator.ps1" />
-    <File Path="build-tools.ps1" />
-    <File Path="build-visualstudio.ps1" />
-    <File Path="build.ps1" />
   </Folder>
   <Folder Name="/SourceGenerator/">
     <Project Path="SourceGenerator/CodegenCS.SourceGenerator.Tests/CodegenCS.SourceGenerator.Tests.csproj" />
@@ -59,12 +59,12 @@
     <Project Path="VisualStudio/Tests/CodegenCS.VisualStudio.Tests.csproj">
       <Build Solution="Debug|Any CPU" Project="false" />
     </Project>
-    <Project Path="VisualStudio/VS2019Extension/VS2019Extension.csproj">
+    <Project Path="VisualStudio/VS2019Extension/VS2019Extension.csproj" Id="82da3670-09e8-4821-b261-9dc022525513">
       <Platform Solution="*|arm64" Project="arm64" />
       <Platform Solution="*|x86" Project="x86" />
       <Build Solution="Debug|Any CPU" Project="false" />
     </Project>
-    <Project Path="VisualStudio/VS2022Extension/VS2022Extension.csproj">
+    <Project Path="VisualStudio/VS2022Extension/VS2022Extension.csproj" Id="2901baea-168e-45fb-8714-4299d605f789">
       <Platform Solution="*|arm64" Project="arm64" />
       <Platform Solution="*|x86" Project="x86" />
       <Build Solution="Debug|Any CPU" Project="false" />

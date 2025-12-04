@@ -18,7 +18,7 @@ public class CodegenGeneratorIntegrationTests
         // Navigate to the Samples directory from the test project
         var testDir = Directory.GetCurrentDirectory();
         var repoRoot = FindRepoRoot(testDir);
-        _samplesPath = Path.Combine(repoRoot, "Samples");
+        _samplesPath = Path.Combine(repoRoot,"src", "SourceGenerator");
         _configuration = "Debug";
     }
 
@@ -26,7 +26,7 @@ public class CodegenGeneratorIntegrationTests
     public void SourceGenerator1_BuildSucceeds_OnCurrentPlatform()
     {
         // Arrange
-        var projectPath = Path.Combine(_samplesPath, "SourceGenerator1", "SourceGenerator1.csproj");
+        var projectPath = Path.Combine(_samplesPath, "GeneratorHost", "GeneratorHost.csproj");
         Assert.That(File.Exists(projectPath), Is.True, $"Sample project not found at {projectPath}");
 
         // Act
@@ -41,7 +41,7 @@ public class CodegenGeneratorIntegrationTests
     public void SourceGenerator1_GeneratesExpectedFiles_OnAllPlatforms()
     {
         // Arrange
-        var projectPath = Path.Combine(_samplesPath, "SourceGenerator1", "SourceGenerator1.csproj");
+        var projectPath = Path.Combine(_samplesPath, "GeneratorHost", "GeneratorHost.csproj");
         var projectDir = Path.GetDirectoryName(projectPath)!;
 
         // Clean previous generated files
@@ -74,7 +74,7 @@ public class CodegenGeneratorIntegrationTests
         // Test that template.Path is populated correctly on all platforms
         // Previously failed on Linux/macOS where AdditionalText.Path returned empty string
 
-        var projectPath = Path.Combine(_samplesPath, "SourceGenerator1", "SourceGenerator1.csproj");
+        var projectPath = Path.Combine(_samplesPath, "GeneratorHost", "GeneratorHost.csproj");
         var (exitCode, output) = RunDotNetBuild(projectPath);
 
         // Build should succeed - template.Path should be populated
@@ -87,7 +87,6 @@ public class CodegenGeneratorIntegrationTests
         // is receiving an empty template.Path (Roslyn bug on Linux/macOS)
     }
 
-    #region Helper Methods
 
     private static string FindRepoRoot(string startPath)
     {
@@ -126,5 +125,4 @@ public class CodegenGeneratorIntegrationTests
         return (process.ExitCode, combinedOutput);
     }
 
-    #endregion
 }
