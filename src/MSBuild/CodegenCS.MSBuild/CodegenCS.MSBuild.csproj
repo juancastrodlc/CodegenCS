@@ -111,7 +111,7 @@
         <ProjectReference Include="..\..\Core\CodegenCS\CodegenCS.Core.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Core\CodegenCS.Models\CodegenCS.Models.csproj" PrivateAssets="all" />
-        <ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.Dotnet.csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj" PrivateAssets="all" />
         <ProjectReference Include="..\..\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj" PrivateAssets="all" />
       </ItemGroup>
