@@ -353,3 +353,5 @@ dotnet-tools.json
 /src/nuget.exe
 /src/VisualStudio/VS2019Extension/source.extension.vsixmanifest
 /src/VisualStudio/VS2022Extension/source.extension.vsixmanifest
+.vscode/
+.idea/
