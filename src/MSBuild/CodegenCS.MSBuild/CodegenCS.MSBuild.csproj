@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Authors>Rick Drizin</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -71,8 +71,8 @@
 
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.10.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.10.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -89,12 +89,12 @@
       GeneratePathProperty=true allows us to use PKGNewtonsoft_Json property, but for some reason it only works for Newtonsoft
       Additionally it doesn't work in TargetPathWithTargetPlatformMoniker, so I'm not using - instead I get Nuget packages path using $(USERPROFILE)
     -->
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="InterpolatedColorConsole" Version="1.0.3" PrivateAssets="all" />
-    <PackageReference Include="NSwag.Core" Version="14.0.7" PrivateAssets="all" />
-    <PackageReference Include="NSwag.Core.Yaml" Version="14.0.7" PrivateAssets="all" />
-    <PackageReference Include="NJsonSchema" Version="11.0.0" PrivateAssets="all" />
-    <PackageReference Include="NJsonSchema.Annotations" Version="11.0.0" PrivateAssets="all" />
+    <PackageReference Include="NSwag.Core" Version="14.7.1" PrivateAssets="all" />
+    <PackageReference Include="NSwag.Core.Yaml" Version="14.7.1" PrivateAssets="all" />
+    <PackageReference Include="NJsonSchema" Version="11.6.1" PrivateAssets="all" />
+    <PackageReference Include="NJsonSchema.Annotations" Version="11.6.1" PrivateAssets="all" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-codegencs" PrivateAssets="all" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-codegencs" PrivateAssets="all" />
   </ItemGroup>
