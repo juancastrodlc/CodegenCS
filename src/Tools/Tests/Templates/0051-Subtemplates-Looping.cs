@@ -3,7 +3,7 @@
     void Main(IModelFactory factory, ICodegenOutputFile writer)
     {
         // Hold on, we'll explain this shortly
-        var model = factory.LoadModelFromFile<DatabaseSchema>(@"Models\AdventureWorks.json");
+        var model = factory.LoadModelFromFile<DatabaseSchema>(@"Models/AdventureWorks.json");
 
         foreach (var table in model.Tables)
         {

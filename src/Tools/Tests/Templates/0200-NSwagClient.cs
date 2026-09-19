@@ -65,7 +65,7 @@ public class NSwagClient
     // But it won't know WHICH MODEL to use. So this is an alternative entrypoint that specifies the model path.
     void TemplateMain(ICodegenContext context, IModelFactory factory)
     {
-        var model = factory.LoadModelFromFile<OpenApiDocument>(@"Models\Petstore-OpenAPI3.json");
+        var model = factory.LoadModelFromFile<OpenApiDocument>(@"Models/Petstore-OpenAPI3.json");
         var options = new NSwagClientOptions()
         {
             Namespace = "MyProject.NSwagClients"

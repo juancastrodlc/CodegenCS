@@ -19,7 +19,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains($"dotnet-codegencs.exe version {typeof(DotNetTool.Program).Assembly.GetName().Version}", _stdOut);
             StringAssert.Contains($"CodegenCS.Core.dll version {typeof(CodegenCS.CodegenContext).Assembly.GetName().Version}", _stdOut);
-            StringAssert.Contains("Usage:\r\n  dotnet-codegencs [command] [options]\r\n", _stdOut);
+            StringAssert.Contains("Usage:\r\n  dotnet-codegencs [command] [options]\r\n".Replace("\r\n",Environment.NewLine), _stdOut);
         }
 
         #region Template Clone
@@ -181,7 +181,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(("Person.Address.g.cs")));
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.g.cs")));
         }
 
         [Test]
@@ -194,12 +194,12 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully built template into '", _stdOut);
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 71 files at folder '", _stdOut);
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(("Person.Address.g.cs")));
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.g.cs")));
         }
 
         [Test]

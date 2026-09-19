@@ -13,7 +13,7 @@
 
     void Main(ICodegenOutputFile w, IModelFactory factory)
     {
-        var schema = factory.LoadModelFromFile<DatabaseSchema>(@"Models\AdventureWorks.json");
+        var schema = factory.LoadModelFromFile<DatabaseSchema>(@"Models/AdventureWorks.json");
 
         w.WriteLine($$"""
             namespace MyNamespace

@@ -17,7 +17,7 @@ namespace CodegenCS.Tools.Tests
 {
     internal class OpenAPITests : BaseTest
     {
-        string _modelPath = Path.Combine(GetSourceFileFolder(), @"..\..\Models\CodegenCS.Models.NSwagAdapter\SampleModels\petstore-openapi3.json");
+        string _modelPath = Path.Combine(GetSourceFileFolder(), "../../Models/CodegenCS.Models.NSwagAdapter/SampleModels/petstore-openapi3.json");
 
         [SetUp]
         public override Task Setup()
@@ -49,7 +49,7 @@ namespace CodegenCS.Tools.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + Environment.NewLine);
         }
 
 
@@ -72,7 +72,7 @@ namespace CodegenCS.Tools.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + Environment.NewLine);
         }
 
 
@@ -96,7 +96,7 @@ namespace CodegenCS.Tools.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "Pet" + Environment.NewLine);
         }
 
         [Test]
@@ -105,12 +105,12 @@ namespace CodegenCS.Tools.Tests
             var factory = ModelFactoryBuilder.CreateModelFactory(new string[] { TemplatesFolder });
 
             // async
-            var doc = await factory.LoadModelFromFileAsync<OpenApiDocument>(@"Models\Petstore-OpenAPI3.json");
+            var doc = await factory.LoadModelFromFileAsync<OpenApiDocument>(@"Models/Petstore-OpenAPI3.json");
             var op = doc.Operations.Single(o => o.Operation.OperationId == "listPets");
             Assert.GreaterOrEqual(op.Operation.Parameters.Count, 1);
 
             // sync
-            doc = factory.LoadModelFromFile<OpenApiDocument>(@"Models\Petstore-OpenAPI3.json");
+            doc = factory.LoadModelFromFile<OpenApiDocument>(@"Models/Petstore-OpenAPI3.json");
             op = doc.Operations.Single(o => o.Operation.OperationId == "listPets");
             Assert.GreaterOrEqual(op.Operation.Parameters.Count, 1);
 

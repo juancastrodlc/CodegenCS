@@ -35,8 +35,8 @@ internal class BaseTest
     {
         _stdOutBuffer = new StringBuilder();
         _stdErrBuffer = new StringBuilder();
-
-        var result = await Cli.Wrap(Path.Combine(Directory.GetCurrentDirectory(), "dotnet-codegencs.exe"))
+        var exe = OperatingSystem.IsWindows() ? ".exe" : string.Empty;
+        var result = await Cli.Wrap(Path.Combine(Directory.GetCurrentDirectory(), "dotnet-codegencs"+exe))
             .WithArguments(arguments)
             .WithWorkingDirectory(Directory.GetCurrentDirectory())
             .WithValidation(CommandResultValidation.None)
@@ -88,9 +88,9 @@ internal class BaseTest
                 {{templateBody}}
                 """;
 
-        _tmpFolder = Path.Combine(Path.GetTempPath() ?? Directory.GetCurrentDirectory(), Guid.NewGuid().ToString());
-        _tmpTemplateFile = Path.Combine(_tmpFolder, Guid.NewGuid().ToString() + ".cs");
-        _tmpDll = Path.Combine(_tmpFolder, Guid.NewGuid().ToString() + ".dll");
+        _tmpFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        _tmpTemplateFile = Path.Combine(_tmpFolder, Guid.NewGuid() + ".cs");
+        _tmpDll = Path.Combine(_tmpFolder, Guid.NewGuid() + ".dll");
         new DirectoryInfo(_tmpFolder).Create();
         File.WriteAllText(_tmpTemplateFile, template.ToString());
         await BuildAsync(_tmpTemplateFile, extraReferences);

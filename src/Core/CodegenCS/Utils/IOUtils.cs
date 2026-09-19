@@ -9,9 +9,19 @@ namespace CodegenCS.Utils
         //https://stackoverflow.com/a/340454/3606250
         public static String MakeRelativePath(String fromPath, String toPath)
         {
-            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
-            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
-
+            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException(nameof(fromPath));
+            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException(nameof(toPath));
+            fromPath = Path.GetFullPath(fromPath);
+            toPath = Path.GetFullPath(toPath);
+            if (Path.IsPathRooted(toPath))
+            {
+                return toPath;
+            }
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()) &&
+                !fromPath.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+            {
+                fromPath += Path.DirectorySeparatorChar;
+            }
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
 
@@ -29,7 +39,7 @@ namespace CodegenCS.Utils
         }
         public static String MakeRelativePath(String toPath)
         {
-            string fromPath = Directory.GetCurrentDirectory() + "\\";
+            string fromPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
             return MakeRelativePath(fromPath, toPath);
         }
     }

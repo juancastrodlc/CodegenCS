@@ -16,7 +16,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 {
     internal class TemplateCliArgsTests : BaseTest
     {
-        string _dbschemaModelPath = Path.Combine(GetSourceFileFolder(), @"..\..\Models\CodegenCS.Models.DbSchema.SampleDatabases\AdventureWorksSchema.json");
+        string _dbschemaModelPath = Path.Combine(GetSourceFileFolder(), "../../Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json");
 
         [SetUp]
         public void Setup()
@@ -44,7 +44,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "Hello World" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "Hello World" + Environment.NewLine);
         }
 
 
@@ -105,7 +105,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "2" + "\r\n" + "arg1" + "\r\n" + "arg2" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "2" + Environment.NewLine + "arg1" + Environment.NewLine + "arg2" + Environment.NewLine);
         }
 
 
@@ -146,7 +146,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine);
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine);
         }
 
 
@@ -234,7 +234,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine);
         }
 
         [Test]
@@ -273,7 +273,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "91" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine + "91" + Environment.NewLine);
         }
 
 
@@ -309,7 +309,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "MyOwnModel" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine + "MyOwnModel" + Environment.NewLine);
         }
 
         [Test]
@@ -354,7 +354,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + "\r\n" + "MyOwnModel" + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == "MyNamespace" + Environment.NewLine + "MyOwnModel" + Environment.NewLine);
         }
 
 

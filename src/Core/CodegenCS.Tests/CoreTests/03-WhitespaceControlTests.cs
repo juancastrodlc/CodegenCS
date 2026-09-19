@@ -58,7 +58,7 @@ namespace CodegenCS.Tests.CoreTests
                 """);
             
             // Empty line still there
-            Assert.AreEqual("\r\ntomato", _w.GetContents());
+            Assert.AreEqual("\r\ntomato".Replace("\r\n",Environment.NewLine), _w.GetContents());
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace CodegenCS.Tests.CoreTests
                 """);
 
             // Empty line still there
-            Assert.AreEqual("\r\ntomato", _w.GetContents());
+            Assert.AreEqual("\r\ntomato".Replace("\r\n",Environment.NewLine), _w.GetContents());
         }
 
         [Test]

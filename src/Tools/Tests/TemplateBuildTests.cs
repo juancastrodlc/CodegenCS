@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using Assert = NUnit.Framework.Legacy.ClassicAssert;
+// ReSharper disable AccessToStaticMemberViaDerivedType
 
 namespace CodegenCS.Tools.Tests
 {
@@ -16,7 +17,7 @@ namespace CodegenCS.Tools.Tests
             return files;
         }
 
-        [Test, TestCaseSource("GetTemplates")]
+        [Test, TestCaseSource(nameof(GetTemplates))]
         public async Task TestTemplate(string templateFile)
         {
 #if NETFRAMEWORK
@@ -24,9 +25,9 @@ namespace CodegenCS.Tools.Tests
             if (templateFile.EndsWith(@"\0091-EmbeddedReferences.cs"))
                 return;
 #endif
-            _tmpFolder = Path.Combine(Path.GetTempPath() ?? Directory.GetCurrentDirectory(), Guid.NewGuid().ToString());
+            _tmpFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             new DirectoryInfo(_tmpFolder).Create();
-            _tmpDll = Path.Combine(_tmpFolder, Guid.NewGuid().ToString() + ".dll");
+            _tmpDll = Path.Combine(_tmpFolder, Guid.NewGuid() + ".dll");
             _templateFileName = Path.GetFileName(templateFile);
             await BuildAsync(templateFile);
 

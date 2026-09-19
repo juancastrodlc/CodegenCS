@@ -244,7 +244,7 @@ namespace MyPocos
                 Testing {{var}}{0} {1} {3}
                    {5}
                 """);
-            Assert.AreEqual("Testing variable{0} {1} {3}\r\n   {5}", _w.GetContents());
+            Assert.AreEqual("Testing variable{0} {1} {3}\n   {5}".Replace("\n",Environment.NewLine), _w.GetContents());
         }
 
         [Test]
@@ -380,9 +380,9 @@ namespace MyPocos
                 Line3
                 """);
 
-            Assert.AreEqual("Line1\r\nLine2\r\nLine3", _w.GetContents());
+            Assert.AreEqual("Line1\nLine2\nLine3".Replace("\n",Environment.NewLine), _w.GetContents());
             _w.ClearLastLine();
-            Assert.AreEqual("Line1\r\nLine2\r\n", _w.GetContents());
+            Assert.AreEqual("Line1\nLine2\n".Replace("\n",Environment.NewLine), _w.GetContents());
         }
         [Test]
         public void TestRemoveLastLine()
@@ -393,9 +393,9 @@ namespace MyPocos
                 Line3
                 """);
 
-            Assert.AreEqual("Line1\r\nLine2\r\nLine3", _w.GetContents());
+            Assert.AreEqual("Line1\nLine2\nLine3".Replace("\n",Environment.NewLine), _w.GetContents());
             _w.RemoveLastLine();
-            Assert.AreEqual("Line1\r\nLine2", _w.GetContents());
+            Assert.AreEqual("Line1\nLine2".Replace("\n",Environment.NewLine), _w.GetContents());
         }
         #endregion
     }
