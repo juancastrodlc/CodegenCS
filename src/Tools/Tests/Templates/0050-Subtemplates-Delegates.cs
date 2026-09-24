@@ -38,7 +38,7 @@
     // ICodegenOutputFile (stdout) will be "Class1.cs" since Subtemplate5 was embedded in Subtemplate4
     // (in other words ICodegenOutputFile depends on the current context)
     Action<ICodegenOutputFile> Subtemplate5 = (writer) => writer.Write($$"""
-        public class Class1()
+        public class Class1
         {
             // ...
         }

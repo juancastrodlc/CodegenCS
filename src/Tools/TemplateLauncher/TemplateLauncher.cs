@@ -588,7 +588,7 @@ namespace CodegenCS.TemplateLauncher
                         await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"Could not load Model{(_expectedModels > 1 ? (i + 1).ToString() : "")}: Unknown type. Maybe your model should implement IJsonInputModel?");
                         return -1;
                     }
-                    await _logger?.WriteLineAsync(ConsoleColor.Cyan, $"Model{(_expectedModels > 1 ? (i + 1).ToString() : "")} successfuly loaded from {ConsoleColor.White}'{_modelFiles[i].Name}'{PREVIOUS_COLOR}...");
+                    await _logger?.WriteLineAsync(ConsoleColor.Cyan, $"Model{(_expectedModels > 1 ? (i + 1).ToString() : "")} successfully loaded from {ConsoleColor.White}'{_modelFiles[i].Name}'{PREVIOUS_COLOR}...");
                     modelArgs.Add(model);
                     _dependencyContainer.RegisterSingleton(modelType, model); // might be injected both in _entryPointClass ctor or _entryPointMethod args
                 }

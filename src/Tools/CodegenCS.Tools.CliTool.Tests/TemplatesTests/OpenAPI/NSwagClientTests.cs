@@ -66,12 +66,14 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             StringAssert.Contains($"Loading '{templateAlias}.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'NSwag.OpenApiDocument'...", _stdOut);
-            StringAssert.Contains($"Model successfuly loaded from '{model}'...", _stdOut);
+            StringAssert.Contains($"Model successfully loaded from '{model}'...", _stdOut);
             StringAssert.Contains($"Successfully executed template '{templateAlias}.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists($"{templateAlias}.g.cs");
             string snapshot = Path.Combine(GetSourceFileFolder(), "Snapshots", "petstore-openapi3.g.cs");
-            FileAssert.AreEqual(snapshot, $"{templateAlias}.g.cs");
+            var snapshotText = File.ReadAllText(snapshot).ReplaceLineEndings();
+            var templateText = File.ReadAllText($"{templateAlias}.g.cs");//.ReplaceLineEndings();
+            Assert.AreEqual(snapshotText, templateText);            
         }
         #endregion
 

@@ -142,7 +142,9 @@ public class MyApiClient
     {
         _httpClient = httpClient;
     }
-}";
+}"
+.ReplaceLineEndings()
+.TrimStart();
             if (!injectHttpClient)
                 expected = @"
 public class MyApiClient
@@ -150,9 +152,11 @@ public class MyApiClient
     public MyApiClient()
     {
     }
-}";
+}"
+.ReplaceLineEndings()
+.TrimStart();
 
-            Assert.AreEqual(expected.TrimStart(), _w.GetContents());
+            Assert.AreEqual(expected, _w.GetContents());
         }
 
 
@@ -182,7 +186,7 @@ public class MyApiClient
     {
         _httpClient = httpClient;
     }
-}";
+}".ReplaceLineEndings().TrimStart();
             if (generateConstructor && !injectHttpClient)
                 expected = @"
 public class MyApiClient
@@ -190,12 +194,12 @@ public class MyApiClient
     public MyApiClient()
     {
     }
-}";
+}".ReplaceLineEndings().TrimStart();
 
             if (!generateConstructor)
                 expected = @"";
 
-            Assert.AreEqual(expected.TrimStart(), _w.GetContents());
+            Assert.AreEqual(expected, _w.GetContents());
         }
 
         #endregion

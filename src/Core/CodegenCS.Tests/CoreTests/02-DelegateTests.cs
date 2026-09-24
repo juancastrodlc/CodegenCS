@@ -96,8 +96,8 @@ namespace CodegenCS.Tests.CoreTests
                     {{ GenerateTables.WithArguments(null, MyDbSchema) }}
                 }
                 """);
-
-            Assert.AreEqual(expected, _w.GetContents());
+            
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace CodegenCS.Tests.CoreTests
                 }
                 """);
 
-            Assert.AreEqual(expected, _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace CodegenCS.Tests.CoreTests
                     /// <summary>
                 """);
 
-            Assert.AreEqual(expectedWithoutEmptyLines, _w.GetContents());
+            Assert.AreEqual(expectedWithoutEmptyLines.ReplaceLineEndings(), _w.GetContents());
         }
 
 

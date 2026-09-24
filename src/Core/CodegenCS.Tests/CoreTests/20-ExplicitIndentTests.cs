@@ -36,7 +36,7 @@ void MyMethod()
                 {
                     _w.WriteLine("int i = 0;");
                 });
-            Assert.AreEqual(expected_C, _w.GetContents());
+            Assert.AreEqual(expected_C.ReplaceLineEndings(), _w.GetContents());
         }
 
         [Test]
@@ -47,7 +47,7 @@ void MyMethod()
             {
                 _w.WriteLine("int i = 0;");
             }
-            Assert.AreEqual(expected_C, _w.GetContents());
+            Assert.AreEqual(expected_C.ReplaceLineEndings(), _w.GetContents());
         }
 
 
@@ -70,7 +70,7 @@ void MyMethod() {
                 {
                     _w.WriteLine("int i = 0;");
                 });
-            Assert.AreEqual(expected_java, _w.GetContents());
+            Assert.AreEqual(expected_java.ReplaceLineEndings(), _w.GetContents());
         }
 
         [Test]
@@ -81,7 +81,7 @@ void MyMethod() {
             {
                 _w.WriteLine("int i = 0;");
             }
-            Assert.AreEqual(expected_java, _w.GetContents());
+            Assert.AreEqual(expected_java.ReplaceLineEndings(), _w.GetContents());
         }
 
         #endregion
@@ -92,7 +92,9 @@ void MyMethod() {
 # will open a Python block
 if a == b :
     print b
-".TrimStart();
+"
+.ReplaceLineEndings()
+.TrimStart();
 
 
         [Test]
@@ -105,7 +107,7 @@ if a == b :
                     _w.WriteLine("print b");
                 });
 
-           Assert.AreEqual(expectedPython, _w.GetContents());
+           Assert.AreEqual(expectedPython.ReplaceLineEndings(), _w.GetContents());
         }
 
 
@@ -129,7 +131,9 @@ Line1
     Line2
         Line3
     Line4
-".TrimStart();
+"
+.ReplaceLineEndings()
+.TrimStart();
 
 
         [Test]

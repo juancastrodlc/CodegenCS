@@ -37,6 +37,9 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
+                """,_stdOut);
+            StringAssert.Contains("SimplePocos.dll version ", _stdOut);
+            StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
                 Template entry-point: 'SimplePOCOGenerator.Render()'...
                 To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'
@@ -64,6 +67,9 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
+                """, _stdOut);
+            StringAssert.Contains("SimplePocos.dll version ",_stdOut);
+            StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
                 Template entry-point: 'SimplePOCOGenerator.Render()'...
                 To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'
@@ -71,7 +77,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 For a sample schema please check out: 'https://github.com/Drizin/CodegenCS/blob/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json'
                 To run this template use: 'dotnet-codegencs template run SimplePocos.dll <DatabaseSchemaModel>'
                 For help: 'dotnet-codegencs template run /?'
-                """, _stdOut);
+                """,_stdOut);
             FileAssert.Exists("SimplePocos.cs");
             FileAssert.Exists("SimplePocos.dll");
         }
@@ -90,6 +96,9 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
+                """,_stdOut);
+            StringAssert.Contains("SimplePocos.dll version ", _stdOut);
+            StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
                 Template entry-point: 'SimplePOCOGenerator.Render()'...
                 To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'
@@ -176,12 +185,12 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 71 files at folder '", _stdOut);
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
-            FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.g.cs")));
+            FileAssert.Exists("Person.Address.generated.cs");
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -198,8 +207,8 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Generated 71 files at folder '", _stdOut);
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
-            FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.g.cs")));
+            FileAssert.Exists("Person.Address.generated.cs");
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -212,12 +221,12 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 71 files at folder '", _stdOut);
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
-            FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(("Person.Address.g.cs")));
+            FileAssert.Exists("Person.Address.generated.cs");
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -228,12 +237,12 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 71 files at folder '", _stdOut);
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
-            FileAssert.Exists("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(("Person.Address.g.cs")));
+            FileAssert.Exists("Person.Address.generated.cs");
+            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -292,7 +301,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 1 file: '", _stdOut);
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
@@ -313,7 +322,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Loading 'SimplePocos.dll'...", _stdOut);
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
-            StringAssert.Contains("Model successfuly loaded from 'AdventureWorksSchema.json'...", _stdOut);
+            StringAssert.Contains("Model successfully loaded from 'AdventureWorksSchema.json'...", _stdOut);
             StringAssert.Contains("Generated 1 file: '", _stdOut);
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
@@ -356,7 +365,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 StringAssert.Contains("Model type is 'CodegenCS.Models.DbSchema.DatabaseSchema'...", _stdOut);
             else
                 StringAssert.Contains("Model type is 'NSwag.OpenApiDocument'...", _stdOut);
-            StringAssert.Contains($"Model successfuly loaded from '{model}'...", _stdOut);
+            StringAssert.Contains($"Model successfully loaded from '{model}'...", _stdOut);
             StringAssert.Contains($"Successfully executed template '{templateAlias}.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists($"{templateAlias}.g.cs");

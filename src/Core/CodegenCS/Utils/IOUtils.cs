@@ -13,10 +13,6 @@ namespace CodegenCS.Utils
             if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException(nameof(toPath));
             fromPath = Path.GetFullPath(fromPath);
             toPath = Path.GetFullPath(toPath);
-            if (Path.IsPathRooted(toPath))
-            {
-                return toPath;
-            }
             if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()) &&
                 !fromPath.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
             {

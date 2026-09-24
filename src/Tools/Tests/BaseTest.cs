@@ -11,6 +11,7 @@ using TemplateLauncherArgs = CodegenCS.TemplateLauncher.TemplateLauncher.Templat
 using TemplateBuilderArgs = CodegenCS.TemplateBuilder.TemplateBuilder.TemplateBuilderArgs;
 using CodegenCS.Runtime;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodegenCS.Tools.Tests;
 
@@ -145,7 +146,7 @@ public class BaseTest
             File.WriteAllText(filePath, writer.GetContents());
         }
 
-        string fileContents = File.ReadAllText(filePath);
+        string fileContents = File.ReadAllText(filePath).ReplaceLineEndings();
         Assert.AreEqual(fileContents, writer.GetContents());
     }
 
@@ -160,7 +161,7 @@ public class BaseTest
             context.SaveToFolder(folder);
         }
 
-        var files = Directory.GetFiles(folder);
+        var files = Directory.GetFiles(folder);        
         Assert.AreEqual(files.Length, context.OutputFilesPaths.Count);
         foreach (var relativeFilePath in context.OutputFilesPaths)
         {
