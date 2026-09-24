@@ -45,7 +45,8 @@ namespace CodegenCS.Tests.CoreTests
 Price: 000.3400
 Price: 000.5500
 Price: 003.6930
-".TrimStart(Environment.NewLine.ToCharArray());
+".ReplaceLineEndings()
+ .TrimStart(Environment.NewLine.ToCharArray());
             Assert.AreEqual(expected, _w.GetContents());
         }
 

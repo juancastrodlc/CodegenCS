@@ -38,7 +38,7 @@ namespace CodegenCS
         /// <summary>
         /// When a <see cref="ICodegenOutputFile"/> is renamed it should notify the <see cref="ICodegenContext"/> by calling this method.
         /// </summary>
-        /// <returns>True if context could successfuly find and rename the file</returns>
+        /// <returns>True if context could successfully find and rename the file</returns>
         bool OnOutputFileRenamed(string oldRelativePath, string newRelativePath, ICodegenOutputFile outputFile);
 
         /// <summary>

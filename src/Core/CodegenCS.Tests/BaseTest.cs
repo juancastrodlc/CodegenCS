@@ -111,7 +111,7 @@ internal class BaseTest
             File.WriteAllText(file, writer.GetContents());
         }
 
-        string fileContents = File.ReadAllText(file);
+        string fileContents = File.ReadAllText(file).ReplaceLineEndings();
         Assert.AreEqual(fileContents, writer.GetContents());
     }
 

@@ -59,7 +59,7 @@ void MyMethod3()
     Hello3
 }
 Hello3
-".TrimStart();
+".TrimStart().ReplaceLineEndings();
             Assert.AreEqual(expected, _w.GetContents());
         }
 
@@ -114,7 +114,7 @@ Hello3
 - Get milk
 - Clean the house
 - Mow the lawn
-".TrimStart(Environment.NewLine.ToCharArray());
+".TrimStart(Environment.NewLine.ToCharArray()).ReplaceLineEndings();
             Assert.AreEqual(expected, _w.GetContents());
         }
         #endregion
@@ -147,7 +147,7 @@ Hello3
     - Bedroom
 - Mow the lawn
 ";
-            Assert.AreEqual(expected, _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
         }
         #endregion
 
@@ -177,7 +177,7 @@ Hello3
         - Family bathroom
     - Bedroom
 - Mow the lawn
-";
+".ReplaceLineEndings();
             Assert.AreEqual(expected, _w.GetContents());
         }
 
@@ -195,7 +195,7 @@ Hello3
         - Family bathroom
     - Bedroom
 - Mow the lawn
-";
+".ReplaceLineEndings();
             Assert.AreEqual(expected, _w.GetContents());
         }
         #endregion
@@ -212,7 +212,9 @@ Hello3
 I have a LOT of things to do today:
     - Get milk
     - Clean the house
-    - Mow the lawn".TrimStart(Environment.NewLine.ToCharArray());
+    - Mow the lawn"
+        .TrimStart(Environment.NewLine.ToCharArray())
+        .ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -255,7 +257,7 @@ I have a LOT of things to do today:
                     @AddressLine2,
                     @City
                 )
-                """;
+                """.ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -285,7 +287,7 @@ I have a LOT of things to do today:
                     [AddressLine2],
                     [City]
                 )
-                """;
+                """.ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -311,7 +313,7 @@ I have a LOT of things to do today:
                     [AddressLine2],
                     [City]
                 )
-                """;
+                """.ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -341,7 +343,7 @@ I have a LOT of things to do today:
                     [AddressLine2],
                     [City]
                 )
-                """;
+                """.ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -371,7 +373,7 @@ I have a LOT of things to do today:
                     [AddressLine2],
                     [City]
                 )
-                """;
+                """.ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -397,7 +399,7 @@ Table: {{table.TableName}}
                 Table: Products
                     Column: Description
                     Column: ProductId
-                """;
+                """.ReplaceLineEndings();
             
             Assert.AreEqual(expected, _w.GetContents());
         }

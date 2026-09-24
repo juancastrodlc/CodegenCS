@@ -1,16 +1,15 @@
-﻿#r "System.Data.dll"
-#r "System.Data.SqlClient.dll"
-#r "System.Data.Common.dll"
-using System.Data.SqlClient;
+﻿#r "System.Data.Common.dll"
+#r "Microsoft.Data.Sqlite.dll"
+using Microsoft.Data.Sqlite;
 
 class MyTemplate
 {
-    private readonly string CONNECTION_STRING = "Data Source=<yourserver>;Initial Catalog='yourdb';Persist Security Info=True;Encrypt=false;User ID=<username>;Password='<password>';";
+    private readonly string CONNECTION_STRING = "Data Source=:memory:";
     async Task<FormattableString> Main()
     {
-        using (SqlConnection sqlConnection = new SqlConnection(CONNECTION_STRING))
+        using (SqliteConnection sqliteConnection = new SqliteConnection(CONNECTION_STRING))
         {
-            sqlConnection.Open();
+            sqliteConnection.Open();
             return $"My template worked";
         }
         return $"My template failed";

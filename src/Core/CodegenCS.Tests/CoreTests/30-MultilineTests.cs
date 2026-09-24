@@ -81,7 +81,7 @@ namespace CodegenCS.Tests.CoreTests
 {
     //...
 }
-";
+".ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -137,8 +137,8 @@ public void MyMethod2()
 }
 ";
 
-            Assert.AreEqual(expected, _w.GetContents());
-            Assert.AreEqual(expected, _w2.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w2.GetContents());
         }
 
 
@@ -172,8 +172,8 @@ public void MyMethod2()
     }
 ";
 
-            Assert.AreEqual(expected, _w.GetContents());
-            Assert.AreEqual(expected, _w2.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w2.GetContents());
         }
 
 
@@ -276,8 +276,8 @@ namespace MyNameSpace
         This is a multi-line block
     }
 }".TrimStart();
-            Assert.AreEqual(expected, _w.GetContents());
-            Assert.AreEqual(expected, _w2.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w2.GetContents());
         }
 
         [Test]
@@ -334,7 +334,7 @@ namespace AdventureWorks
         public int MyProp1 { get; set; }
     }
 }";
-            Assert.AreEqual(expected.TrimStart(), _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings().TrimStart(), _w.GetContents());
         }
 
         /// <summary>
@@ -374,7 +374,7 @@ namespace AdventureWorks
             it will be all left-aligned (trimmed)
         }
     }
-}";
+}".ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -420,7 +420,7 @@ namespace AdventureWorks
             it will be all left-aligned (trimmed)
         }
     }
-}";
+}".ReplaceLineEndings();
 
             Assert.AreEqual(expected, _w.GetContents());
         }
@@ -436,7 +436,7 @@ indented:
     c
 empty:
 
-d";
+d".ReplaceLineEndings();
 
             _w.WriteLine($$"""
                 public string Test()
@@ -455,7 +455,7 @@ d";
 }}
 ";
 
-            Assert.AreEqual(expected, _w.GetContents());
+            Assert.AreEqual(expected.ReplaceLineEndings(), _w.GetContents());
         }
 
     }
