@@ -108,31 +108,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" ExcludeAssets="runtime">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.69" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="InterpolatedColorConsole" Version="1.0.3" />
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-	<Content Include="bin\$(Configuration)\Microsoft.CodeAnalysis.dll">
-	  <Link>%(Filename)%(Extension)</Link>
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <IncludeInVSIX>true</IncludeInVSIX>
-	</Content>
-	<Content Include="bin\$(Configuration)\Microsoft.CodeAnalysis.CSharp.dll">
-	  <Link>%(Filename)%(Extension)</Link>
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <IncludeInVSIX>true</IncludeInVSIX>
-	</Content>
-	<Content Include="bin\$(Configuration)\Newtonsoft.Json.dll">
-	  <Link>%(Filename)%(Extension)</Link>
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <IncludeInVSIX>true</IncludeInVSIX>
-	</Content>
+    <Content Include="bin\$(Configuration)\Microsoft.CodeAnalysis.dll">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="bin\$(Configuration)\Microsoft.CodeAnalysis.CSharp.dll">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="bin\$(Configuration)\Newtonsoft.Json.dll">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\RunTemplateCommand.png" />
@@ -150,30 +153,30 @@
   <Choose>
     <When Condition="'$(Configuration)' == 'Debug'">
       <ItemGroup>
-		<ProjectReference Include="..\..\Core\CodegenCS\CodegenCS.Core.csproj">
-		  <Project>{51de0970-e84d-4f96-ae80-bc17e28b2736}</Project>
-		  <Name>CodegenCS.Core</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj">
-		  <Project>{3a765f42-3c03-4c1c-9a03-b490ea94911b}</Project>
-		  <Name>CodegenCS.Runtime</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj">
-		  <Project>{7e79d7a5-b919-48b0-b5e9-620be086b399}</Project>
-		  <Name>CodegenCS.DotNet</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\CodegenCS.Models\CodegenCS.Models.csproj">
-		  <Project>{21f897ca-25a6-49f8-95a0-a191aacc2b2c}</Project>
-		  <Name>CodegenCS.Models</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj">
-		  <Project>{8b3282f8-0080-4526-8ece-45346beb1d20}</Project>
-		  <Name>CodegenCS.Models.DbSchema</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj">
-		  <Project>{684ab71f-4d08-4d72-8161-67ecdaf440ec}</Project>
-		  <Name>CodegenCS.Models.NSwagAdapter</Name>
-		</ProjectReference>
+        <ProjectReference Include="..\..\Core\CodegenCS\CodegenCS.Core.csproj">
+          <Project>{51de0970-e84d-4f96-ae80-bc17e28b2736}</Project>
+          <Name>CodegenCS.Core</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj">
+          <Project>{3a765f42-3c03-4c1c-9a03-b490ea94911b}</Project>
+          <Name>CodegenCS.Runtime</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj">
+          <Project>{7e79d7a5-b919-48b0-b5e9-620be086b399}</Project>
+          <Name>CodegenCS.DotNet</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\CodegenCS.Models\CodegenCS.Models.csproj">
+          <Project>{21f897ca-25a6-49f8-95a0-a191aacc2b2c}</Project>
+          <Name>CodegenCS.Models</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj">
+          <Project>{8b3282f8-0080-4526-8ece-45346beb1d20}</Project>
+          <Name>CodegenCS.Models.DbSchema</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj">
+          <Project>{684ab71f-4d08-4d72-8161-67ecdaf440ec}</Project>
+          <Name>CodegenCS.Models.NSwagAdapter</Name>
+        </ProjectReference>
       </ItemGroup>
     </When>
     <Otherwise>
@@ -209,7 +212,7 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
     <PreBuildEvent>copy $(ProjectDir)\source.extension.$(Configuration).vsixmanifest $(ProjectDir)\source.extension.vsixmanifest</PreBuildEvent>
-	<PostBuildEvent>del $(ProjectDir)\source.extension.vsixmanifest</PostBuildEvent>
+    <PostBuildEvent>del $(ProjectDir)\source.extension.vsixmanifest</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

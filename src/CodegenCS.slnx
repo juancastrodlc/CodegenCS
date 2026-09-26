@@ -43,4 +43,16 @@
     <Project Path="Tools/TemplateLauncher/CodegenCS.Tools.TemplateLauncher.csproj" />
     <Project Path="Tools/Tests/CodegenCS.Tools.Tests.csproj" />
   </Folder>
+  <Folder Name="/VisualStudio/">
+    <Project Path="VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj" />
+    <Project Path="VisualStudio/Tests/CodegenCS.VisualStudio.Tests.csproj" />
+    <Project Path="VisualStudio/VS2019Extension/VS2019Extension.csproj" Id="82da3670-09e8-4821-b261-9dc022525513">
+      <Platform Solution="*|arm64" Project="arm64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="VisualStudio/VS2022Extension/VS2022Extension.csproj" Id="2901baea-168e-45fb-8714-4299d605f789">
+      <Platform Solution="*|arm64" Project="arm64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+  </Folder>
 </Solution>

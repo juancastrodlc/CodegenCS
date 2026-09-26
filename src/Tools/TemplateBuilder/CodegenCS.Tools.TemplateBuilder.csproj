@@ -51,10 +51,9 @@
 
   <ItemGroup>
 	<PackageReference Include="InterpolatedColorConsole" Version="1.0.3" />
-    <PackageReference Include="Dapper.StrongName" Version="2.1.86" />
+    <PackageReference Include="Dapper.StrongName" Version="2.1.89" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     <PackageReference Include="Npgsql" Version="8.0.9" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-codegencs" />
 	<PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-codegencs" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />

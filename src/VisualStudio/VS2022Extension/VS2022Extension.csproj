@@ -105,8 +105,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.32112.339" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2186" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="InterpolatedColorConsole" Version="1.0.3" />
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
@@ -187,7 +192,7 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
     <PreBuildEvent>copy $(ProjectDir)\source.extension.$(Configuration).vsixmanifest $(ProjectDir)\source.extension.vsixmanifest</PreBuildEvent>
-	<PostBuildEvent>del $(ProjectDir)\source.extension.vsixmanifest</PostBuildEvent>
+    <PostBuildEvent>del $(ProjectDir)\source.extension.vsixmanifest</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
