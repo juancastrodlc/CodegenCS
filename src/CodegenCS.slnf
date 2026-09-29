@@ -1,0 +1,24 @@
+﻿{
+  "solution": {
+    "path": "CodegenCS.slnx",
+    "projects": [
+      "Core\\CodegenCS.DotNet\\CodegenCS.DotNet.csproj",
+      "Core\\CodegenCS.Models\\CodegenCS.Models.csproj",
+      "Core\\CodegenCS.Runtime\\CodegenCS.Runtime.csproj",
+      "Core\\CodegenCS.Tests\\CodegenCS.Tests.csproj",
+      "Core\\CodegenCS\\CodegenCS.Core.csproj",
+      "Models\\CodegenCS.Models.DbSchema.Extractor\\CodegenCS.Models.DbSchema.Extractor.csproj",
+      "Models\\CodegenCS.Models.DbSchema\\CodegenCS.Models.DbSchema.csproj",
+      "Models\\CodegenCS.Models.NSwagAdapter\\CodegenCS.Models.NSwagAdapter.csproj",
+      "MSBuild\\CodegenCS.MSBuild\\CodegenCS.MSBuild.csproj",
+      "SourceGenerator\\CodegenCS.SourceGenerator\\CodegenCS.SourceGenerator.csproj",
+      "Tools\\CodegenCS.Tools.CliTool.Tests\\CodegenCS.Tools.CliTool.Tests.csproj",
+      "Tools\\dotnet-codegencs\\dotnet-codegencs.csproj",
+      "Tools\\TemplateBuilder\\CodegenCS.Tools.TemplateBuilder.csproj",
+      "Tools\\TemplateDownloader\\CodegenCS.Tools.TemplateDownloader.csproj",
+      "Tools\\TemplateLauncher\\CodegenCS.Tools.TemplateLauncher.csproj",
+      "Tools\\Tests\\CodegenCS.Tools.Tests.csproj",
+      "VisualStudio\\CodegenCS.Runtime.VisualStudio\\CodegenCS.Runtime.VisualStudio.csproj"
+    ]
+  }
+}
