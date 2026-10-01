@@ -1,26 +1,30 @@
+#!/usr/bin/env pwsh
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
+. (Join-Path $dir "build-include.ps1")
 
 try {
 
-	Remove-Item -Recurse -Force -ErrorAction Ignore ".\packages-local"
-	Remove-Item -Recurse -Force -ErrorAction Ignore "$env:HOMEDRIVE$env:HOMEPATH\.nuget\packages\codegencs"
-	Remove-Item -Recurse -Force -ErrorAction Ignore "$env:HOMEDRIVE$env:HOMEPATH\.nuget\packages\codegencs.*"
+	$packagesLocal = Join-Path $dir "packages-local"
+	$nugetGlobal = Get-NuGetGlobalPackagesFolder
 
-	#Remove-Item -Recurse -Force -ErrorAction Ignore ".\External\command-line-api\artifacts\packages\Debug\Shipping\"
-	#Remove-Item -Recurse -Force -ErrorAction Ignore ".\External\command-line-api\artifacts\packages\Release\Shipping\"
-
+	# Note: we do NOT delete packages-local here anymore because on Linux it contains the
+	# pre-restored offline packages (including System.CommandLine) required to build.
+	# We only clear the locally-built CodegenCS.* packages from the global nuget cache.
+	Remove-Item -Recurse -Force -ErrorAction Ignore (Join-Path $nugetGlobal "codegencs")
+	Get-ChildItem -Path $nugetGlobal -Filter "codegencs.*" -Directory -ErrorAction Ignore | Remove-Item -Recurse -Force -ErrorAction Ignore
 
 	# when target frameworks are added/modified dotnet clean might fail and we may need to cleanup the old dependency tree
-	Remove-Item -Recurse -Force -ErrorAction Ignore ".\vs"
-	Get-ChildItem .\ -Recurse | Where{$_.FullName -CMatch ".*\\bin$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-	Get-ChildItem .\ -Recurse | Where{$_.FullName -CMatch ".*\\obj$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-	Get-ChildItem .\ -Recurse | Where{$_.FullName -Match ".*\\obj\\.*project.assets.json$"} | Remove-Item
-	#Get-ChildItem .\ -Recurse | Where{$_.FullName -Match ".*\.csproj$" -and $_.FullName -NotMatch ".*\\VSExtensions\\" } | ForEach { dotnet clean $_.FullName }
-	#dotnet clean .\CodegenCS.sln
-	New-Item -ItemType Directory -Force -Path ".\packages-local"
+	Remove-Item -Recurse -Force -ErrorAction Ignore (Join-Path $dir ".vs")
+
+	# Remove bin/obj folders (cross-platform, skip the External submodule we are migrating away from)
+	Get-ChildItem -Path $dir -Recurse -Directory -ErrorAction Ignore |
+		Where-Object { ($_.Name -eq "bin" -or $_.Name -eq "obj") -and $_.FullName -notmatch "[\\/]External[\\/]" } |
+		Remove-Item -Recurse -Force -ErrorAction Ignore
+
+	New-Item -ItemType Directory -Force -Path $packagesLocal | Out-Null
 
 } finally {
     Pop-Location

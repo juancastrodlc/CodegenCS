@@ -1,74 +1,45 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
 # How to run:
-# .\build-core.ps1
-# or
-# .\build-core.ps1 -configuration Debug
-
-
-. .\build-include.ps1
+#   .\build-core.ps1
+#   .\build-core.ps1 -configuration Debug
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
+. (Join-Path $dir "build-include.ps1")
+
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
-	if (Test-Path Release.snk) { $configuration = "Release"; } else { $configuration = "Debug"; }
+	if (Test-Path (Join-Path $dir "Release.snk")) { $configuration = "Release"; } else { $configuration = "Debug"; }
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
-
 try {
 
+	$projects = @(
+		"Core/CodegenCS/CodegenCS.Core.csproj",
+		"Core/CodegenCS.Models/CodegenCS.Models.csproj",
+		"Core/CodegenCS.Runtime/CodegenCS.Runtime.csproj",
+		"Core/CodegenCS.DotNet/CodegenCS.DotNet.csproj"
+	)
 
-	# CodegenCS.Core + nupkg/snupkg
-	dotnet restore ".\Core\CodegenCS\CodegenCS.Core.csproj"
-	& $msbuild ".\Core\CodegenCS\CodegenCS.Core.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
-	if (! $?) { throw "msbuild failed" }
-			   
-
-	# CodegenCS.Models + nupkg/snupkg
-	dotnet restore ".\Core\CodegenCS.Models\CodegenCS.Models.csproj"
-	& $msbuild ".\Core\CodegenCS.Models\CodegenCS.Models.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
-	if (! $?) { throw "msbuild failed" }
-
-	# CodegenCS.Runtime + nupkg/snupkg
-	dotnet restore ".\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj"
-	& $msbuild ".\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj"                          `
-			   /t:Restore /t:Build /t:Pack                             `
-			   /p:PackageOutputPath="..\..\packages-local\"               `
-			   /p:Configuration=$configuration                         `
-			   /p:IncludeSymbols=true                                  `
-			   /verbosity:minimal                                      `
-			   /p:ContinuousIntegrationBuild=true
-	if (! $?) { throw "msbuild failed" }
-
-	# CodegenCS.DotNet + nupkg/snupkg
-	dotnet restore ".\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj"
-	& $msbuild ".\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj" `
-			   /t:Restore /t:Build /t:Pack `
-			   /p:PackageOutputPath="..\..\packages-local\" `
-			   /p:Configuration=$configuration `
-			   /p:IncludeSymbols=true `
-			   /verbosity:minimal `
-			   /p:ContinuousIntegrationBuild=true
-	if (! $?) { throw "msbuild failed" }
+	foreach ($project in $projects) {
+		$projectPath = Join-Path $dir $project
+		dotnet restore $projectPath
+		Invoke-MSBuild $projectPath `
+			/t:Restore /t:Build /t:Pack `
+			"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `
+			/p:Configuration=$configuration `
+			/p:IncludeSymbols=true `
+			/verbosity:minimal `
+			/p:ContinuousIntegrationBuild=true
+	}
 
 } finally {
     Pop-Location

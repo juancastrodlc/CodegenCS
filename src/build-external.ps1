@@ -1,40 +1,20 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
-# How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
-
+# DEPRECATED: This script used to build the customized System.CommandLine "2.0.0-codegencs"
+# fork from the .\External\command-line-api git submodule and copy the resulting packages
+# into .\packages-local.
+#
+# The migration removed the dependency on that fork - the public System.CommandLine packages
+# are now referenced directly and are already present in .\packages-local. There is nothing
+# to build here anymore, so this script is a no-op kept only for backwards compatibility.
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
-Push-Location $dir
+. (Join-Path $dir "build-include.ps1")
 
-if (-not $PSBoundParameters.ContainsKey('configuration'))
-{
-	if (Test-Path Release.snk) { $configuration = "Release"; } else { $configuration = "Debug"; }
-}
-
-
-New-Item -ItemType Directory -Force -Path ".\packages-local"
-
-git submodule init
-git pull --recurse-submodules
-git submodule update --remote --recursive
-
-cd External\command-line-api\
-git checkout main 
-Remove-Item -Recurse ~\.nuget\packages\System.CommandLine* -Force
-dotnet clean
-
-dotnet pack  /p:PackageVersion=2.0.0-codegencs -c $configuration
-if (! $?) { throw "msbuild failed" }
-
-copy artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.nupkg ..\..\packages-local\
-copy artifacts\packages\$configuration\Shipping\System.CommandLine.2.0.0-codegencs.snupkg ..\..\packages-local\
-copy artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.nupkg ..\..\packages-local\
-copy artifacts\packages\$configuration\Shipping\System.CommandLine.NamingConventionBinder.2.0.0-codegencs.snupkg ..\..\packages-local\
-
-
-
-Pop-Location
+Write-Host "build-external.ps1 is deprecated: the System.CommandLine 2.0.0-codegencs fork is no longer built." -ForegroundColor Yellow
+Write-Host "The public System.CommandLine packages in .\packages-local are used instead. Nothing to do." -ForegroundColor DarkGray

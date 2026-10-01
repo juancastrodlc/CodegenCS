@@ -1,21 +1,33 @@
+#!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
 )
 
-# Visual Studio Extensions
-# How to run: .\build.ps1   or   .\build.ps1 -configuration Debug
-
-
-. .\build-include.ps1
+# Visual Studio Extensions (VSIX)
+# How to run: .\build-visualstudio.ps1   or   .\build-visualstudio.ps1 -configuration Debug
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
+. (Join-Path $dir "build-include.ps1")
+
+# Visual Studio extensions require the Visual Studio SDK and full msbuild.exe, which only
+# exist on Windows. Skip entirely on other platforms.
+if (-not $IsWindows) {
+    Write-Host "Skipping Visual Studio extensions build: this is a Windows-only target." -ForegroundColor Yellow
+    Pop-Location
+    return
+}
+if (-not $global:msbuildExe) {
+    Write-Host "Skipping Visual Studio extensions build: full msbuild.exe (Visual Studio) not found." -ForegroundColor Yellow
+    Pop-Location
+    return
+}
+
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
-	#if (Test-Path Release.snk) { $configuration = "Release"; } else { $configuration = "Debug"; }
 	$configuration = "Debug"
 }
 Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
@@ -23,41 +35,29 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 try {
 
 	# This component is hard to debug (fragile dependencies) so it's better to clean on each build
-	Get-ChildItem .\VisualStudio\ -Recurse | Where{$_.FullName -CMatch ".*\\bin$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-	Get-ChildItem .\VisualStudio\ -Recurse | Where{$_.FullName -CMatch ".*\\obj$" -and $_.PSIsContainer} | Remove-Item -Recurse -Force -ErrorAction Ignore
-	Get-ChildItem .\VisualStudio\ -Recurse | Where{$_.FullName -Match ".*\\obj\\.*project.assets.json$"} | Remove-Item
-
+	Get-ChildItem (Join-Path $dir "VisualStudio") -Recurse -Directory -ErrorAction Ignore |
+		Where-Object { $_.Name -eq "bin" -or $_.Name -eq "obj" } |
+		Remove-Item -Recurse -Force -ErrorAction Ignore
 
 	# CodegenCS.Runtime.VisualStudio
-	dotnet restore ".\VisualStudio\CodegenCS.Runtime.VisualStudio\CodegenCS.Runtime.VisualStudio.csproj"
-	& $msbuild ".\VisualStudio\CodegenCS.Runtime.VisualStudio\CodegenCS.Runtime.VisualStudio.csproj"                          `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration                         `
-			   /p:IncludeSymbols=true                                  `
-			   /verbosity:minimal                                      `
-			   /p:ContinuousIntegrationBuild=true
-	if (! $?) { throw "msbuild failed" }
+	$p = Join-Path $dir "VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj"
+	dotnet restore $p
+	Invoke-MSBuild $p `
+		/t:Restore /t:Build `
+		/p:Configuration=$configuration `
+		/p:IncludeSymbols=true `
+		/verbosity:minimal `
+		/p:ContinuousIntegrationBuild=true
 
-	dotnet restore ".\VisualStudio\VS2022Extension\VS2022Extension.csproj"
-	& $msbuild ".\VisualStudio\VS2022Extension\VS2022Extension.csproj"   `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration
-	if (! $?) { throw "msbuild failed" }
-	copy .\VisualStudio\VS2022Extension\bin\$configuration\CodegenCS.VisualStudio.VS2022Extension.vsix .\packages-local\
-	
-	dotnet restore ".\VisualStudio\VS2022Extension\VS2019Extension.csproj"
-	& $msbuild ".\VisualStudio\VS2019Extension\VS2019Extension.csproj"   `
-			   /t:Restore /t:Build                                     `
-			   /p:Configuration=$configuration                        		   
-	if (! $?) { throw "msbuild failed" }
-	copy .\VisualStudio\VS2019Extension\bin\$configuration\CodegenCS.VisualStudio.VS2019Extension.vsix .\packages-local\
+	$p = Join-Path $dir "VisualStudio/VS2022Extension/VS2022Extension.csproj"
+	dotnet restore $p
+	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
+	Copy-Item (Join-Path $dir "VisualStudio/VS2022Extension/bin/$configuration/CodegenCS.VisualStudio.VS2022Extension.vsix") (Join-Path $dir "packages-local") -Force
 
-	# The secret to VSIX painless-troubleshooting is inspecting the VSIX package:
-	# & "C:\Program Files\7-Zip\7zFM.exe" .\VisualStudio\VS2022Extension\bin\Debug\CodegenCS.VSExtensions.VisualStudio2022.vsix
-	# Sometimes command-line shows errors that Visual Studio ignores
-	# Sometimes in the extension folder we will have ZERO-bytes files
-
-
+	$p = Join-Path $dir "VisualStudio/VS2019Extension/VS2019Extension.csproj"
+	dotnet restore $p
+	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
+	Copy-Item (Join-Path $dir "VisualStudio/VS2019Extension/bin/$configuration/CodegenCS.VisualStudio.VS2019Extension.vsix") (Join-Path $dir "packages-local") -Force
 
 } finally {
     Pop-Location

@@ -6,7 +6,8 @@
 
   <!-- You can run any number of templates in PreBuild or PostBuild events. -->
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="powershell $(ProjectDir)RunTemplates.ps1" />
+    <Exec Command="powershell &quot;$(ProjectDir)RunTemplates.ps1&quot;" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec Command="pwsh &quot;$(ProjectDir)RunTemplates.ps1&quot;" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
   <!-- Our Template output requires Dapper -->
