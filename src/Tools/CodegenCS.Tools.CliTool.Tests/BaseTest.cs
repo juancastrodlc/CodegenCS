@@ -35,10 +35,11 @@ internal class BaseTest
     {
         _stdOutBuffer = new StringBuilder();
         _stdErrBuffer = new StringBuilder();
-        var exe = OperatingSystem.IsWindows() ? ".exe" : string.Empty;
-        var result = await Cli.Wrap(Path.Combine(Directory.GetCurrentDirectory(), "dotnet-codegencs"+exe))
-            .WithArguments(arguments)
-            .WithWorkingDirectory(Directory.GetCurrentDirectory())
+        var workingDirectory = TestEnvironment.TestDirectory;
+        var toolAssembly = Path.Combine(workingDirectory, "dotnet-codegencs.dll");
+        var result = await Cli.Wrap("dotnet")
+            .WithArguments($"\"{toolAssembly}\" {arguments}")
+            .WithWorkingDirectory(workingDirectory)
             .WithValidation(CommandResultValidation.None)
             .WithStandardOutputPipe(PipeTarget.ToStringBuilder(_stdOutBuffer))
             .WithStandardErrorPipe(PipeTarget.ToStringBuilder(_stdErrBuffer))
@@ -106,7 +107,9 @@ internal class BaseTest
         };
         var builder = new CodegenCS.TemplateBuilder.TemplateBuilder(_logger, _builderArgs);
         var builderResult = await builder.ExecuteAsync();
-        Assert.AreEqual(0, builderResult.ReturnCode);
+        string compilationErrors = string.Join(Environment.NewLine, builderResult.CompilationErrors?.Select(error =>
+            $"{error.Line}:{error.Column} {error.Message}") ?? Enumerable.Empty<string>());
+        Assert.AreEqual(0, builderResult.ReturnCode, compilationErrors);
     }
 
     protected async Task<int> LaunchAsync(string[] models = null, string[] templateArgs = null)
@@ -143,7 +146,7 @@ internal class BaseTest
         _cliCommandParser = new CliCommandParser(); // HACK: this is modified in some places (fake parser) so we should better start fresh
         launcher.ParseCliUsingCustomCommand = _cliCommandParser._runTemplateCommandWrapper.ParseCliUsingCustomCommand;
         //string cmd = $$"""testhost template run {{_launcherArgs.Template}} {{string.Join(" ", models?.Any() == true ? models : new string[0])}} {{string.Join(" ", templateArgs?.Any() == true ? templateArgs : new string[0])}}""";
-        var cmd = new List<string>() { "testhost", "template", "run", _launcherArgs.Template };
+        var cmd = new List<string>() { "template", "run", _launcherArgs.Template };
         foreach (var model in models)
             cmd.Add(model);
         foreach (var arg in templateArgs)

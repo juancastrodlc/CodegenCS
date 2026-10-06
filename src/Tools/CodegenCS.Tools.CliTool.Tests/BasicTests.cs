@@ -12,6 +12,15 @@ namespace CodegenCS.Tools.CliTool.Tests
     internal class BasicTests : BaseTest
     {
 
+        [OneTimeSetUp]
+        public async Task EnsureSimplePocosTemplateExists()
+        {
+            var result = await Run("template clone simplepocos");
+            Assert.AreEqual(0, result.ExitCode);
+            FileAssert.Exists("SimplePocos.cs");
+            FileAssert.Exists("SimplePocos.dll");
+        }
+
         [Test]
         public async Task GetHelp()
         {
@@ -19,7 +28,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             Assert.AreEqual(0, result.ExitCode);
             StringAssert.Contains($"dotnet-codegencs.exe version {typeof(DotNetTool.Program).Assembly.GetName().Version}", _stdOut);
             StringAssert.Contains($"CodegenCS.Core.dll version {typeof(CodegenCS.CodegenContext).Assembly.GetName().Version}", _stdOut);
-            StringAssert.Contains("Usage:\r\n  dotnet-codegencs [command] [options]\r\n".Replace("\r\n",Environment.NewLine), _stdOut);
+            StringAssert.Contains($"Usage:{Environment.NewLine}  dotnet-codegencs [command] [options]{Environment.NewLine}", _stdOut.ReplaceLineEndings());
         }
 
         #region Template Clone
@@ -286,8 +295,8 @@ namespace CodegenCS.Tools.CliTool.Tests
             FileAssert.Exists("SimplePocos.dll");
             var result = await Run("template run SimplePocos.dll AdventureWorksSchema.json");
             StringAssert.Contains("ERROR: Required argument 'Namespace' missing for command", _stdErr);
-            StringAssert.Contains("Usage:\r\n  dotnet-codegencs template run SimplePocos.dll <Model> <Namespace> [options]\r\n", _stdOut);
-            Assert.Negative(result.ExitCode);
+            StringAssert.Contains($"Usage:{Environment.NewLine}  dotnet-codegencs template run SimplePocos.dll <Model> <Namespace> [options]{Environment.NewLine}", _stdOut.ReplaceLineEndings());
+            Assert.AreNotEqual(0, result.ExitCode);
         }
 
 
@@ -307,9 +316,10 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("SimplePocos.g.cs");
             FileAssert.DoesNotExist("Person.Address.g.cs");
-            StringAssert.Contains("namespace MyNamespace2\r\n", File.ReadAllText(("SimplePocos.g.cs")));
-            StringAssert.Contains("public partial class Address", File.ReadAllText(("SimplePocos.g.cs")));
-            StringAssert.Contains("public override bool Equals(object obj)", File.ReadAllText(("SimplePocos.g.cs")));
+            var generatedFile = File.ReadAllText("SimplePocos.g.cs").ReplaceLineEndings();
+            StringAssert.Contains($"namespace MyNamespace2{Environment.NewLine}", generatedFile);
+            StringAssert.Contains("public partial class Address", generatedFile);
+            StringAssert.Contains("public override bool Equals(object obj)", generatedFile);
         }
 
         [Test]
@@ -326,10 +336,12 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Generated 1 file: '", _stdOut);
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
-            FileAssert.Exists(".\\SubFolder\\MyPocos.cs");
-            StringAssert.Contains("namespace MyNamespace2\r\n", File.ReadAllText((".\\SubFolder\\MyPocos.cs")));
-            StringAssert.Contains("public partial class Address", File.ReadAllText((".\\SubFolder\\MyPocos.cs")));
-            StringAssert.DoesNotContain("public override bool Equals(object obj)", File.ReadAllText((".\\SubFolder\\MyPocos.cs")));
+            string outputFile = Path.Combine("SubFolder", "MyPocos.cs");
+            FileAssert.Exists(outputFile);
+            var generatedFile = File.ReadAllText(outputFile).ReplaceLineEndings();
+            StringAssert.Contains($"namespace MyNamespace2{Environment.NewLine}", generatedFile);
+            StringAssert.Contains("public partial class Address", generatedFile);
+            StringAssert.DoesNotContain("public override bool Equals(object obj)", generatedFile);
         }
 
         #endregion
@@ -352,7 +364,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             FileAssert.Exists($"{templateAlias}.cs");
             FileAssert.Exists($"{templateAlias}.dll");
 
-            string model = (modelType == "DatabaseSchema" ? "AdventureworksSchema.json" : "petstore-openapi3.json");
+            string model = (modelType == "DatabaseSchema" ? "AdventureWorksSchema.json" : "petstore-openapi3.json");
 
             string cmd = $"template run {templateAlias}.dll {model} MyNamespace";
             if (modelType == "DatabaseSchema")
@@ -369,7 +381,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains($"Successfully executed template '{templateAlias}.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists($"{templateAlias}.g.cs");
-            StringAssert.Contains("namespace MyNamespace\r\n", File.ReadAllText(($"{templateAlias}.g.cs"))); 
+            StringAssert.Contains($"namespace MyNamespace{Environment.NewLine}", File.ReadAllText($"{templateAlias}.g.cs").ReplaceLineEndings());
         }
         #endregion
     }

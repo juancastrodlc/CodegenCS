@@ -342,6 +342,7 @@ ASALocalRun/
 *.generated.cs
 !src/Tools/Tests/Templates/*.g.cs
 !src/Tools/Tests/Templates/*.generated.cs
+!src/Tools/Tests/Templates/*-Output/*.g.cs
 !**/Snapshots/*.cs
 
 /src/Models/CodegenCS.Models.NSwagAdapter/CodegenCS.Models.NSwagAdapter.xml

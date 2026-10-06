@@ -16,7 +16,6 @@ using ExecutionContext = CodegenCS.Runtime.ExecutionContext;
 using System.Reflection;
 using System.Collections.Generic;
 using Assert = NUnit.Framework.Legacy.ClassicAssert;
-using System.Windows.Media.Effects;
 
 
 namespace CodegenCS.VisualStudio.Tests
@@ -53,10 +52,10 @@ namespace CodegenCS.VisualStudio.Tests
             await BuildAsync(template, extraReferences);
             var exitCode = await LaunchAsync(); // TODO: VS Extension passing models/arguments
             Assert.AreEqual(0, exitCode);
-
+            var newline = Environment.NewLine;
             Assert.AreEqual(1, _context.OutputFiles.Count);
             Assert.That(_context.OutputFilesPaths.Contains(_launcherArgs.DefaultOutputFile));
-            Assert.That(_context.OutputFiles[0].GetContents() == _executionContext.TemplatePath + "\r\n" + _executionContext.ProjectPath + "\r\n" + _executionContext.SolutionPath + "\r\n");
+            Assert.That(_context.OutputFiles[0].GetContents() == _executionContext.TemplatePath + newline + _executionContext.ProjectPath + newline + _executionContext.SolutionPath + newline);
         }
 
 

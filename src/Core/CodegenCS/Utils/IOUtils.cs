@@ -18,6 +18,14 @@ namespace CodegenCS.Utils
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
+
+            string fromRoot = Path.GetPathRoot(fromPath);
+            string toRoot = Path.GetPathRoot(toPath);
+            if (!string.Equals(fromRoot, toRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                return toPath;
+            }
+
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
 
@@ -29,6 +37,11 @@ namespace CodegenCS.Utils
             if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
             {
                 relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            if (relativePath == ".." || relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+            {
+                return toPath;
             }
 
             return relativePath;
