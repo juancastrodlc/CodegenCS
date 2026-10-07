@@ -42,11 +42,11 @@ namespace CodegenCS.Tools.CliTool.Tests
                 Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
                 Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
-                """, _stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
-                """,_stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("SimplePocos.dll version ", _stdOut);
             StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
@@ -56,7 +56,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 For a sample schema please check out: 'https://github.com/Drizin/CodegenCS/blob/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json'
                 To run this template use: 'dotnet-codegencs template run SimplePocos.dll <DatabaseSchemaModel>'
                 For help: 'dotnet-codegencs template run /?'
-                """, _stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("To generate a DatabaseSchema model use: 'dotnet-codegencs model dbschema extract <MSSQL|PostgreSQL> <connectionString> <output>'", _stdOut);
             FileAssert.Exists("SimplePocos.cs");
             FileAssert.Exists("SimplePocos.dll");
@@ -72,12 +72,12 @@ namespace CodegenCS.Tools.CliTool.Tests
                 Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
                 Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
-                """, _stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
-                """, _stdOut);
-            StringAssert.Contains("SimplePocos.dll version ",_stdOut);
+                """.ReplaceLineEndings(), _stdOut);
+            StringAssert.Contains("SimplePocos.dll version ", _stdOut);
             StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
                 Template entry-point: 'SimplePOCOGenerator.Render()'...
@@ -86,7 +86,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 For a sample schema please check out: 'https://github.com/Drizin/CodegenCS/blob/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json'
                 To run this template use: 'dotnet-codegencs template run SimplePocos.dll <DatabaseSchemaModel>'
                 For help: 'dotnet-codegencs template run /?'
-                """,_stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             FileAssert.Exists("SimplePocos.cs");
             FileAssert.Exists("SimplePocos.dll");
         }
@@ -101,11 +101,11 @@ namespace CodegenCS.Tools.CliTool.Tests
                 Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
                 Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
-                """, _stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
                 Successfully built template into 'SimplePocos.dll'.
                 Loading 'SimplePocos.dll'...
-                """,_stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("SimplePocos.dll version ", _stdOut);
             StringAssert.Contains("""
                 WARNING: Templating interfaces ICodegenTemplate/ICodegenMultifileTemplate/ICodegenStringTemplate are deprecated and should be replaced by TemplateMain() entrypoint.
@@ -115,7 +115,7 @@ namespace CodegenCS.Tools.CliTool.Tests
                 For a sample schema please check out: 'https://github.com/Drizin/CodegenCS/blob/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json'
                 To run this template use: 'dotnet-codegencs template run SimplePocos.dll <DatabaseSchemaModel>'
                 For help: 'dotnet-codegencs template run /?'
-                """, _stdOut);
+                """.ReplaceLineEndings(), _stdOut);
             FileAssert.Exists("SimplePocos.cs");
             FileAssert.Exists("SimplePocos.dll");
         }
@@ -131,7 +131,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             if (File.Exists(localPath))
                 File.Delete(localPath);
             await new WebClient().DownloadFileTaskAsync(new Uri(url), localPath);
-            FileAssert.Exists(localPath);           
+            FileAssert.Exists(localPath);
         }
 
         [Test]
@@ -199,7 +199,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully executed template 'SimplePocos.dll'.", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.generated.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
+            StringAssert.Contains("namespace MyNamespace" + Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.generated.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
+            StringAssert.Contains("namespace MyNamespace" + Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.generated.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
+            StringAssert.Contains("namespace MyNamespace" + Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
@@ -251,7 +251,7 @@ namespace CodegenCS.Tools.CliTool.Tests
             StringAssert.Contains("Successfully executed template", _stdOut);
             StringAssert.AreEqualIgnoringCase(string.Empty, _stdErr);
             FileAssert.Exists("Person.Address.generated.cs");
-            StringAssert.Contains("namespace MyNamespace"+Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
+            StringAssert.Contains("namespace MyNamespace" + Environment.NewLine, File.ReadAllText(("Person.Address.generated.cs")));
         }
 
         [Test]
