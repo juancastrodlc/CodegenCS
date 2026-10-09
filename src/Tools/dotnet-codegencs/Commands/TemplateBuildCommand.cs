@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,9 +17,11 @@ namespace CodegenCS.DotNetTool.Commands
         {
             var command = new Command(commandName);
 
-            command.AddArgument(new Argument<string[]>("template", description: "Template(s) to build. E.g. \"MyTemplate.cs\"") { Arity = ArgumentArity.OneOrMore });
+            var templateArgument = new Argument<string[]>("template") { Description = "Template(s) to build. E.g. \"MyTemplate.cs\"", Arity = ArgumentArity.OneOrMore };
+            command.Add(templateArgument);
 
-            _referencesArg = new Option<string[]>(new[] { "--reference", "-r" }, parseArgument: ParseAssemblyReferences, description:
+            _referencesArg = LegacyCommandLineExtensions.CreateOption<string[]>(
+                new[] { "--reference", "-r" },
                 """
                 Add dll references
                 Can use full path or relative path.
@@ -29,13 +30,15 @@ namespace CodegenCS.DotNetTool.Commands
                 (e.g. C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.5)
                 Examples: -r:System.Xml.dll
                 Examples: -r:\"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.5\System.Xml.dll\"
-                """
-            )
-            { Arity = ArgumentArity.ZeroOrMore, ArgumentHelpName = "dll_reference" };
-            command.AddOption(_referencesArg);
+                """,
+                ArgumentArity.ZeroOrMore,
+                "dll_reference");
+            _referencesArg.CustomParser = ParseAssemblyReferences;
+            command.Add(_referencesArg);
 
 
-            command.AddOption(new Option<string>(new[] { "--output", "-o" }, description:
+            var outputOption = LegacyCommandLineExtensions.CreateOption<string>(
+                new[] { "--output", "-o" },
                 """
                 Folder and/or filename to save output dll
                 If folder is not provided then dll is saved in current folder
@@ -44,11 +47,16 @@ namespace CodegenCS.DotNetTool.Commands
                 Examples: "..\Templates\MyCodeGenerator.dll" (specify a folder AND a file name)
                 Examples: "..\Templates\"                    (specify only folder)
                 Examples: "MyCodeGenerator.dll"              (specify only filename)
-                """
-            )
-            { Arity = ArgumentArity.ExactlyOne, ArgumentHelpName = "output_name" });
+                """,
+                ArgumentArity.ExactlyOne,
+                "output_name");
+            command.Add(outputOption);
 
-            command.Handler = CommandHandler.Create<ParseResult, CommandArgs>(HandleCommand);
+            command.SetAction(parseResult => HandleCommand(parseResult, new CommandArgs
+            {
+                Template = parseResult.GetValue(templateArgument),
+                Output = parseResult.GetValue(outputOption)
+            }));
 
             return command;
         }
@@ -64,7 +72,7 @@ namespace CodegenCS.DotNetTool.Commands
         protected static async Task<int> HandleCommand(ParseResult parseResult, CommandArgs cliArgs)
         {
             // Forward Global Options to the Command Options
-            _verboseMode = (parseResult.HasOption(CliCommandParser.VerboseOption));
+            _verboseMode = parseResult.GetValue(CliCommandParser.VerboseOption);
 
             using (var consoleContext = Console.WithColor(ConsoleColor.Cyan))
             {
@@ -74,7 +82,7 @@ namespace CodegenCS.DotNetTool.Commands
                     consoleContext.RestorePreviousColor();
                     //Environment.Exit(-1); CancelKeyPress will do it automatically since we didn't set e.Cancel to true
                 };
-                var references = parseResult.GetValueForOption(_referencesArg);
+                var references = parseResult.GetValue(_referencesArg);
 
                 var args = new TemplateBuilder.TemplateBuilder.TemplateBuilderArgs()
                 {

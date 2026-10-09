@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Console = InterpolatedColorConsole.ColoredConsole;
 using static InterpolatedColorConsole.Symbols;
-using System.CommandLine.Invocation;
 using DependencyContainer = CodegenCS.Utils.DependencyContainer;
 using System.Reflection;
 using CodegenCS.Runtime;
@@ -22,9 +20,12 @@ namespace CodegenCS.DotNetTool.Commands
         internal readonly Argument<string[]> _modelsArg;
         internal readonly Argument<string[]> _templateSpecificArguments;
         internal readonly Option<string[]> _referencesArg;
+        private readonly Option<string> _outputFolderOption = LegacyCommandLineExtensions.CreateOption<string>(new[] { "--OutputFolder", "-o" }, "Folder to save output [default: current folder]", ArgumentArity.ZeroOrOne, "OutputFolder");
+        private readonly Option<string> _fileOption = LegacyCommandLineExtensions.CreateOption<string>(new[] { "--File", "-f" }, "Default Output File [default: \"{MyTemplate}.g.cs\"]", ArgumentArity.ZeroOrOne, "DefaultOutputFile");
 
         internal bool _verboseMode = false;
         private bool _showTemplateHelp = false;
+        private int _modelsParsedForTemplateArgs;
         private readonly ILogger _logger;
         private FileInfo _templateFile = null;
         private FileInfo _originallyInvokedTemplateFile;
@@ -33,6 +34,7 @@ namespace CodegenCS.DotNetTool.Commands
         internal int? _expectedModels = null;
         internal int? _initialParsedModels = null;
         internal Command _command;
+        internal CliCommandParser _cliCommandParser;
         internal int? buildResult = null;
         internal int? loadResult = null;
         DependencyContainer _dependencyContainer;
@@ -40,9 +42,11 @@ namespace CodegenCS.DotNetTool.Commands
 
         public TemplateRunCommand(Command fakeTemplateCommand = null)
         {
-            _templateArg = new Argument<string>("template", description: "Template to run. E.g. \"MyTemplate.dll\" or \"MyTemplate.cs\" or \"MyTemplate\"") { Arity = ArgumentArity.ExactlyOne };
-            _modelsArg = new Argument<string[]>("models", description: "Input Model(s) E.g. \"DbSchema.json\", \"ApiEndpoints.yaml\", etc. Templates might expect 0, 1 or 2 models", parse: ParseModels)
+            _templateArg = new Argument<string>("template") { Description = "Template to run. E.g. \"MyTemplate.dll\" or \"MyTemplate.cs\" or \"MyTemplate\"", Arity = ArgumentArity.ExactlyOne };
+            _modelsArg = new Argument<string[]>("models")
             {
+                Description = "Input Model(s) E.g. \"DbSchema.json\", \"ApiEndpoints.yaml\", etc. Templates might expect 0, 1 or 2 models",
+                CustomParser = ParseModels,
                 //Arity = new ArgumentArity(0, 2)
                 // If we have limited arity (e.g. 0 to 2 args) using OnlyTake() when parsing this argument (Models) won't work:
                 // even if we OnlyTake(1) the next argument (TemplateArgs parsed by ParseTemplateArgs()) will still miss one token (ParseResultVisitor misses the PassedOver arguments)
@@ -50,15 +54,17 @@ namespace CodegenCS.DotNetTool.Commands
                 // So we have to be unlimited:
                 Arity = ArgumentArity.ZeroOrMore
             };
-            _templateSpecificArguments = new Argument<string[]>("TemplateArgs", parse: ParseTemplateArgs)
+            _templateSpecificArguments = new Argument<string[]>("TemplateArgs")
             {
+                CustomParser = ParseTemplateArgs,
                 Description = "Template-specific arguments/options (if template requires/accepts it)",
                 Arity = new ArgumentArity(0, 999), 
                 //Arity = ArgumentArity.ZeroOrMore,
                 HelpName ="template_args"
             };
 
-            _referencesArg = new Option<string[]>(new[] { "--reference", "-r" }, parseArgument: ParseAssemblyReferences, description:
+            _referencesArg = LegacyCommandLineExtensions.CreateOption<string[]>(
+                new[] { "--reference", "-r" },
                 """
                 Add dll references
                 Can use full path or relative path.
@@ -67,9 +73,10 @@ namespace CodegenCS.DotNetTool.Commands
                 (e.g. C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.5)
                 Examples: -r:System.Xml.dll
                 Examples: -r:\"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.5\System.Xml.dll\"
-                """
-            )
-            { Arity = ArgumentArity.ZeroOrMore, ArgumentHelpName = "dll_reference" };
+                """,
+                ArgumentArity.ZeroOrMore,
+                "dll_reference");
+            _referencesArg.CustomParser = ParseAssemblyReferences;
 
             _logger = new ColoredConsoleLogger();
             
@@ -78,7 +85,7 @@ namespace CodegenCS.DotNetTool.Commands
             else
             {
                 _command = GetFakeRunCommand();
-                _command.AddCommand(fakeTemplateCommand);
+                _command.Add(fakeTemplateCommand);
             }
             _dependencyContainer = new DependencyContainer().AddConsole();
         }
@@ -89,30 +96,27 @@ namespace CodegenCS.DotNetTool.Commands
 
             AddGlobalOptions(command);
 
-            command.AddArgument(_templateArg);
+            command.Add(_templateArg);
 
-            command.AddArgument(_modelsArg);
+            command.Add(_modelsArg);
 
-            command.AddArgument(_templateSpecificArguments);
+            command.Add(_templateSpecificArguments);
 
-            command.AddOption(_referencesArg);
+            command.Add(_referencesArg);
 
-            command.Handler = CommandHandler.Create<InvocationContext, ParseResult, CommandArgs>(HandleCommand);
-            // a Custom Binder (inheriting from BinderBase<CommandArgs>) could be used to create CommandArgs (defining which arguments are Models and which ones are TemplateArgs):
-            //command.SetHandler((args) => HandleCommand(args), new CustomBinder());
+            command.SetAction(HandleCommand);
 
             return command;
         }
         protected void AddGlobalOptions(Command command)
         {
-            command.AddGlobalOption(new Option<string>(new[] { "--OutputFolder", "-o" }, description: "Folder to save output [default: current folder]") { Arity = ArgumentArity.ZeroOrOne, ArgumentHelpName = "OutputFolder" });
-            command.AddGlobalOption(new Option<string>(new[] { "--File", "-f" }, description: "Default Output File [default: \"{MyTemplate}.g.cs\"]") { Arity = ArgumentArity.ZeroOrOne, ArgumentHelpName = "DefaultOutputFile" });
+            command.AddGlobalOption(_outputFolderOption);
+            command.AddGlobalOption(_fileOption);
         }
         protected internal Command GetFakeRunCommand()
         {
             var command = new Command("run");
             AddGlobalOptions(command);
-            command.IsHidden = true;
             return command;
         }
 
@@ -131,11 +135,12 @@ namespace CodegenCS.DotNetTool.Commands
                 }
                 else if (_expectedModels != null) // if we already know the number of expected models we can be strict, else we should be lenient and ignore non-models
                 {
-                    result.ErrorMessage = "ERROR: Cannot find model: " + result.Tokens[i].Value; // automatically handled UseParseErrorReporting() middleware
+                    result.AddError("ERROR: Cannot find model: " + result.Tokens[i].Value);
                     return null;
                 }
             }
             _initialParsedModels ??= foundModels;
+            _modelsParsedForTemplateArgs = foundModels;
             if (_verboseMode)
                 Console.WriteLine(ConsoleColor.DarkGray, "[DEBUG] Models: " + (models.ToList().Take(foundModels).Any() ? String.Join(", ", models.ToList().Take(foundModels)) : "<none>"));
             if (result.Tokens.Count != foundModels)
@@ -148,8 +153,8 @@ namespace CodegenCS.DotNetTool.Commands
         string[] ParseTemplateArgs(ArgumentResult result)
         {
             // Since Models arg is unlimited (ArgumentArity.ZeroOrMore) this subsequent argument will get the same arguments, and we have to skip the number of tokens which were matched to models
-            int models = result.Parent.GetValueForArgument(_modelsArg)?.Length ?? 0;
-            var arr = result.Tokens.Skip(models).Select(t => t.Value).ToArray();
+            int models = _modelsParsedForTemplateArgs;
+            var arr = result.Tokens.Select(t => t.Value).ToArray();
             if (_verboseMode && arr.Any())
                 Console.WriteLine(ConsoleColor.DarkGray, $"[DEBUG] TemplateArgs: {ConsoleColor.Yellow}'{String.Join("', '", arr)}'{PREVIOUS_COLOR}");
             else
@@ -249,10 +254,12 @@ namespace CodegenCS.DotNetTool.Commands
             return loadResult.ReturnCode;
         }
 
-        protected async Task<int> HandleCommand(InvocationContext context, ParseResult parseResult, CommandArgs cliArgs)
+        protected async Task<int> HandleCommand(ParseResult parseResult)
         {
-            _verboseMode |= (parseResult.HasOption(CliCommandParser.VerboseOption));
-            _showTemplateHelp |= (parseResult.HasOption(CliCommandParser.HelpOption));
+            var template = parseResult.GetValue(_templateArg);
+            var references = parseResult.GetValue(_referencesArg);
+            _verboseMode |= parseResult.GetValue(CliCommandParser.VerboseOption);
+            _showTemplateHelp |= parseResult.GetValue(CliCommandParser.HelpOption);
 
             string currentCommand = "dotnet-codegencs template run";
             int statusCode;
@@ -266,14 +273,40 @@ namespace CodegenCS.DotNetTool.Commands
                 };
 
 
-                if (_launcher == null) // is this possible? arriving here without LoadTemplateAsync
+                var buildResult = await BuildScriptAsync(template, references);
+                if (buildResult != 0)
                 {
-                    _launcher ??= new TemplateLauncher.TemplateLauncher(_logger, _ctx, _dependencyContainer, _verboseMode) { _originallyInvokedTemplateFile = _originallyInvokedTemplateFile};
-                    var loadResult = await _launcher.LoadAsync(_templateFile.FullName, cliArgs.Models == null ? 0 : cliArgs.Models.Length);
-                    return loadResult.ReturnCode;
+                    Console.WriteLineError(ConsoleColor.Red, "ERROR: Could not load or build template: " + template);
+                    return 1;
                 }
 
+                var loadResult = await LoadTemplateAsync(_initialParsedModels);
+                if (loadResult != 0)
+                {
+                    Console.WriteLineError(ConsoleColor.Red, "ERROR: Could not load template: " + template);
+                    return 1;
+                }
+
+                if (_expectedModels != _initialParsedModels)
+                {
+                    var args = parseResult.Tokens.Select(token => token.Value).ToArray();
+                    parseResult = parseResult.RootCommandResult.Command.Parse(
+                        args, new ParserConfiguration { EnablePosixBundling = false });
+                }
+
+                _ = parseResult.GetValue(_templateSpecificArguments);
+
+                _launcher.ParseCliUsingCustomCommand = ParseCliUsingCustomCommand;
                 _launcher.ShowTemplateHelp = _showTemplateHelp;
+
+                var cliArgs = new CommandArgs
+                {
+                    Template = parseResult.GetValue(_templateArg),
+                    Models = parseResult.GetValue(_modelsArg),
+                    OutputFolder = parseResult.GetValue(_outputFolderOption),
+                    File = parseResult.GetValue(_fileOption),
+                    TemplateArgs = parseResult.GetValue(_templateSpecificArguments)
+                };
 
                 // now we have the DLL to run...
                 var launcherArgs = new TemplateLauncher.TemplateLauncher.TemplateLauncherArgs()
@@ -310,12 +343,12 @@ namespace CodegenCS.DotNetTool.Commands
 
             if (model1Type != null && model2Type != null)
             {
-                customTemplateCommand.AddArgument(new Argument<string>("Model1", $"Model of type {model1Type.FullName}") { Arity = ArgumentArity.ExactlyOne });
-                customTemplateCommand.AddArgument(new Argument<string>("Model2", $"Model of type {model2Type.FullName}") { Arity = ArgumentArity.ExactlyOne });
+                customTemplateCommand.Add(new Argument<string>("Model1") { Description = $"Model of type {model1Type.FullName}", Arity = ArgumentArity.ExactlyOne });
+                customTemplateCommand.Add(new Argument<string>("Model2") { Description = $"Model of type {model2Type.FullName}", Arity = ArgumentArity.ExactlyOne });
             }
             else if (model1Type != null)
             {
-                customTemplateCommand.AddArgument(new Argument<string>("Model", $"Model of type {model1Type.FullName}") { Arity = ArgumentArity.ExactlyOne });
+                customTemplateCommand.Add(new Argument<string>("Model") { Description = $"Model of type {model1Type.FullName}", Arity = ArgumentArity.ExactlyOne });
             }
 
             //configure custom options/arguments
@@ -336,15 +369,14 @@ namespace CodegenCS.DotNetTool.Commands
             var fakeRootCommand = new CliCommandParser(new TemplateRunCommand(templateCommand)).RootCommand;
 
             // Parse again from root, but now with fake run command
-            var parser = new Parser(fakeRootCommand);
-
             var allArgs = parseResult.Tokens.Select(t => t.Value).ToList();
-            var templateArg = parseResult.CommandResult.GetValueForArgument(_templateArg);
+            var templateArg = parseResult.GetValue(_templateArg);
             int templatePos = allArgs.IndexOf(templateArg);
             if (templatePos > 0)
                 allArgs[templatePos] = filePath;
 
-            parseResult = parser.Parse(allArgs);
+            parseResult = fakeRootCommand.Parse(allArgs, new ParserConfiguration { EnablePosixBundling = false });
+
             return parseResult;
         }
 

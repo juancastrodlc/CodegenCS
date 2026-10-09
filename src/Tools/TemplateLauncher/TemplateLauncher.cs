@@ -8,10 +8,7 @@ using static InterpolatedColorConsole.Symbols;
 using System.Threading.Tasks;
 using CodegenCS.Utils;
 using System.CommandLine;
-using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
-using System.CommandLine.Help;
-using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using static CodegenCS.Utils.TypeUtils;
 using CodegenCS.Runtime;
 using CodegenCS.Models;
@@ -42,7 +39,6 @@ namespace CodegenCS.TemplateLauncher
         protected string _outputFolder = null;
         protected string _executionFolder = null;
         public bool VerboseMode { get; set; }
-        public Func<BindingContext, HelpBuilder> HelpBuilderFactory = null;
         public delegate ParseResult ParseCliUsingCustomCommandDelegate(string filePath, Type model1Type, Type model2Type, DependencyContainer dependencyContainer, MethodInfo configureCommand, ParseResult parseResult);
         public ParseCliUsingCustomCommandDelegate ParseCliUsingCustomCommand = null;
         protected IModelFactory _modelFactory;
@@ -471,9 +467,8 @@ namespace CodegenCS.TemplateLauncher
             // If template defines a method "public static void ConfigureCommand(Command command)", then this method can be used to configure (describe) the template custom Arguments and Options.
             // In this case dotnet-codegencs will pass an empty command to this configuration method, will create a Parser for the Command definition,
             // will parse the command line to extract/validate those extra arguments/options, and if there's any parse error it will invoke the regular ShowHelp() for the Command definition.
-            // If there are no errors it will create and register (in the Dependency Injection container) ParseResult, BindingContext and InvocationContext.
-            // Those objects (ParseResult/BindingContext/InvocationContext) can be used to get the args/options that the template needs.
-            // Example: TemplateOptions constructor can take ParseResult and extract it's values using parseResult.CommandResult.GetValueForArgument and parseResult.CommandResult.GetValueForOption.
+            // Parsed command-line values are available through ParseResult in the dependency container.
+            // Example: TemplateOptions constructors can take ParseResult and read values from its arguments and options.
 
             var methods = _entryPointClass.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
             MethodInfo configureCommand = methods.Where(m => m.Name == "ConfigureCommand" && m.GetParameters().Count()==1 && m.GetParameters()[0].ParameterType == typeof(Command)).SingleOrDefault();
@@ -505,14 +500,9 @@ namespace CodegenCS.TemplateLauncher
             }
 
 
-            BindingContext bindingContext = null;
             if (parseResult != null)
             {
-                var invocationContext = new InvocationContext(parseResult);
-                bindingContext = invocationContext.BindingContext;
                 _dependencyContainer.RegisterSingleton<ParseResult>(parseResult);
-                _dependencyContainer.RegisterSingleton<InvocationContext>(invocationContext);
-                _dependencyContainer.RegisterSingleton<BindingContext>(bindingContext);
             }
 
 
@@ -523,7 +513,7 @@ namespace CodegenCS.TemplateLauncher
                 await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"ERROR: Template entry-point {ConsoleColor.White}'{_entryPointClass.Name}.{_entryPointMethod.Name}()'{PREVIOUS_COLOR} requires {ConsoleColor.White}{_expectedModels}{PREVIOUS_COLOR} model(s) but got only {ConsoleColor.White}{_modelFiles.Count()}{PREVIOUS_COLOR}.");
 
                 if (parseResult != null)
-                    ShowParseResults(bindingContext, parseResult);
+                    await ShowParseResults(parseResult);
                 return -2;
             }
             if (_expectedModels < _modelFiles.Count())
@@ -532,21 +522,33 @@ namespace CodegenCS.TemplateLauncher
                 await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"Maybe your template expects a model class and you forgot to use IInputModel interface? Or maybe you have provided an extra arg which is not expected?");
 
                 if (parseResult != null)
-                    ShowParseResults(bindingContext, parseResult);
+                    await ShowParseResults(parseResult);
                 return -2;
             }
 
             if (parseResult != null && parseResult.Errors.Any())
             {
                 foreach (var error in parseResult.Errors)
-                    await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"ERROR: {error.Message}");
-                ShowParseResults(bindingContext, parseResult);
+                {
+                    var missingArgument = GetCommands(parseResult.RootCommandResult.Command)
+                        .SelectMany(command => command.Arguments)
+                        .FirstOrDefault(argument =>
+                            argument.Arity.MinimumNumberOfValues > 0 &&
+                            parseResult.GetResult(argument) is ArgumentResult result &&
+                            result.Tokens.Count < argument.Arity.MinimumNumberOfValues);
+
+                    if (missingArgument != null)
+                        await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"ERROR: Required argument '{missingArgument.Name}' missing for command");
+                    else
+                        await _logger?.WriteLineErrorAsync(ConsoleColor.Red, $"ERROR: {error.Message}");
+                }
+                await ShowParseResults(parseResult);
                 return -2;
             }
 
             if (ShowTemplateHelp)
             {
-                ShowParseResults(bindingContext, parseResult);
+                await ShowParseResults(parseResult);
                 return -2;
             }
 
@@ -780,11 +782,42 @@ namespace CodegenCS.TemplateLauncher
             return 0;
         }
 
-        void ShowParseResults(BindingContext bindingContext, ParseResult parseResult)
+        async Task ShowParseResults(ParseResult parseResult)
         {
-            var helpBuilder = HelpBuilderFactory != null ? HelpBuilderFactory(bindingContext) : new HelpBuilder(parseResult.CommandResult.LocalizationResources);
-            var writer = bindingContext.Console.Out.CreateTextWriter();
-            helpBuilder.Write(parseResult.CommandResult.Command, writer);
+            var command = parseResult.RootCommandResult.Command;
+            var arguments = GetCommands(command).SelectMany(candidate => candidate.Arguments).ToArray();
+            var requiredArities = new Dictionary<Argument, ArgumentArity>();
+            ParseResult helpResult;
+
+            try
+            {
+                foreach (var argument in arguments.Where(argument => argument.Arity.MinimumNumberOfValues > 0))
+                {
+                    requiredArities.Add(argument, argument.Arity);
+                    argument.Arity = new ArgumentArity(0, argument.Arity.MaximumNumberOfValues);
+                }
+
+                var args = parseResult.Tokens.Select(token => token.Value).Concat(new[] { "--help" }).ToArray();
+                helpResult = System.CommandLine.Parsing.CommandLineParser.Parse(
+                    command, args, new ParserConfiguration { EnablePosixBundling = false });
+            }
+            finally
+            {
+                foreach (var requiredArity in requiredArities)
+                    requiredArity.Key.Arity = requiredArity.Value;
+            }
+
+            await helpResult.InvokeAsync();
+        }
+
+        private static IEnumerable<Command> GetCommands(Command command)
+        {
+            yield return command;
+            foreach (var child in command.Subcommands)
+            {
+                foreach (var descendant in GetCommands(child))
+                    yield return descendant;
+            }
         }
 
     }

@@ -95,7 +95,7 @@
     <PackageReference Include="NSwag.Core.Yaml" Version="14.7.1" PrivateAssets="all" />
     <PackageReference Include="NJsonSchema" Version="11.6.1" PrivateAssets="all" />
     <PackageReference Include="NJsonSchema.Annotations" Version="11.6.1" PrivateAssets="all" />
-    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-codegencs" PrivateAssets="all" />
+    <PackageReference Include="System.CommandLine" Version="2.0.12" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- This is getting too ugly, I should probably just pack these as nugets instead of fighting against dependencies -->
@@ -151,8 +151,7 @@
     <None Include="$(PkgNewtonsoft_Json)\..\..\nswag.core.yaml\14.0.7\lib\netstandard2.0\NSwag.Core.Yaml.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(PkgNewtonsoft_Json)\..\..\njsonschema\11.0.0\lib\netstandard2.0\NJsonSchema.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(PkgNewtonsoft_Json)\..\..\njsonschema.annotations\11.0.0\lib\netstandard2.0\NJsonSchema.Annotations.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(PkgNewtonsoft_Json)\..\..\system.commandline\2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(PkgNewtonsoft_Json)\..\..\system.commandline.namingconventionbinder\2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.NamingConventionBinder.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
+    <None Include="$(PkgNewtonsoft_Json)\..\..\system.commandline\2.0.12\lib\netstandard2.0\System.CommandLine.dll" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
   </ItemGroup>
 
   <!--PDBs copied from the location where we explicitly extract SNUPKG symbol packages -->
@@ -164,8 +163,7 @@
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\nswag.core.yaml.14.0.7\lib\netstandard2.0\NSwag.Core.Yaml.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\njsonschema.11.0.0\lib\netstandard2.0\NJsonSchema.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
     <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\njsonschema.annotations.11.0.0\lib\netstandard2.0\NJsonSchema.Annotations.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\system.commandline.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
-    <None Include="$(MSBuildProjectDirectory)\..\..\ExternalSymbolsToEmbed\system.commandline.namingconventionbinder.2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.NamingConventionBinder.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
+    <None Include="$(PkgNewtonsoft_Json)\..\..\system.commandline\2.0.12\lib\netstandard2.0\System.CommandLine.pdb" Pack="true" PackagePath="tasks/netstandard2.0" Visible="false" />
   </ItemGroup>
   
   <!-- No nuget for these, always build output from project references -->
@@ -221,8 +219,7 @@
       <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\nswag.core.yaml\14.0.7\lib\netstandard2.0\NSwag.Core.Yaml.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\njsonschema\11.0.0\lib\netstandard2.0\NJsonSchema.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\njsonschema.annotations\11.0.0\lib\netstandard2.0\NJsonSchema.Annotations.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\system.commandline\2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\system.commandline.namingconventionbinder\2.0.0-codegencs\lib\netstandard2.0\System.CommandLine.NamingConventionBinder.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(USERPROFILE)\.nuget\packages\system.commandline\2.0.12\lib\netstandard2.0\System.CommandLine.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="..\..\Tools\TemplateBuilder\bin\$(Configuration)\netstandard2.0\CodegenCS.Tools.TemplateBuilder.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="..\..\Tools\TemplateBuilder\bin\$(Configuration)\netstandard2.0\CodegenCS.Tools.TemplateBuilder.pdb" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="..\..\Tools\TemplateLauncher\bin\$(Configuration)\netstandard2.0\CodegenCS.Tools.TemplateLauncher.dll" IncludeRuntimeDependency="false" />

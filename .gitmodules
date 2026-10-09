@@ -1,3 +1,0 @@
-[submodule "src/External/command-line-api"]
-	path = src/External/command-line-api
-	url = https://github.com/Drizin/CodegenCS-command-line-api.git

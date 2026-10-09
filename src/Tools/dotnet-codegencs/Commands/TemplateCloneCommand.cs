@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Console = InterpolatedColorConsole.ColoredConsole;
@@ -17,12 +16,15 @@ namespace CodegenCS.DotNetTool.Commands
         {
             var command = new Command(commandName);
 
-            command.AddArgument(new Argument<string>("origin", description: "Template to download (clone). " 
+            var originArgument = new Argument<string>("origin") { Description = "Template to download (clone). "
                 + "\nE.g. \"github.com/CodegenCS/Templates/DatabaseSchema/SimplePocos/SimplePocos.cs\""
-                + "\nor even simpler: \"DatabaseSchema/SimplePocos/SimplePocos.cs\" or just \"SimplePocos\"") 
-            { Arity = ArgumentArity.ExactlyOne });
+                + "\nor even simpler: \"DatabaseSchema/SimplePocos/SimplePocos.cs\" or just \"SimplePocos\"",
+                Arity = ArgumentArity.ExactlyOne
+            };
+            command.Add(originArgument);
 
-            command.AddOption(new Option<string>(new[] { "--output", "-o" }, description:
+            var outputOption = LegacyCommandLineExtensions.CreateOption<string>(
+                new[] { "--output", "-o" },
                 """
                 Folder and/or filename to save output file
                 If folder is not provided then file is saved in current folder
@@ -30,13 +32,23 @@ namespace CodegenCS.DotNetTool.Commands
                 Examples: "..\Templates\MyCodeGenerator.cs" (specify a folder AND a file name)
                 Examples: "..\Templates\"                    (specify only folder)
                 Examples: "MyCodeGenerator.cs"              (specify only filename)
-                """
-            )
-            { Arity = ArgumentArity.ZeroOrOne, ArgumentHelpName = "Output" });
+                """,
+                ArgumentArity.ZeroOrOne,
+                "Output");
+            command.Add(outputOption);
 
-            command.AddOption(new Option<bool>(new[] { "--allow-untrusted-origin"}, description: "Allow downloading templates from untrusted origins.") { Arity = ArgumentArity.ZeroOrOne, IsHidden = true });
+            var allowUntrustedOriginOption = LegacyCommandLineExtensions.CreateOption<bool>(
+                new[] { "--allow-untrusted-origin" },
+                "Allow downloading templates from untrusted origins.",
+                ArgumentArity.ZeroOrOne);
+            command.Add(allowUntrustedOriginOption);
 
-            command.Handler = CommandHandler.Create<ParseResult, CommandArgs>(HandleCommand);
+            command.SetAction(parseResult => HandleCommand(parseResult, new CommandArgs
+            {
+                Origin = parseResult.GetValue(originArgument),
+                Output = parseResult.GetValue(outputOption),
+                AllowUntrustedOrigin = parseResult.GetValue(allowUntrustedOriginOption)
+            }));
 
             return command;
         }
@@ -45,7 +57,7 @@ namespace CodegenCS.DotNetTool.Commands
         protected static async Task<int> HandleCommand(ParseResult parseResult, CommandArgs cliArgs)
         {
             // Forward Global Options to the Command Options
-            bool verboseMode = (parseResult.HasOption(CliCommandParser.VerboseOption));
+            bool verboseMode = parseResult.GetValue(CliCommandParser.VerboseOption);
 
             using (var consoleContext = Console.WithColor(ConsoleColor.Cyan))
             {
@@ -63,7 +75,7 @@ namespace CodegenCS.DotNetTool.Commands
                     Origin = cliArgs.Origin,
                     Output = cliArgs.Output,
                     AllowUntrustedOrigin = cliArgs.AllowUntrustedOrigin,
-                    VerboseMode = verboseMode
+                    VerboseMode = true
                 };
                 var downloader = new TemplateDownloader.TemplateDownloader(logger, downloadArgs);
 

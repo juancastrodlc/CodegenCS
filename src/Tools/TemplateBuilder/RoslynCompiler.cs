@@ -169,13 +169,10 @@ namespace CodegenCS.TemplateBuilder
             AddAssembly(MetadataReference.CreateFromFile(typeof(Newtonsoft.Json.JsonConvert).GetTypeInfo().Assembly.Location));
 
             AddAssembly(MetadataReference.CreateFromFile(typeof(System.CommandLine.Argument).GetTypeInfo().Assembly.Location));
-            AddAssembly(MetadataReference.CreateFromFile(typeof(System.CommandLine.Binding.BindingContext).GetTypeInfo().Assembly.Location));
             // System.CommandLine.Command, System.CommandLine.ParseResult
             _namespaces.Add("System.CommandLine", templateSource => 
                 Regex.IsMatch(templateSource, @"(?<!\.)\bConfigureCommand\b") || 
                 Regex.IsMatch(templateSource, @"(?<!\.)\bParseResult\b"));
-            _namespaces.Add("System.CommandLine.Binding", templateSource => Regex.IsMatch(templateSource, @"(?<!\.)\bBindingContext\b"));
-            _namespaces.Add("System.CommandLine.Invocation", templateSource => Regex.IsMatch(templateSource, @"(?<!\.)\bInvocationContext\b"));
 
             #endregion
 
@@ -292,6 +289,14 @@ namespace CodegenCS.TemplateBuilder
                     syntaxTree = CSharpSyntaxTree.ParseText(source.ToString(), _parseOptions);
                 }
                 syntaxTrees.Add(syntaxTree);
+            }
+
+            for (int i = 0; i < syntaxTrees.Count; i++)
+            {
+                var root = syntaxTrees[i].GetRoot();
+                var rewritten = new LegacyCommandLineApiRewriter().Visit(root);
+                if (!ReferenceEquals(root, rewritten))
+                    syntaxTrees[i] = CSharpSyntaxTree.Create((CSharpSyntaxNode)rewritten, _parseOptions);
             }
 
             string txt = $$"""
@@ -419,6 +424,66 @@ namespace CodegenCS.TemplateBuilder
                     usingDirective = SyntaxFactory.UsingDirective(qualifiedName).NormalizeWhitespace();
                 unit = unit.AddUsings(usingDirective);
            }
+        }
+
+        private sealed class LegacyCommandLineApiRewriter : CSharpSyntaxRewriter
+        {
+            public override SyntaxNode VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
+            {
+                node = (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node);
+                if (node.ArgumentList == null ||
+                    node.Type is not GenericNameSyntax genericName ||
+                    (genericName.Identifier.ValueText != "Argument" && genericName.Identifier.ValueText != "Option"))
+                    return node;
+
+                var constructorArguments = node.ArgumentList.Arguments.ToList();
+                var properties = new List<ExpressionSyntax>();
+                foreach (var argument in constructorArguments.Skip(1).ToArray())
+                {
+                    var propertyName = argument.NameColon?.Name.Identifier.ValueText;
+                    if (propertyName == "description" || propertyName == "getDefaultValue" || propertyName == "parseArgument")
+                    {
+                        var value = argument.Expression;
+                        if (propertyName == "getDefaultValue" &&
+                            value is ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: 0 } defaultFactory)
+                        {
+                            value = defaultFactory.WithParameterList(SyntaxFactory.ParameterList(
+                                SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Parameter(
+                                    SyntaxFactory.Identifier("argumentResult")))));
+                        }
+
+                        properties.Add(SyntaxFactory.AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            SyntaxFactory.IdentifierName(propertyName == "description"
+                                ? "Description"
+                                : propertyName == "getDefaultValue" ? "DefaultValueFactory" : "CustomParser"),
+                            value));
+                        constructorArguments.Remove(argument);
+                    }
+                    else if (argument.NameColon == null && genericName.Identifier.ValueText == "Argument" &&
+                             constructorArguments.Count == 2)
+                    {
+                        properties.Add(SyntaxFactory.AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            SyntaxFactory.IdentifierName("Description"),
+                            argument.Expression));
+                        constructorArguments.Remove(argument);
+                    }
+                }
+
+                if (properties.Count == 0)
+                    return node;
+
+                var argumentList = SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(constructorArguments.Select(argument => argument.WithNameColon(null))));
+                var expressions = node.Initializer?.Expressions.ToList() ?? new List<ExpressionSyntax>();
+                expressions.AddRange(properties);
+
+                return node.WithArgumentList(argumentList)
+                    .WithInitializer(SyntaxFactory.InitializerExpression(
+                        SyntaxKind.ObjectInitializerExpression,
+                        SyntaxFactory.SeparatedList(expressions)));
+            }
         }
         #endregion
 

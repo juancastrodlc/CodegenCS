@@ -32,11 +32,10 @@ namespace CodegenCS.DotNetTool
 
 
                 var cliParser = new CliCommandParser();
-                var parser = cliParser.Parser;
                 cliParser._runTemplateCommandWrapper._verboseMode = (args?.Any(a=>a.ToLower() == "--verbose" || a.ToLower() == "--debug") ?? false);
-                var parseResult = parser.Parse(args);
+                var parseResult = cliParser.Parse(args);
 
-                bool verboseMode = (parseResult.Tokens.Any(t => t.Type == TokenType.Option && t.Value == "--verbose"));
+                bool verboseMode = parseResult.GetValue(CliCommandParser.VerboseOption);
                 if (verboseMode)
                     Console.WriteLine(ConsoleColor.DarkGray, "Verbose mode is on...");
 
