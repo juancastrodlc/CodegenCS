@@ -1,6 +1,16 @@
 # Cross-platform build include.
 # Provides OS detection, an MSBuild invocation helper and a NuGet helper that work on
 # both Windows and Linux. Sourced by all other build-*.ps1 scripts.
+[CmdletBinding()]
+param(
+    [string]$Source = './packages-local'
+)
+
+$global:nugetSourcePath = if ([System.IO.Path]::IsPathRooted($Source)) {
+    $Source
+} else {
+    Join-Path $PSScriptRoot $Source
+}
 
 # PowerShell (Windows PowerShell 5.x) does not define $IsWindows/$IsLinux, so define them.
 if ($null -eq (Get-Variable -Name IsWindows -ErrorAction Ignore)) {
@@ -33,6 +43,7 @@ if ($IsWindows) {
 # Uses full msbuild.exe when available, otherwise "dotnet msbuild".
 function Invoke-MSBuild {
     param([Parameter(ValueFromRemainingArguments=$true)] [string[]] $Arguments)
+    $Arguments += "/p:RestoreSources=$global:nugetSourcePath"
     if ($global:msbuildExe) {
         & $global:msbuildExe @Arguments
     } else {

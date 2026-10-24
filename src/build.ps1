@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory=$False)]
     [ValidateSet('Release','Debug')]
     [string]$configuration="Debug",
-    [switch] $RunTests = $false
+    [switch] $RunTests = $false,
+    [string] $Source = './packages-local'
 )
 
 # How to run:
@@ -15,7 +16,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -47,7 +48,7 @@ if ($configuration -eq "Release") {
     $dotnetcodegencsTargetFrameworks = "net$dotnetSdk.0"
 }
 
-. (Join-Path $dir "build-clean.ps1")
+. (Join-Path $dir "build-clean.ps1") -Source $Source
 
 New-Item -ItemType Directory -Force -Path (Join-Path $dir "packages-local") | Out-Null
 
@@ -56,9 +57,9 @@ New-Item -ItemType Directory -Force -Path (Join-Path $dir "packages-local") | Ou
 # System.CommandLine packages already present in .\packages-local. (build-external.ps1 is
 # kept only for historical Windows use and is skipped here.)
 
-. (Join-Path $dir "build-core.ps1") -Configuration $configuration
+. (Join-Path $dir "build-core.ps1") -Configuration $configuration -Source $Source
 
-. (Join-Path $dir "build-models.ps1") -Configuration $configuration
+. (Join-Path $dir "build-models.ps1") -Configuration $configuration -Source $Source
 
 if ($configuration -eq "Release")
 {
@@ -70,22 +71,22 @@ if ($configuration -eq "Release")
     }
 }
 
-. (Join-Path $dir "build-tools.ps1") -Configuration $configuration -dotnetcodegencsTargetFrameworks $dotnetcodegencsTargetFrameworks
+. (Join-Path $dir "build-tools.ps1") -Configuration $configuration -dotnetcodegencsTargetFrameworks $dotnetcodegencsTargetFrameworks -Source $Source
 
 if ($configuration -eq "Release") {
-  . (Join-Path $dir "build-sourcegenerator.ps1") -Configuration $configuration
-  . (Join-Path $dir "build-msbuild.ps1") -Configuration $configuration
+  . (Join-Path $dir "build-sourcegenerator.ps1") -Configuration $configuration -Source $Source
+  . (Join-Path $dir "build-msbuild.ps1") -Configuration $configuration -Source $Source
 }
 
 # Unit tests
 if ($RunTests) {
-    & (Join-Path $dir "run-tests.ps1") -Configuration $configuration
+    & (Join-Path $dir "run-tests.ps1") -Configuration $configuration -Source $Source
 }
 
 # Visual Studio extensions can only be built on Windows (they require the VS SDK / net472).
 if ($IsWindows -and $hasNet472) {
     $env:VSToolsPath="C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Microsoft\VisualStudio\v17.0"
-    . (Join-Path $dir "build-visualstudio.ps1") -Configuration $configuration
+    . (Join-Path $dir "build-visualstudio.ps1") -Configuration $configuration -Source $Source
 } else {
     Write-Host "Skipping Visual Studio extensions build (Windows-only target)." -ForegroundColor DarkGray
 }

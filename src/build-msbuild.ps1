@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
-    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
+    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
+    [string]$Source = './packages-local'
 )
 
 $ErrorActionPreference="Stop"
@@ -15,7 +16,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 $nugetGlobal = Get-NuGetGlobalPackagesFolder
 Remove-Item -Recurse -Force -ErrorAction Ignore (Join-Path $nugetGlobal "codegencs.msbuild")
@@ -65,7 +66,7 @@ try {
 	}
 
 	$mb = Join-Path $dir "MSBuild/CodegenCS.MSBuild/CodegenCS.MSBuild.csproj"
-	dotnet restore $mb
+	dotnet restore $mb --source $global:nugetSourcePath
 	Invoke-MSBuild $mb `
 		/t:Restore /t:Build /t:Pack `
 		"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `
@@ -79,8 +80,8 @@ try {
 	if (Test-Path $sample) {
 		Get-ChildItem (Join-Path $dir "../Samples/MSBuild1") -Filter *.g.cs -ErrorAction Ignore | Remove-Item -Force -ErrorAction Ignore
 		Get-ChildItem (Join-Path $dir "../Samples/MSBuild1") -Filter *.generated.cs -ErrorAction Ignore | Remove-Item -Force -ErrorAction Ignore
-		dotnet restore $sample
-		& dotnet build $sample /t:Restore /t:Rebuild /p:Configuration=$configuration /verbosity:normal
+		dotnet restore $sample --source $global:nugetSourcePath
+		& dotnet build $sample /t:Restore /t:Rebuild /p:Configuration=$configuration "/p:RestoreSources=$global:nugetSourcePath" /verbosity:normal
 		if ($LASTEXITCODE -ne 0) { throw "dotnet build failed" }
 		if (-not (Get-ChildItem (Join-Path $dir "../Samples/MSBuild1") -Filter *.g.cs -ErrorAction Ignore)) {
 			throw "Template failed (classes were not added to the compilation)"
@@ -96,7 +97,7 @@ try {
 			Get-ChildItem (Join-Path $dir "../Samples/MSBuild2") -Filter *.generated.cs -ErrorAction Ignore | Remove-Item -Force -ErrorAction Ignore
 			$nugetExe = Join-Path $dir "nuget.exe"
 			if (Test-Path $nugetExe) {
-				& $nugetExe restore -PackagesDirectory (Join-Path $dir "packages") $webApp
+				& $nugetExe restore -Source $global:nugetSourcePath -PackagesDirectory (Join-Path $dir "packages") $webApp
 			}
 			Invoke-MSBuild $webApp /t:Restore /t:Rebuild /p:Configuration=$configuration /verbosity:normal
 			if (-not (Get-ChildItem (Join-Path $dir "../Samples/MSBuild2") -Filter *.g.cs -ErrorAction Ignore)) {

@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
-    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
+    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
+    [string]$Source = './packages-local'
 )
 
 # How to run:
@@ -12,7 +13,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -31,7 +32,7 @@ try {
 
 	foreach ($project in $projects) {
 		$projectPath = Join-Path $dir $project
-		dotnet restore $projectPath
+		dotnet restore $projectPath --source $global:nugetSourcePath
 		Invoke-MSBuild $projectPath `
 			/t:Restore /t:Build /t:Pack `
 			"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `

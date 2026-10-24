@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
-    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
+    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
+    [string]$Source = './packages-local'
 )
 
 # Visual Studio Extensions (VSIX)
@@ -11,7 +12,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 # Visual Studio extensions require the Visual Studio SDK and full msbuild.exe, which only
 # exist on Windows. Skip entirely on other platforms.
@@ -41,7 +42,7 @@ try {
 
 	# CodegenCS.Runtime.VisualStudio
 	$p = Join-Path $dir "VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj"
-	dotnet restore $p
+	dotnet restore $p --source $global:nugetSourcePath
 	Invoke-MSBuild $p `
 		/t:Restore /t:Build `
 		/p:Configuration=$configuration `
@@ -50,12 +51,12 @@ try {
 		/p:ContinuousIntegrationBuild=true
 
 	$p = Join-Path $dir "VisualStudio/VS2022Extension/VS2022Extension.csproj"
-	dotnet restore $p
+	dotnet restore $p --source $global:nugetSourcePath
 	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
 	Copy-Item (Join-Path $dir "VisualStudio/VS2022Extension/bin/$configuration/CodegenCS.VisualStudio.VS2022Extension.vsix") (Join-Path $dir "packages-local") -Force
 
 	$p = Join-Path $dir "VisualStudio/VS2019Extension/VS2019Extension.csproj"
-	dotnet restore $p
+	dotnet restore $p --source $global:nugetSourcePath
 	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
 	Copy-Item (Join-Path $dir "VisualStudio/VS2019Extension/bin/$configuration/CodegenCS.VisualStudio.VS2019Extension.vsix") (Join-Path $dir "packages-local") -Force
 

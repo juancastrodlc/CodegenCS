@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
-    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
+    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
+    [string]$Source = './packages-local'
 )
 
 $ErrorActionPreference="Stop"
@@ -15,7 +16,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 $nugetGlobal = Get-NuGetGlobalPackagesFolder
 Remove-Item -Recurse -Force -ErrorAction Ignore (Join-Path $nugetGlobal "codegencs.sourcegenerator")
@@ -70,7 +71,7 @@ try {
 	}
 
 	$sg = Join-Path $dir "SourceGenerator/CodegenCS.SourceGenerator/CodegenCS.SourceGenerator.csproj"
-	dotnet restore $sg
+	dotnet restore $sg --source $global:nugetSourcePath
 	Invoke-MSBuild $sg `
 		/t:Restore /t:Build /t:Pack `
 		"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `
@@ -82,7 +83,7 @@ try {
 	# Build the sample project that consumes the source generator as a sanity check.
 	$sample = Join-Path $dir "../Samples/SourceGenerator1/SourceGenerator1.csproj"
 	if (Test-Path $sample) {
-		dotnet restore $sample
+		dotnet restore $sample --source $global:nugetSourcePath
 		Invoke-MSBuild $sample /t:Restore /t:Rebuild /p:Configuration=$configuration /verbosity:normal
 	}
 

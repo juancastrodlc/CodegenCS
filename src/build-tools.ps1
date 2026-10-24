@@ -2,7 +2,8 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [Parameter(Mandatory=$False)][string]$dotnetcodegencsTargetFrameworks="net8"
+    [Parameter(Mandatory=$False)][string]$dotnetcodegencsTargetFrameworks="net8",
+    [string]$Source = './packages-local'
 )
 
 # CLI tool (dotnet-codegencs)
@@ -12,7 +13,7 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir
 
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
 {
@@ -23,6 +24,7 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 try {
 
 	$packOutput = Join-Path $dir "packages-local"
+	$nugetConfig = $null
 
 	$buildOnly = @(
 		"Tools/TemplateBuilder/CodegenCS.Tools.TemplateBuilder.csproj",
@@ -31,7 +33,7 @@ try {
 	)
 	foreach ($project in $buildOnly) {
 		$p = Join-Path $dir $project
-		dotnet restore $p
+		dotnet restore $p --source $global:nugetSourcePath
 		Invoke-MSBuild $p `
 			/t:Restore /t:Build `
 			/p:Configuration=$configuration `
@@ -66,7 +68,21 @@ try {
 
 	# uninstall/reinstall global tool from local dotnet-codegencs.*.nupkg:
 	dotnet tool uninstall -g dotnet-codegencs 2>$null
-	dotnet tool install --global --add-source $packOutput --no-cache dotnet-codegencs
+	$nugetConfig = Join-Path ([System.IO.Path]::GetTempPath()) ("CodegenCS-NuGet-{0}.config" -f [Guid]::NewGuid())
+	$sourceForConfig = [System.Security.SecurityElement]::Escape($global:nugetSourcePath)
+	$packOutputForConfig = [System.Security.SecurityElement]::Escape([System.IO.Path]::GetFullPath($packOutput))
+	@"
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="packages-local" value="$sourceForConfig" />
+    <add key="build-output" value="$packOutputForConfig" />
+  </packageSources>
+</configuration>
+"@ | Set-Content -Path $nugetConfig -Encoding utf8
+	dotnet tool install --global --configfile $nugetConfig --no-cache dotnet-codegencs
+	if ($LASTEXITCODE -ne 0) { throw "dotnet tool install failed (exit code $LASTEXITCODE)" }
 	$codegencs = Get-DotnetToolsPath
 	if (Test-Path $codegencs) {
 		& $codegencs --version
@@ -76,5 +92,8 @@ try {
 	}
 
 } finally {
+	if ($nugetConfig -and (Test-Path $nugetConfig)) {
+		Remove-Item $nugetConfig -Force
+	}
 	Pop-Location
 }

@@ -2,7 +2,8 @@
 [CmdletBinding()]
 param(
     [ValidateSet('Release', 'Debug')]
-    [string]$Configuration = 'Debug'
+    [string]$Configuration = 'Debug',
+    [string]$Source = './packages-local'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,10 +34,15 @@ Push-Location $PSScriptRoot
 try {
     Write-Host "Running tests from $solutionFile..." -ForegroundColor Cyan
     try {
+        & dotnet restore $solutionPath --source $Source
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet restore failed with exit code $LASTEXITCODE"
+        }
         & dotnet test $solutionPath `
             --configuration $Configuration `
             --logger trx `
-            --results-directory $resultsDirectory
+            --results-directory $resultsDirectory `
+            --no-restore
         $exitCode = $LASTEXITCODE
     } catch {
         $executionError = $_.Exception.Message

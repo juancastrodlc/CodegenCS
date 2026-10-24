@@ -4,6 +4,10 @@
 #      Program: Powershell.exe
 #      Arguments: -noexit -File %1
 #      Friendly Name: Execute PowerShell Script
+[CmdletBinding()]
+param(
+    [string]$Source = (Join-Path $PSScriptRoot '../../../packages-local')
+)
 
 # To execute CSX scripts you'll need CSI.EXE (C# REPL) which is shipped with Visual Studio
 # but can also be installed by using the NuGet package Microsoft.Net.Compilers.Toolset - https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
@@ -154,11 +158,11 @@ if ($missingLibs)
         $libVersion = $missingLib.Version
         if ($libVersion -eq $null)
         {
-            & $nuget install $libName -OutputDirectory $missingNuGetPackagesLocation
+            & $nuget install $libName -Source $Source -OutputDirectory $missingNuGetPackagesLocation
         }
         else
         {
-            & $nuget install $libName -Version $libVersion -OutputDirectory $missingNuGetPackagesLocation
+            & $nuget install $libName -Version $libVersion -Source $Source -OutputDirectory $missingNuGetPackagesLocation
         }
         if ($lastExitCode -ne 0)
         {

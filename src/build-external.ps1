@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 [cmdletbinding()]
 param(
-    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration
+    [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
+    [string]$Source = './packages-local'
 )
 
 # DEPRECATED: This script used to build the customized System.CommandLine "2.0.0-codegencs"
@@ -14,7 +15,7 @@ param(
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
-. (Join-Path $dir "build-include.ps1")
+. (Join-Path $dir "build-include.ps1") -Source $Source
 
 Write-Host "build-external.ps1 is deprecated: the System.CommandLine 2.0.0-codegencs fork is no longer built." -ForegroundColor Yellow
 Write-Host "The public System.CommandLine packages in .\packages-local are used instead. Nothing to do." -ForegroundColor DarkGray

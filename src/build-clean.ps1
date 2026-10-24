@@ -1,4 +1,9 @@
 #!/usr/bin/env pwsh
+[CmdletBinding()]
+param(
+    [string]$Source = './packages-local'
+)
+
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Push-Location $dir

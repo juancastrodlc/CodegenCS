@@ -1,4 +1,9 @@
 # How to Reset the Visual Studio 2022 Experimental Instance:
+[CmdletBinding()]
+param(
+    [string]$Source = '../packages-local'
+)
+
 & "C:\Program Files\Microsoft Visual Studio\2022\Professional\VSSDK\VisualStudioIntegration\Tools\Bin\CreateExpInstance.exe" /Reset /VSInstance=17.0_defe2a84 /RootSuffix=Exp
 & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VSSDK\VisualStudioIntegration\Tools\Bin\CreateExpInstance.exe" /Reset /VSInstance=16.0_8ff8e53a /RootSuffix=Exp
 
