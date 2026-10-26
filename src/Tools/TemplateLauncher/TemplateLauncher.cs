@@ -31,6 +31,13 @@ namespace CodegenCS.TemplateLauncher
         protected ConstructorInfo _ctorInfo = null;
         protected FileInfo _templateFile;
         internal FileInfo _originallyInvokedTemplateFile;
+
+        /// <summary>
+        /// Loads the compiled template assembly. Hosts that isolate their dependencies in a custom AssemblyLoadContext
+        /// (e.g. a source generator running inside the compiler) can override this to load templates into that same context.
+        /// If not defined (or if it returns null) the template is loaded using Assembly.LoadFile.
+        /// </summary>
+        internal static Func<string, Assembly> TemplateAssemblyLoader { get; set; }
         public bool ShowTemplateHelp { get; set; }
         protected string _defaultOutputFile = null;
         protected MethodInfo _entryPointMethod = null;
@@ -199,7 +206,8 @@ namespace CodegenCS.TemplateLauncher
             if (_entryPointMethod != null && _entryPointClass != null) // previously calculated
                 return true; 
 
-            var asm = Assembly.LoadFile(_templateFile.FullName); // LoadFile will automatically load a matching pdb file if available (filename looked up based on assemblyName defined in CSharpCompilation)
+            var asm = TemplateAssemblyLoader?.Invoke(_templateFile.FullName)
+                ?? Assembly.LoadFile(_templateFile.FullName); // LoadFile will automatically load a matching pdb file if available (filename looked up based on assemblyName defined in CSharpCompilation)
 
             if (asm.GetName().Version?.ToString() != "0.0.0.0")
                 await _logger?.WriteLineAsync($"{ConsoleColor.Cyan}{_templateFile.Name}{PREVIOUS_COLOR} version {ConsoleColor.Cyan}{asm.GetName().Version}{PREVIOUS_COLOR}");

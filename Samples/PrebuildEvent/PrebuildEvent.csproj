@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <!-- You can run any number of templates in PreBuild or PostBuild events. -->
@@ -12,7 +12,7 @@
 
   <!-- Our Template output requires Dapper -->
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper.StrongName" Version="2.1.89" />
   </ItemGroup>
 
   <!-- Hides some files and/or avoid project trying to compile the cs template. Renaming to CSX also would work. -->

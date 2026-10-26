@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using Dapper;
-using MyProject.POCOs; // POCOs will be generated (on-the-fly!) under this namespace
+using MyProject.POCOs; //POCOs will be generated on-the-fly under this namespace
 
 namespace SampleSourceGenerator.Demo
 {
@@ -11,18 +12,29 @@ namespace SampleSourceGenerator.Demo
             // If you use CodegenCSOutput="Memory" then it looks like magic: POCOs are just generated on the fly!
             // (unfortunately IDE has some bugs and might show errors, but it builds and runs fine! using CodegenCSOutput="File" usually provides better experience)
             // If you debug and step-into the next line you'll see the generated POCOs.
-
-            Product product = new Product() { Name = "Tesla Model S", ListPrice = 79990 };
-
             using (var cn = IDbConnectionFactory.CreateConnection())
             {
-                var products = cn.Query<Product>("SELECT * FROM Production.Product");
-                foreach (var p in products)
-                    Console.WriteLine($"I'll buy a {p.Name} for {p.ListPrice:C}");
-            }
+                cn.Open();
+                cn.Execute("""
+                    CREATE TABLE Product (
+                        ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL,
+                        ProductNumber TEXT NOT NULL,
+                        ListPrice NUMERIC NOT NULL
+                    )
+                    """);
 
-            Console.WriteLine("Press enter to exit...");
-            Console.ReadLine();
+                var newProducts = new[]
+                {
+                    new Product() { Name = "Tesla Model S", ProductNumber = "TS-0001", ListPrice = 79990 },
+                    new Product() { Name = "Mountain Bike", ProductNumber = "MB-0002", ListPrice = 1250.50m },
+                };
+                cn.Execute("INSERT INTO Product (Name, ProductNumber, ListPrice) VALUES (@Name, @ProductNumber, @ListPrice)", newProducts);
+
+                var products = cn.Query<Product>("SELECT ProductID, Name, ProductNumber, ListPrice FROM Product ORDER BY ProductID");
+                foreach (var p in products)
+                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "I'll buy a {0} (#{1}, {2}) for {3:0.00}", p.Name, p.ProductId, p.ProductNumber, p.ListPrice));
+            }
         }
     }
 }

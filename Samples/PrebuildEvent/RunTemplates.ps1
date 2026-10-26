@@ -50,7 +50,7 @@ try {
     #& $codegencs model dbschema extract mssql 'Server=MYSERVER; Database=AdventureWorks; User Id=myUsername;Password=myPassword' ./AdventureWorksSchema.json
 
     Write-Host "Running DapperExtensionPocos.cs template..." -ForegroundColor Yellow
-    & $codegencs @codegencsPrefix template run DapperExtensionPocos.cs ./AdventureWorksSchema.json "SampleProject.Core.Entities" -o ./GeneratedEntities/ -p:CrudNamespace="SampleProject.Core.Database" -p:CrudFile="./DapperCrudExtensions.cs" -p:CrudClass="DapperCrudExtensions" -p:TrackPropertiesChange=true
+    & $codegencs @codegencsPrefix template run DapperExtensionPocos.cs ./AdventureWorksSchema.json "SampleProject.Core.Entities" -o ./GeneratedEntities/ -p:CrudNamespace "SampleProject.Core.Database" -p:CrudFile "./DapperCrudExtensions.cs" -p:CrudClass "DapperCrudExtensions" -p:TrackPropertiesChange true
     if ($LASTEXITCODE -ne 0) { throw "Template execution failed." }
 } finally {
     Pop-Location

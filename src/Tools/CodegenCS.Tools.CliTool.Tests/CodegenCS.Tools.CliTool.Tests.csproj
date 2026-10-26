@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AssemblyMetadata Include="CodegenCS.RepositorySrcDir" Value="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..'))" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CliWrap" Version="3.10.5" />
     <PackageReference Include="nunit" Version="5.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />

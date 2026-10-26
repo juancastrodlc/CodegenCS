@@ -2,7 +2,8 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local'
+    [string]$Source = './packages-local',
+    [switch]$SkipSampleBuild = $false
 )
 
 $ErrorActionPreference="Stop"
@@ -11,6 +12,11 @@ $version = "3.5.2"
 
 # Source Generator (CodegenCS.SourceGenerator)
 # How to run: .\build-sourcegenerator.ps1
+#
+# The package contains two builds of the generator:
+#   analyzers/dotnet/roslyn5.9/cs - netstandard2.0, compiled against the Microsoft.CodeAnalysis package (portable, for compilers >= 5.9)
+#   analyzers/dotnet/roslynX.Y/cs - compiled against the Roslyn shipped with the .NET SDK running this build
+# The .NET SDK picks the folder that matches the compiler (CompilerApiVersion), so the generator is never rejected with CS9057.
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
@@ -21,9 +27,9 @@ Push-Location $dir
 $nugetGlobal = Get-NuGetGlobalPackagesFolder
 Remove-Item -Recurse -Force -ErrorAction Ignore (Join-Path $nugetGlobal "codegencs.sourcegenerator")
 
-# CompilerServer MVID mismatch workaround: clear cached copies of the source generator dll.
+# The compiler server caches analyzers: stop it so the freshly built generator is loaded.
+& dotnet build-server shutdown | Out-Null
 $tempDir = if ($IsWindows) { $env:TEMP } else { ($env:TMPDIR ? $env:TMPDIR : "/tmp") }
-Get-ChildItem $tempDir -Recurse -Filter CodegenCS.SourceGenerator.dll -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
 Get-ChildItem (Join-Path $tempDir "VBCSCompiler/AnalyzerAssemblyLoader") -Recurse -ErrorAction Ignore | Remove-Item -Force -Recurse -ErrorAction Ignore
 
 if (-not $PSBoundParameters.ContainsKey('configuration'))
@@ -34,57 +40,35 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 
 try {
 
-	# Roslyn Analyzers / Source Generators / MSBuild Tasks have poor support for referencing other
-	# assemblies. To ship a Nupkg with SourceLink/Deterministic PDBs we extract PDBs from symbol
-	# packages and embed them.
-	$symbolsDir = Join-Path $dir "ExternalSymbolsToEmbed"
-	New-Item -ItemType Directory -Force -Path $symbolsDir | Out-Null
-	$snupkgs = @(
-		"interpolatedcolorconsole.1.0.3.snupkg",
-		"newtonsoft.json.13.0.3.snupkg",
-		"nswag.core.14.0.7.snupkg",
-		"nswag.core.yaml.14.0.7.snupkg",
-		"njsonschema.11.0.0.snupkg",
-		"njsonschema.annotations.11.0.0.snupkg"
-	)
-	foreach ($snupkg in $snupkgs){
-		$target = Join-Path $symbolsDir $snupkg
-		if (-not (Test-Path $target)) {
-			curl -L "https://globalcdn.nuget.org/symbol-packages/$snupkg" -o $target
-		}
-	}
-
-	# Extract *.pdb from each snupkg (snupkg is a zip). Expand-Archive is cross-platform.
-	foreach ($snupkgFile in (Get-ChildItem (Join-Path $symbolsDir "*.snupkg"))) {
-		$name = $snupkgFile.BaseName
-		$extractDir = Join-Path $symbolsDir $name
-		New-Item -ItemType Directory -Force -Path $extractDir | Out-Null
-		$zipCopy = Join-Path $symbolsDir "$name.zip"
-		Copy-Item $snupkgFile.FullName $zipCopy -Force
-		try {
-			Expand-Archive -Path $zipCopy -DestinationPath $extractDir -Force
-		} catch {
-			Write-Host "Warning: could not expand $($snupkgFile.Name): $_" -ForegroundColor Yellow
-		} finally {
-			Remove-Item $zipCopy -Force -ErrorAction Ignore
-		}
-	}
+	Get-ChildItem (Join-Path $dir "packages-local") -Filter "CodegenCS.SourceGenerator.*nupkg" -ErrorAction Ignore | Remove-Item -Force -ErrorAction Ignore
 
 	$sg = Join-Path $dir "SourceGenerator/CodegenCS.SourceGenerator/CodegenCS.SourceGenerator.csproj"
-	dotnet restore $sg --source $global:nugetSourcePath
+	dotnet restore $sg --source $global:nugetSourcePath -p:Configuration=$configuration
+	if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed (exit code $LASTEXITCODE)" }
 	Invoke-MSBuild $sg `
-		/t:Restore /t:Build /t:Pack `
+		/t:Build /t:Pack `
 		"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `
 		/p:Configuration=$configuration `
 		/verbosity:minimal `
 		/p:IncludeSymbols=true `
 		/p:ContinuousIntegrationBuild=true
 
-	# Build the sample project that consumes the source generator as a sanity check.
-	$sample = Join-Path $dir "../Samples/SourceGenerator1/SourceGenerator1.csproj"
-	if (Test-Path $sample) {
-		dotnet restore $sample --source $global:nugetSourcePath
-		Invoke-MSBuild $sample /t:Restore /t:Rebuild /p:Configuration=$configuration /verbosity:normal
+	$nupkg = Join-Path $dir "packages-local/CodegenCS.SourceGenerator.$version.nupkg"
+	if (-not (Test-Path $nupkg)) { throw "Package $nupkg was not created" }
+	Add-Type -AssemblyName System.IO.Compression.FileSystem
+	$zip = [System.IO.Compression.ZipFile]::OpenRead($nupkg)
+	try {
+		$analyzers = @($zip.Entries | Where-Object { $_.FullName -like "analyzers/dotnet/*/cs/CodegenCS.SourceGenerator.dll" } | ForEach-Object { $_.FullName })
+	} finally {
+		$zip.Dispose()
+	}
+	if ($analyzers.Count -eq 0) { throw "Package $nupkg does not contain the source generator" }
+	Write-Host "Packed generator builds:" -ForegroundColor DarkGray
+	$analyzers | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
+
+	# Sanity check: compile the samples that consume the package with the real SDK compiler.
+	if (-not $SkipSampleBuild) {
+		& (Join-Path $dir "build-samples.ps1") -Configuration $configuration -Source $Source -SkipPack -Projects "SourceGenerator1","SourceGenerator2"
 	}
 
 } finally {

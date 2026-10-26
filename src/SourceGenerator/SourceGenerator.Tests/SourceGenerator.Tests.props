@@ -1,0 +1,71 @@
+<Project>
+
+  <Import Project="..\CodegenCS.SourceGenerator.Host.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net$(NETCoreAppMaximumVersion)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <LangVersion>preview</LangVersion>
+    <Nullable>disable</Nullable>
+    <Company>Rick Drizin</Company>
+    <Copyright>Rick Drizin</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <CodegenCSSourceGeneratorProjectDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\CodegenCS.SourceGenerator'))</CodegenCSSourceGeneratorProjectDir>
+    <CodegenCSSourceGeneratorTargetFramework Condition="'$(CodegenCSSourceGeneratorTargetFramework)' == '' And '$(CodegenCSHostTargetFramework)' != ''">$(CodegenCSHostTargetFramework)</CodegenCSSourceGeneratorTargetFramework>
+    <CodegenCSSourceGeneratorTargetFramework Condition="'$(CodegenCSSourceGeneratorTargetFramework)' == ''">netstandard2.0</CodegenCSSourceGeneratorTargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BaseProject\**" />
+    <None Remove="BaseProject\**" />
+    <Content Include="BaseProject\**" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shared\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="CodegenCS.SourceGeneratorDir" Value="$([System.IO.Path]::Combine('$(CodegenCSSourceGeneratorProjectDir)', 'bin', '$(Configuration)', '$(CodegenCSSourceGeneratorTargetFramework)'))" />
+    <AssemblyMetadata Include="CodegenCS.PortableSourceGeneratorDir" Value="$([System.IO.Path]::Combine('$(CodegenCSSourceGeneratorProjectDir)', 'bin', '$(Configuration)', 'netstandard2.0'))" />
+    <AssemblyMetadata Include="CodegenCS.PackagesLocalDir" Value="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\packages-local'))" />
+    <AssemblyMetadata Include="CodegenCS.Configuration" Value="$(Configuration)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="5.0.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodegenCSRoslynPackageVersion)" />
+    <PackageReference Include="InterpolatedColorConsole" Version="1.0.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.12" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(CodegenCSSourceGeneratorProjectDir)\CodegenCS.SourceGenerator.csproj" />
+    <ProjectReference Include="$(CodegenCSSourceGeneratorProjectDir)\CodegenCS.SourceGenerator.csproj" SetTargetFramework="TargetFramework=netstandard2.0" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(Configuration)' == 'Debug'">
+      <ItemGroup>
+        <ProjectReference Include="..\..\..\Core\CodegenCS\CodegenCS.Core.csproj" />
+        <ProjectReference Include="..\..\..\Core\CodegenCS.Runtime\CodegenCS.Runtime.csproj" />
+        <ProjectReference Include="..\..\..\Core\CodegenCS.Models\CodegenCS.Models.csproj" />
+        <ProjectReference Include="..\..\..\Core\CodegenCS.DotNet\CodegenCS.DotNet.csproj" />
+        <ProjectReference Include="..\..\..\Models\CodegenCS.Models.DbSchema\CodegenCS.Models.DbSchema.csproj" />
+        <ProjectReference Include="..\..\..\Models\CodegenCS.Models.NSwagAdapter\CodegenCS.Models.NSwagAdapter.csproj" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="CodegenCS.Core" Version="3.5.0" />
+        <PackageReference Include="CodegenCS.Runtime" Version="3.5.2" />
+        <PackageReference Include="CodegenCS.Models" Version="3.5.0" />
+        <PackageReference Include="CodegenCS.DotNet" Version="3.5.0" />
+        <PackageReference Include="CodegenCS.Models.DbSchema" Version="3.5.0" />
+        <PackageReference Include="CodegenCS.Models.NSwagAdapter" Version="3.5.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+</Project>

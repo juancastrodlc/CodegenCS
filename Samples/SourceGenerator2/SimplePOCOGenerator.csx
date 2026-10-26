@@ -1,4 +1,4 @@
-﻿// Original template source: https://github.com/CodegenCS/Templates/blob/main/SimplePocos/SimplePocos.cs
+// Original template source: https://github.com/CodegenCS/Templates/blob/main/SimplePocos/SimplePocos.cs
 using CodegenCS;
 using CodegenCS.Models.DbSchema;
 using System;
@@ -9,9 +9,11 @@ using System.Diagnostics;
 
 /// <summary>
 /// SimplePocos.cs: Given a Database Schema will Generate simple POCOs (just classes and properties, no relationships)
+/// The schema (AdventureWorksSchema.json) describes a SQLite database, where every table lives in the default "main" schema.
 /// </summary>
 public class SimplePOCOGenerator
 {
+    private const string DefaultSchema = "main";
     private ICodegenContext _generatorContext;
     private bool _allTablesInSameSchema;
     private SimplePOCOGeneratorOptions _options;
@@ -151,7 +153,7 @@ public class SimplePOCOGenerator
         if (_options.AddTableAttribute)
         {
             // We'll decorate [Table("Name")] only if schema not default or if table name doesn't match entity name
-            if (table.TableSchema != "dbo") //TODO or table different than clas name?
+            if (table.TableSchema != DefaultSchema) //TODO or table different than clas name?
                 file.WriteLine($"[Table(\"{table.TableName}\", Schema = \"{table.TableSchema}\")]");
             else if (entityClassName.ToLower() != table.TableName.ToLower())
                 file.WriteLine($"[Table(\"{table.TableName}\")]");
@@ -280,7 +282,7 @@ public class SimplePOCOGenerator
     {
         //return $"{table.TableName}.g.cs";
         // default schema or all tables under a single schema - just omit the schema:
-        if (table.TableSchema == "dbo" || _allTablesInSameSchema)
+        if (table.TableSchema == DefaultSchema || _allTablesInSameSchema)
             return $"{table.TableName}.g.cs";
         else
             return $"{table.TableSchema}.{table.TableName}.g.cs";
@@ -288,7 +290,7 @@ public class SimplePOCOGenerator
     private string GetClassNameForTable(Table table)
     {
         return $"{table.TableName}";
-        if (table.TableSchema == "dbo")
+        if (table.TableSchema == DefaultSchema)
             return $"{table.TableName}";
         else
             return $"{table.TableSchema}_{table.TableName}";
@@ -305,16 +307,6 @@ public class SimplePOCOGenerator
     }
     private bool ShouldProcessColumn(Table table, Column column)
     {
-        string sqlDataType = column.SqlDataType;
-        switch (sqlDataType)
-        {
-            case "hierarchyid":
-            case "geography":
-                return false;
-            default:
-                break;
-        }
-
         return true;
     }
 

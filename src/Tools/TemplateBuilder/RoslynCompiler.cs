@@ -26,6 +26,19 @@ namespace CodegenCS.TemplateBuilder
         protected ILogger _logger;
         protected TemplateBuilder _builder;
 
+        /// <summary>
+        /// Resolves the file location of an assembly that should be referenced by templates.
+        /// Hosts that load assemblies from memory (e.g. the Roslyn compiler server loading a source generator) can override this.
+        /// </summary>
+        internal static Func<Assembly, string> AssemblyLocationResolver { get; set; }
+
+        internal static string LocationOf(Type type)
+        {
+            var assembly = type.GetTypeInfo().Assembly;
+            var location = AssemblyLocationResolver?.Invoke(assembly);
+            return string.IsNullOrEmpty(location) ? assembly.Location : location;
+        }
+
         public RoslynCompiler(TemplateBuilder builder, ILogger logger, bool verboseMode)
         {
             _builder = builder;
@@ -98,13 +111,13 @@ namespace CodegenCS.TemplateBuilder
             #region System.IO, System.Console
             _namespaces.Add("System.IO", null);
             AddAssembly("System.IO.dll");
-            AddAssembly(MetadataReference.CreateFromFile(typeof(FileInfo).GetTypeInfo().Assembly.Location)); // System.IO.FileSystem
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(FileInfo)))); // System.IO.FileSystem
 
             // System.Console
-            AddAssembly(MetadataReference.CreateFromFile(typeof(System.Console).GetTypeInfo().Assembly.Location)); //AddAssembly("System.Console.dll");
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(System.Console)))); //AddAssembly("System.Console.dll");
 
             // InterpolatedColorConsole
-            AddAssembly(MetadataReference.CreateFromFile(typeof(InterpolatedColorConsole.ColoredConsole).GetTypeInfo().Assembly.Location));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(InterpolatedColorConsole.ColoredConsole))));
             _namespaces.Add("InterpolatedColorConsole.Symbols", templateSource => 
                 Regex.IsMatch(templateSource, @"(?<!\.)\bPREVIOUS_COLOR\b") || 
                 Regex.IsMatch(templateSource, @"(?<!\.)\bPREVIOUS_BACKGROUND_COLOR\b"));
@@ -129,11 +142,11 @@ namespace CodegenCS.TemplateBuilder
             AddAssembly("System.ComponentModel.Primitives.dll");
 
             // CodegenCS / CodegenCS.Runtime / CodegenCS.Models.DbSchema
-            AddAssembly(MetadataReference.CreateFromFile(typeof(CodegenCS.CodegenContext).GetTypeInfo().Assembly.Location));
-            AddAssembly(MetadataReference.CreateFromFile(typeof(CodegenCS.Runtime.ExecutionContext).GetTypeInfo().Assembly.Location));
-            AddAssembly(MetadataReference.CreateFromFile(typeof(CodegenCS.Models.IInputModel).GetTypeInfo().Assembly.Location));
-            AddAssembly(MetadataReference.CreateFromFile(typeof(CodegenCS.DotNet.DotNetCodegenContext).GetTypeInfo().Assembly.Location));
-            AddAssembly(MetadataReference.CreateFromFile(typeof(CodegenCS.Models.DbSchema.DatabaseSchema).GetTypeInfo().Assembly.Location));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(CodegenCS.CodegenContext))));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(CodegenCS.Runtime.ExecutionContext))));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(CodegenCS.Models.IInputModel))));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(CodegenCS.DotNet.DotNetCodegenContext))));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(CodegenCS.Models.DbSchema.DatabaseSchema))));
             _namespaces.Add("CodegenCS", null);
 
             _namespaces.Add("CodegenCS.Runtime", templateSource =>
@@ -158,17 +171,17 @@ namespace CodegenCS.TemplateBuilder
                 Regex.IsMatch(templateSource, @"(?<!\.)\bCOMMENT\(\b") ||
                 Regex.IsMatch(templateSource, @"(?<!\.)\bRAW\(\b"));
 
-            AddAssembly(MetadataReference.CreateFromFile(typeof(NSwag.OpenApiDocument).GetTypeInfo().Assembly.Location)); // NSwag.Core
-            AddAssembly(MetadataReference.CreateFromFile(typeof(NSwag.OpenApiYamlDocument).GetTypeInfo().Assembly.Location)); // NSwag.Core.Yaml
-            AddAssembly(MetadataReference.CreateFromFile(typeof(NJsonSchema.JsonSchema).GetTypeInfo().Assembly.Location)); // NJsonSchema
-            AddAssembly(MetadataReference.CreateFromFile(typeof(NJsonSchema.Annotations.JsonSchemaAttribute).GetTypeInfo().Assembly.Location)); // NJsonSchema.Annotations //TODO: probably we can remove this dependency and add it only to NSwagClient.cs?
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(NSwag.OpenApiDocument)))); // NSwag.Core
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(NSwag.OpenApiYamlDocument)))); // NSwag.Core.Yaml
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(NJsonSchema.JsonSchema)))); // NJsonSchema
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(NJsonSchema.Annotations.JsonSchemaAttribute)))); // NJsonSchema.Annotations //TODO: probably we can remove this dependency and add it only to NSwagClient.cs?
             _namespaces.Add("NSwag", templateSource => Regex.IsMatch(templateSource, @"(?<!\.)\bOpenApiDocument\b"));
 
             // Newtonsoft
             _namespaces.Add("Newtonsoft.Json", null); // maybe we should only add namespace if we find references like "JsonConvert"?
-            AddAssembly(MetadataReference.CreateFromFile(typeof(Newtonsoft.Json.JsonConvert).GetTypeInfo().Assembly.Location));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(Newtonsoft.Json.JsonConvert))));
 
-            AddAssembly(MetadataReference.CreateFromFile(typeof(System.CommandLine.Argument).GetTypeInfo().Assembly.Location));
+            AddAssembly(MetadataReference.CreateFromFile(LocationOf(typeof(System.CommandLine.Argument))));
             // System.CommandLine.Command, System.CommandLine.ParseResult
             _namespaces.Add("System.CommandLine", templateSource => 
                 Regex.IsMatch(templateSource, @"(?<!\.)\bConfigureCommand\b") || 
@@ -209,10 +222,11 @@ namespace CodegenCS.TemplateBuilder
         {
             try
             {
-                if (_references.Any(r => r.FilePath == type.Assembly.Location))
+                var location = LocationOf(type);
+                if (_references.Any(r => r.FilePath == location))
                     return true;
 
-                var systemReference = MetadataReference.CreateFromFile(type.Assembly.Location);
+                var systemReference = MetadataReference.CreateFromFile(location);
                 _references.Add(systemReference);
             }
             catch

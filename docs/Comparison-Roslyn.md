@@ -41,7 +41,7 @@ CodegenCS now has a [**Source Generator plugin**](https://www.nuget.org/packages
 
 So if you need to generate code based on existing code (or if you have any other reason to use source generators),  now you don't need to learn how source generators work, you don't need to write your own (which is hard) - you can just use our generator and build friendly CodegenCS templates, and leverage our sample templates.
 
-By injecting `GeneratorExecutionContext` in your templates you can get access to the full syntax tree (exactly like you were writing your own source generator) so you can augment on existing classes - see [Template3.csx](/Samples/SourceGenerator1/Template3.csx) for an example.
+By injecting `Compilation` (Microsoft.CodeAnalysis) in your templates you can get access to the full syntax tree (exactly like you were writing your own source generator) so you can augment on existing classes - see [Template3.csx](/Samples/SourceGenerator1/Template3.csx) for an example.
   
 Check out [this Sample](https://github.com/CodegenCS/tree/main/Samples/SourceGenerator1) and [this Sample](https://github.com/CodegenCS/tree/main/Samples/SourceGenerator2)
 

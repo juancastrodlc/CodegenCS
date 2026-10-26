@@ -68,6 +68,7 @@ namespace CodegenCS.TemplateDownloader
             {
                 path = await GetDownloadUrl(_args.Origin);
                 path = await FixGithubUrl(path);
+                path = TemplatesRepository.Rebase(path);
             }
             catch (UntrustedTemplateOriginException)
             {
@@ -75,7 +76,7 @@ namespace CodegenCS.TemplateDownloader
             }
 
             string outputFolder = Directory.GetCurrentDirectory();
-            string outputFileName = path.ToString().Substring(path.ToString().LastIndexOf("/") + 1);
+            string outputFileName = TemplatesRepository.IsLocalLocation(path) ? Path.GetFileName(path) : path.Substring(path.LastIndexOf("/") + 1);
             if (!string.IsNullOrWhiteSpace(_args.Output))
             {
                 if (_args.Output.Contains(Path.DirectorySeparatorChar) && _args.Output.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -93,10 +94,9 @@ namespace CodegenCS.TemplateDownloader
                 await _logger.WriteLineAsync(ConsoleColor.DarkGray, $"Downloading from '{ConsoleColor.Cyan}{path.ToString()}{PREVIOUS_COLOR}'");
 
 
-            var wc = new WebClient();
             try
             {
-                wc.DownloadFile(path.ToString(), targetFile);
+                TemplatesRepository.Download(path, targetFile);
                 await _logger.WriteLineAsync(ConsoleColor.Green, $"Template {ConsoleColor.White}'{path.ToString()}'{PREVIOUS_COLOR} was successfully saved into {ConsoleColor.White}'{targetFile}'{PREVIOUS_COLOR}");
             }
             catch (Exception ex)
@@ -124,11 +124,10 @@ namespace CodegenCS.TemplateDownloader
             if (!(origin.Contains(".") || origin.Contains(":") || origin.Contains(@"\") || origin.Contains("/")))
             {
                 // if it's a single word without any symbols, check the templates index
-                var wc = new WebClient();
-                var catalogUrl = "https://raw.githubusercontent.com/CodegenCS/Templates/main/templates-index.json";
+                var catalogUrl = TemplatesRepository.Resolve(TemplatesRepository.CatalogFile);
                 try
                 {
-                    string indexContents = wc.DownloadString(catalogUrl);
+                    string indexContents = TemplatesRepository.ReadAllText(catalogUrl);
                     var dic = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, TemplateMetadata>>(indexContents);
                     dic = new Dictionary<string, TemplateMetadata>(dic, StringComparer.OrdinalIgnoreCase);
                     if (!dic.ContainsKey(origin))

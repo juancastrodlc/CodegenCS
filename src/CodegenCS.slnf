@@ -12,6 +12,8 @@
       "Models\\CodegenCS.Models.NSwagAdapter\\CodegenCS.Models.NSwagAdapter.csproj",
       "MSBuild\\CodegenCS.MSBuild\\CodegenCS.MSBuild.csproj",
       "SourceGenerator\\CodegenCS.SourceGenerator\\CodegenCS.SourceGenerator.csproj",
+      "SourceGenerator\\SourceGenerator.Tests\\SourceGenerator1.Tests\\CodegenCS.SourceGenerator1.Tests.csproj",
+      "SourceGenerator\\SourceGenerator.Tests\\SourceGenerator2.Tests\\CodegenCS.SourceGenerator2.Tests.csproj",
       "Tools\\CodegenCS.Tools.CliTool.Tests\\CodegenCS.Tools.CliTool.Tests.csproj",
       "Tools\\dotnet-codegencs\\dotnet-codegencs.csproj",
       "Tools\\TemplateBuilder\\CodegenCS.Tools.TemplateBuilder.csproj",

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CodegenCSSourceGeneratorPath)' != ''">
+    <Analyzer Include="$(CodegenCSSourceGeneratorPath)*.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(CodegenCSSourceGeneratorPath)' == ''">
+    <PackageReference Include="CodegenCS.SourceGenerator" Version="3.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" />
+    <AdditionalFiles Include="Template1.csx" CodegenCSOutput="File" />
+    <AdditionalFiles Include="Template2.csx" CodegenCSOutput="Memory" />
+    <AdditionalFiles Include="Template3.csx" CodegenCSOutput="Memory" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\SourceGenerator.Tests.props" />
+
+  <PropertyGroup>
+    <RootNamespace>CodegenCS.SourceGenerator.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.13" />
+    <PackageReference Include="Dapper.StrongName" Version="2.1.89" />
+  </ItemGroup>
+
+</Project>

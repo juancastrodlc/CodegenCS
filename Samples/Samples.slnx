@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../src/build-samples.ps1" />
+    <File Path="NuGet.config" />
+  </Folder>
+  <Project Path="PrebuildEvent/PrebuildEvent.csproj" />
+  <Project Path="SourceGenerator1/SourceGenerator1.csproj" />
+  <Project Path="SourceGenerator2/SourceGenerator2.csproj" />
+</Solution>

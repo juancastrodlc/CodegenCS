@@ -23,7 +23,7 @@ namespace CodegenCS.Tools.CliTool.Tests
 
             string[] modelsToDownload = new string[]
             {
-                "https://raw.githubusercontent.com/CodegenCS/Templates/main/OpenAPI/SampleModels/petstore-openapi3.json"
+                OnlineSources.PetstoreOpenApiUrl
             };
 
             foreach (var templateAlias in templatesToClone)
@@ -34,17 +34,17 @@ namespace CodegenCS.Tools.CliTool.Tests
                     File.Delete($"{templateAlias}.cs");
 
                 var result = await Run($"template clone {templateAlias}");
-                Assert.AreEqual(0, result.ExitCode);
+                Assert.AreEqual(0, result.ExitCode, _stdOut + _stdErr);
                 FileAssert.Exists($"{templateAlias}.cs");
                 FileAssert.Exists($"{templateAlias}.dll");
             }
 
             foreach (var url in modelsToDownload)
             {
-                string localPath = url.Substring(url.LastIndexOf("/") + 1);
+                string localPath = OnlineSources.LocalFileName(url);
                 if (File.Exists(localPath))
                     File.Delete(localPath);
-                await new WebClient().DownloadFileTaskAsync(new Uri(url), localPath);
+                await OnlineSources.DownloadAsync(url, localPath);
                 FileAssert.Exists(localPath);
             }
 

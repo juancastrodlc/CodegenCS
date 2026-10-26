@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <CodegenCSRoslynPackageVersion>5.9.0</CodegenCSRoslynPackageVersion>
+    <CodegenCSHostTargetFramework Condition="'$(CodegenCSHostTargetFramework)' == '' And '$(MSBuildRuntimeType)' == 'Core'">net$(BundledNETCoreAppTargetFrameworkVersion)</CodegenCSHostTargetFramework>
+  </PropertyGroup>
+</Project>

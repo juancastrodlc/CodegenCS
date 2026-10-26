@@ -3,18 +3,44 @@
 param(
     [ValidateSet('Release', 'Debug')]
     [string]$Configuration = 'Debug',
-    [string]$Source = './packages-local'
+    [string]$Source = './packages-local',
+    # Where tests download CodegenCS templates (and sample models) from. Defaults to $env:CODEGENCS_TEMPLATES_URI,
+    # or to the online repository (https://raw.githubusercontent.com/CodegenCS/Templates/main/) when the variable isn't defined.
+    # Can be a URI or a local directory (mirror of https://github.com/CodegenCS/Templates).
+    [string]$TemplatesUri = $env:CODEGENCS_TEMPLATES_URI,
+    # Offline mode: shortcut for -TemplatesUri ./artifacts/OnlineTemplates
+    [switch]$Offline = $false
 )
+
+# How to run:
+#   pwsh ./run-tests.ps1                      (templates are downloaded from GitHub)
+#   pwsh ./run-tests.ps1 -Offline             (templates are read from ./artifacts/OnlineTemplates)
+#   pwsh ./run-tests.ps1 -TemplatesUri <uri or local folder>
 
 $ErrorActionPreference = 'Stop'
 $artifactsDirectory = Join-Path $PSScriptRoot 'artifacts'
+$defaultTemplatesUri = 'https://raw.githubusercontent.com/CodegenCS/Templates/main/'
+if ($Offline -and -not $PSBoundParameters.ContainsKey('TemplatesUri')) {
+    $TemplatesUri = Join-Path $artifactsDirectory 'OnlineTemplates'
+}
+if ([string]::IsNullOrWhiteSpace($TemplatesUri)) {
+    $TemplatesUri = $defaultTemplatesUri
+} elseif ($TemplatesUri -notmatch '^(https?|file):') {
+    $TemplatesUri = [System.IO.Path]::GetFullPath($TemplatesUri, $PSScriptRoot)
+    if (-not (Test-Path $TemplatesUri -PathType Container)) {
+        throw "Templates directory '$TemplatesUri' does not exist."
+    }
+}
+$previousTemplatesUri = $env:CODEGENCS_TEMPLATES_URI
+$env:CODEGENCS_TEMPLATES_URI = $TemplatesUri
+Write-Host "Templates source (CODEGENCS_TEMPLATES_URI): $TemplatesUri" -ForegroundColor Cyan
 $resultsDirectory = Join-Path $artifactsDirectory 'test-results'
 $summaryPath = Join-Path $artifactsDirectory 'test-summary.md'
 
 if ($IsLinux) {
     $solutionFile = 'CodegenCS.slnf'
 } elseif ($IsWindows) {
-    $solutionFile = 'CodegenCS.sln'
+    $solutionFile = 'CodegenCS.slnx'
 } else {
     throw 'Tests can only be run in a Linux or Windows environment.'
 }
@@ -49,6 +75,7 @@ try {
         Write-Warning $executionError
     }
 } finally {
+    $env:CODEGENCS_TEMPLATES_URI = $previousTemplatesUri
     Pop-Location
 }
 
@@ -141,6 +168,7 @@ $summaryLines.Add('')
 $summaryLines.Add("- **Result:** $overallStatus")
 $summaryLines.Add("- **Configuration:** $Configuration")
 $summaryLines.Add("- **Solution:** $solutionFile")
+$summaryLines.Add("- **Templates source:** $TemplatesUri")
 $summaryLines.Add("- **Completed:** $runTime")
 $summaryLines.Add("- **Totals:** $totalPassed passed, $totalFailed failed, $totalSkipped skipped, $totalTests total")
 $summaryLines.Add('')

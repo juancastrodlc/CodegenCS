@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="CodegenCSDeclareCompilerVisibleMetadata" BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun">
+    <ItemGroup>
+      <_CodegenCSDeclaredMetadata Include="@(CompilerVisibleItemMetadata)" Condition="'%(Identity)' == 'AdditionalFiles' And '%(MetadataName)' == 'CodegenCSOutput'" />
+      <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" Condition="'@(_CodegenCSDeclaredMetadata)' == ''" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -38,18 +38,18 @@ It's possible to render physical files on disk or just render in-memory (no need
 1. Add this to your csproj:
    ```xml
     <ItemGroup>
-      <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" />
       <AdditionalFiles Include="Template.csx" CodegenCSOutput="Memory" />
       <!-- Use "Memory" or "File", where "File" will save the output files to disk -->
       <!-- you can include as many templates as you want -->
     </ItemGroup>
    ```
-1. If you want to augment on existing classes (using Roslyn Syntax Tree), just inject `GeneratorExecutionContext` like the example below: .
+   (the package automatically declares `<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" />`)
+1. If you want to augment on existing classes (using Roslyn Syntax Tree), just inject `Compilation` like the example below: .
 
     ```cs
-        void Main(ICodegenContext context, GeneratorExecutionContext generatorContext)
+        void Main(ICodegenContext context, Compilation compilation)
         {
-            var classes = generatorContext.Compilation.SyntaxTrees
+            var classes = compilation.SyntaxTrees
                 .SelectMany(syntaxTree => syntaxTree.GetRoot().DescendantNodes())
                 .Where(x => x is ClassDeclarationSyntax)
                 .Cast<ClassDeclarationSyntax>()
@@ -58,7 +58,7 @@ It's possible to render physical files on disk or just render in-memory (no need
 
             foreach (var c in classes)
             {
-                var typeSymbol = generatorContext.Compilation.GetSemanticModel(c.SyntaxTree).GetDeclaredSymbol(c);
+                var typeSymbol = compilation.GetSemanticModel(c.SyntaxTree).GetDeclaredSymbol(c);
                 var fqn = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 if (fqn.StartsWith("global::"))
                     fqn = fqn.Substring("global::".Length);
@@ -73,4 +73,7 @@ It's possible to render physical files on disk or just render in-memory (no need
             }
         }
     ```
-    See full example [here](/Samples/SourceGenerator1/Template3.csx).
+    See full example [here](/Samples/SourceGenerator1/Template3.csx).  
+    (Previous versions injected `GeneratorExecutionContext`, which doesn't exist in incremental generators - templates using it report `CODEGENCS004`.)
+
+For more details (outputs, models, incremental behavior, diagnostics, compatibility, building and testing) check out the [Source Generator documentation](/docs/SourceGenerator.md).

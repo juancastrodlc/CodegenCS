@@ -1,6 +1,7 @@
 ﻿// This template is a little more elaborated: 
-// it gets injected Microsoft.CodeAnalysis.GeneratorExecutionContext
+// it gets injected Microsoft.CodeAnalysis.Compilation (the compilation being built)
 // so it can lookup for some syntax nodes from the compilation tree and can build code based on those elements
+// (templates that use Microsoft.CodeAnalysis run again whenever the compilation changes - other templates only run when they change)
 
 //#r "Microsoft.CodeAnalysis.dll"
 //#r "Microsoft.CodeAnalysis.CSharp.dll"
@@ -11,9 +12,9 @@ using Microsoft.CodeAnalysis.CSharp; // TryGetInferredMemberName extension
 
 class Template3
 {
-    void Main(ICodegenContext context, GeneratorExecutionContext generatorContext)
+    void Main(ICodegenContext context, Compilation compilation)
     {
-        var classes = generatorContext.Compilation.SyntaxTrees
+        var classes = compilation.SyntaxTrees
             .SelectMany(syntaxTree => syntaxTree.GetRoot().DescendantNodes())
             .Where(x => x is ClassDeclarationSyntax)
             .Cast<ClassDeclarationSyntax>()
@@ -22,7 +23,7 @@ class Template3
 
         foreach (var c in classes)
         {
-            var typeSymbol = generatorContext.Compilation.GetSemanticModel(c.SyntaxTree).GetDeclaredSymbol(c);
+            var typeSymbol = compilation.GetSemanticModel(c.SyntaxTree).GetDeclaredSymbol(c);
             var fqn = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (fqn.StartsWith("global::"))
                 fqn = fqn.Substring("global::".Length);

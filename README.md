@@ -133,7 +133,9 @@ Files are physically saved to disk and will be automatically added to your compi
 ## Roslyn Source Generator
 
 Our [Source Generator](https://github.com/Drizin/CodegenCS/tree/master/src/SourceGenerator/) (nuget [here](https://nuget.org/packages/CodegenCS.SourceGenerator)) allows running templates on-the-fly during compilation.  
-It's possible to render physical files on disk or just render in-memory (no need to add to source-control or put into ignore lists).
+It's possible to render physical files on disk or just render in-memory (no need to add to source-control or put into ignore lists).  
+It's an **incremental source generator** (`IIncrementalGenerator`): templates only run again when they (or their models) change, and templates can inject the Roslyn `Compilation` to augment the code being compiled.  
+Check out the [Source Generator documentation](https://github.com/Drizin/CodegenCS/tree/master/docs/SourceGenerator.md) to learn how to configure templates, outputs, models, incremental behavior, diagnostics and compatibility.
 
 ## Important Classes
 
@@ -1202,7 +1204,8 @@ See example in
 - [CodegenTextWriter documentation](https://github.com/Drizin/CodegenCS/tree/master/docs/CodegenTextWriter.md)
 - To start using the command-line tool, check out [dotnet-codegencs Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Tools/dotnet-codegencs#quickstart)
 - To start using the Visual Studio Extension, check out [Visual Studio Extension Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/VisualStudio#quickstart)
-- To start using the Source Generator, check out [Roslyn Source Generator Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/SourceGenerator#quickstart)
+- To start using the Source Generator, check out [Roslyn Source Generator Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/SourceGenerator#quickstart) and the [Source Generator documentation](https://github.com/Drizin/CodegenCS/tree/master/docs/SourceGenerator.md)
+- To build the toolkit, run the samples and run the tests (including offline), check out [Testing](https://github.com/Drizin/CodegenCS/tree/master/docs/Testing.md)
 - To generate code based on a database, check out [DbSchema Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Models/CodegenCS.Models.DbSchema#quickstart)
 - To generate code based on a REST API, check out [NSwagAdapter Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Models/CodegenCS.Models.NSwagAdapter#quickstart)
 - Our [Templates repository (https://github.com/CodegenCS/Templates)](https://github.com/CodegenCS/Templates) contains some **sample fully-functional templates** that you can use, customize, or use as a reference for building your own templates.
@@ -1263,7 +1266,7 @@ Check out [CodegenCS vs T4 Templates](https://github.com/Drizin/CodegenCS/tree/m
 ## How does CodegenCS compare to Roslyn Source Generators?
 
 Source Generators are only required when you're building code based on existing code.  
-CodegenCS has a Source Generator plugin that can be used to invoke templates, and those templates will also have access to `GeneratorExecutionContext` (to read the syntax trees) - so you don't have to write your own Source Generator (which is not an easy task).
+CodegenCS has a Source Generator plugin that can be used to invoke templates, and those templates will also have access to the Roslyn `Compilation` (to read the syntax trees) - so you don't have to write your own Source Generator (which is not an easy task).
 
 But if you're not building code based on existing code (e.g. if you're generating based on a database or a json file) then you don't need a Source Generator - you can just use our command-line tool `dotnet-codegencs` to run our templates from your prebuild scripts.
 

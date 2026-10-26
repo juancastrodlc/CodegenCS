@@ -12,13 +12,18 @@ namespace CodegenCS.Tools.CliTool.Tests
     internal class BasicTests : BaseTest
     {
 
+        private static readonly string SimplePocosLocation = OnlineSources.TemplateLocation("DatabaseSchema/SimplePocos/SimplePocos.cs");
+
         [OneTimeSetUp]
         public async Task EnsureSimplePocosTemplateExists()
         {
             var result = await Run("template clone simplepocos");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.AreEqual(0, result.ExitCode, _stdOut + _stdErr);
             FileAssert.Exists("SimplePocos.cs");
             FileAssert.Exists("SimplePocos.dll");
+
+            foreach (var url in new[] { OnlineSources.AdventureWorksSchemaUrl, OnlineSources.PetstoreOpenApiUrl })
+                await OnlineSources.DownloadAsync(url, OnlineSources.LocalFileName(url));
         }
 
         [Test]
@@ -37,10 +42,10 @@ namespace CodegenCS.Tools.CliTool.Tests
         {
             var result = await Run("template clone simplepocos");
             Assert.AreEqual(0, result.ExitCode);
-            StringAssert.Contains("""
+            StringAssert.Contains($$"""
                 Output file 'SimplePocos.cs'
-                Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
-                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
+                Downloading from '{{SimplePocosLocation}}'
+                Template '{{SimplePocosLocation}}' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
                 """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
@@ -67,10 +72,10 @@ namespace CodegenCS.Tools.CliTool.Tests
         {
             var result = await Run("template clone https://github.com/CodegenCS/Templates/DatabaseSchema/SimplePocos/SimplePocos.cs");
             Assert.AreEqual(0, result.ExitCode);
-            StringAssert.Contains("""
+            StringAssert.Contains($$"""
                 Output file 'SimplePocos.cs'
-                Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
-                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
+                Downloading from '{{SimplePocosLocation}}'
+                Template '{{SimplePocosLocation}}' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
                 """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
@@ -96,10 +101,10 @@ namespace CodegenCS.Tools.CliTool.Tests
         {
             var result = await Run("template clone DatabaseSchema/SimplePocos/SimplePocos.cs");
             Assert.AreEqual(0, result.ExitCode);
-            StringAssert.Contains("""
+            StringAssert.Contains($$"""
                 Output file 'SimplePocos.cs'
-                Downloading from 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs'
-                Template 'https://raw.githubusercontent.com/CodegenCS/Templates/main/DatabaseSchema/SimplePocos/SimplePocos.cs' was successfully saved into 'SimplePocos.cs'
+                Downloading from '{{SimplePocosLocation}}'
+                Template '{{SimplePocosLocation}}' was successfully saved into 'SimplePocos.cs'
                 Building 'SimplePocos.cs'...
                 """.ReplaceLineEndings(), _stdOut);
             StringAssert.Contains("""
@@ -123,14 +128,14 @@ namespace CodegenCS.Tools.CliTool.Tests
 
         #region Template Build
 
-        [TestCase("https://raw.githubusercontent.com/Drizin/CodegenCS/master/src/Models/CodegenCS.Models.DbSchema.SampleDatabases/AdventureWorksSchema.json")]
-        [TestCase("https://raw.githubusercontent.com/CodegenCS/Templates/main/OpenAPI/SampleModels/petstore-openapi3.json")]
+        [TestCase(OnlineSources.AdventureWorksSchemaUrl)]
+        [TestCase(OnlineSources.PetstoreOpenApiUrl)]
         public async Task DownloadSampleModels(string url)
         {
-            string localPath = url.Substring(url.LastIndexOf("/") + 1);
+            string localPath = OnlineSources.LocalFileName(url);
             if (File.Exists(localPath))
                 File.Delete(localPath);
-            await new WebClient().DownloadFileTaskAsync(new Uri(url), localPath);
+            await OnlineSources.DownloadAsync(url, localPath);
             FileAssert.Exists(localPath);
         }
 

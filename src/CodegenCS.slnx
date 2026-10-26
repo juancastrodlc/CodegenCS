@@ -31,9 +31,18 @@
     <File Path="build-tools.ps1" />
     <File Path="build-visualstudio.ps1" />
     <File Path="build.ps1" />
+    <File Path="build-samples.ps1" />
+    <File Path="run-tests.ps1" />
   </Folder>
   <Folder Name="/SourceGenerator/">
+    <File Path="SourceGenerator/CodegenCS.SourceGenerator.Host.props" />
+    <File Path="SourceGenerator/README.md" />
     <Project Path="SourceGenerator/CodegenCS.SourceGenerator/CodegenCS.SourceGenerator.csproj" />
+  </Folder>
+  <Folder Name="/SourceGenerator/SourceGenerator.Tests/">
+    <File Path="SourceGenerator/SourceGenerator.Tests/SourceGenerator.Tests.props" />
+    <Project Path="SourceGenerator/SourceGenerator.Tests/SourceGenerator1.Tests/CodegenCS.SourceGenerator1.Tests.csproj" />
+    <Project Path="SourceGenerator/SourceGenerator.Tests/SourceGenerator2.Tests/CodegenCS.SourceGenerator2.Tests.csproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/CodegenCS.Tools.CliTool.Tests/CodegenCS.Tools.CliTool.Tests.csproj" />
@@ -44,6 +53,7 @@
     <Project Path="Tools/Tests/CodegenCS.Tools.Tests.csproj" />
   </Folder>
   <Folder Name="/VisualStudio/">
+    <File Path="VisualStudio/reset-experimental-visualstudio.ps1" />
     <Project Path="VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj" />
     <Project Path="VisualStudio/Tests/CodegenCS.VisualStudio.Tests.csproj" />
     <Project Path="VisualStudio/VS2019Extension/VS2019Extension.csproj" Id="82da3670-09e8-4821-b261-9dc022525513">
