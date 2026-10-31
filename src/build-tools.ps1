@@ -67,7 +67,8 @@ try {
 
 	# uninstall/reinstall global tool from local dotnet-codegencs.*.nupkg:
 	dotnet tool uninstall -g dotnet-codegencs 2>$null
-	dotnet tool install --global @global:nugetSourceArguments --no-cache dotnet-codegencs
+	$toolInstallSourceArguments = @($global:nugetSourceArguments) + @('--source', [System.IO.Path]::GetFullPath($packOutput))
+	dotnet tool install --global @toolInstallSourceArguments --no-cache dotnet-codegencs
 	if ($LASTEXITCODE -ne 0) { throw "dotnet tool install failed (exit code $LASTEXITCODE)" }
 	$codegencs = Get-DotnetToolsPath
 	if (Test-Path $codegencs) {
