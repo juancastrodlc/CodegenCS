@@ -24,7 +24,6 @@ Write-Host "Using configuration $configuration..." -ForegroundColor Yellow
 try {
 
 	$packOutput = Join-Path $dir "packages-local"
-	$nugetConfig = $null
 
 	$buildOnly = @(
 		"Tools/TemplateBuilder/CodegenCS.Tools.TemplateBuilder.csproj",
@@ -68,27 +67,7 @@ try {
 
 	# uninstall/reinstall global tool from local dotnet-codegencs.*.nupkg:
 	dotnet tool uninstall -g dotnet-codegencs 2>$null
-	$toolInstallArguments = @()
-	if ($global:nugetSourcePath.Count -gt 0) {
-		$nugetConfig = Join-Path ([System.IO.Path]::GetTempPath()) ("CodegenCS-NuGet-{0}.config" -f [Guid]::NewGuid())
-		$sourceConfigLines = @('<clear />')
-		for ($index = 0; $index -lt $global:nugetSourcePath.Count; $index++) {
-			$source = [System.Security.SecurityElement]::Escape($global:nugetSourcePath[$index])
-			$sourceConfigLines += ('    <add key="source-{0}" value="{1}" />' -f $index, $source)
-		}
-		$packOutputForConfig = [System.Security.SecurityElement]::Escape([System.IO.Path]::GetFullPath($packOutput))
-		$sourceConfigLines += "    <add key=`"build-output`" value=`"$packOutputForConfig`" />"
-		@"
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-$(($sourceConfigLines -join "`n"))
-  </packageSources>
-</configuration>
-"@ | Set-Content -Path $nugetConfig -Encoding utf8
-		$toolInstallArguments = @('--configfile', $nugetConfig)
-	}
-	dotnet tool install --global @toolInstallArguments --no-cache dotnet-codegencs
+	dotnet tool install --global @global:nugetSourceArguments --no-cache dotnet-codegencs
 	if ($LASTEXITCODE -ne 0) { throw "dotnet tool install failed (exit code $LASTEXITCODE)" }
 	$codegencs = Get-DotnetToolsPath
 	if (Test-Path $codegencs) {
@@ -99,8 +78,5 @@ $(($sourceConfigLines -join "`n"))
 	}
 
 } finally {
-	if ($nugetConfig -and (Test-Path $nugetConfig)) {
-		Remove-Item $nugetConfig -Force
-	}
 	Pop-Location
 }
