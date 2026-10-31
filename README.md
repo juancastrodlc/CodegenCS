@@ -1205,7 +1205,6 @@ See example in
 - To start using the command-line tool, check out [dotnet-codegencs Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Tools/dotnet-codegencs#quickstart)
 - To start using the Visual Studio Extension, check out [Visual Studio Extension Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/VisualStudio#quickstart)
 - To start using the Source Generator, check out [Roslyn Source Generator Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/SourceGenerator#quickstart) and the [Source Generator documentation](https://github.com/Drizin/CodegenCS/tree/master/docs/SourceGenerator.md)
-- To build the toolkit, run the samples and run the tests (including offline), check out [Testing](https://github.com/Drizin/CodegenCS/tree/master/docs/Testing.md)
 - To generate code based on a database, check out [DbSchema Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Models/CodegenCS.Models.DbSchema#quickstart)
 - To generate code based on a REST API, check out [NSwagAdapter Quickstart](https://github.com/Drizin/CodegenCS/tree/master/src/Models/CodegenCS.Models.NSwagAdapter#quickstart)
 - Our [Templates repository (https://github.com/CodegenCS/Templates)](https://github.com/CodegenCS/Templates) contains some **sample fully-functional templates** that you can use, customize, or use as a reference for building your own templates.
