@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local',
+    [string[]]$Source = @(),
     # Reuse the CodegenCS.SourceGenerator package already in packages-local instead of packing it again.
     [switch]$SkipPack = $false,
     # Sample folders to build (e.g. "SourceGenerator1","SourceGenerator2"). Default: every project in Samples/Samples.slnx
@@ -63,7 +63,7 @@ try {
 
 	foreach ($target in $targets) {
 		Write-Host "Building $target..." -ForegroundColor Cyan
-		& dotnet restore $target --source $global:nugetSourcePath
+		& dotnet restore $target @global:nugetSourceArguments
 		if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed for $target (exit code $LASTEXITCODE)" }
 
 		$log = & dotnet build $target --no-restore --no-incremental -c $configuration -v:minimal 2>&1 | Tee-Object -Variable buildLog

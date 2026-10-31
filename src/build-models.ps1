@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
 # How to run: .\build-models.ps1   or   .\build-models.ps1 -configuration Debug
@@ -25,7 +25,7 @@ try {
 
 	# CodegenCS.Models.DbSchema + nupkg/snupkg
 	$p = Join-Path $dir "Models/CodegenCS.Models.DbSchema/CodegenCS.Models.DbSchema.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p `
 		/t:Restore /t:Build /t:Pack `
 		/p:PackageOutputPath=$packOutput `
@@ -36,7 +36,7 @@ try {
 
 	# CodegenCS.Models.DbSchema.Extractor (build only)
 	$p = Join-Path $dir "Models/CodegenCS.Models.DbSchema.Extractor/CodegenCS.Models.DbSchema.Extractor.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p `
 		/t:Restore /t:Build `
 		/p:Configuration=$configuration `
@@ -46,7 +46,7 @@ try {
 
 	# CodegenCS.Models.NSwagAdapter + nupkg/snupkg
 	$p = Join-Path $dir "Models/CodegenCS.Models.NSwagAdapter/CodegenCS.Models.NSwagAdapter.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p `
 		/t:Restore /t:Build /t:Pack `
 		/p:PackageOutputPath=$packOutput `

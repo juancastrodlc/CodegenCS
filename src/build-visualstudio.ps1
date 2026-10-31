@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
 # Visual Studio Extensions (VSIX)
@@ -42,7 +42,7 @@ try {
 
 	# CodegenCS.Runtime.VisualStudio
 	$p = Join-Path $dir "VisualStudio/CodegenCS.Runtime.VisualStudio/CodegenCS.Runtime.VisualStudio.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p `
 		/t:Restore /t:Build `
 		/p:Configuration=$configuration `
@@ -51,12 +51,12 @@ try {
 		/p:ContinuousIntegrationBuild=true
 
 	$p = Join-Path $dir "VisualStudio/VS2022Extension/VS2022Extension.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
 	Copy-Item (Join-Path $dir "VisualStudio/VS2022Extension/bin/$configuration/CodegenCS.VisualStudio.VS2022Extension.vsix") (Join-Path $dir "packages-local") -Force
 
 	$p = Join-Path $dir "VisualStudio/VS2019Extension/VS2019Extension.csproj"
-	dotnet restore $p --source $global:nugetSourcePath
+	dotnet restore $p @global:nugetSourceArguments
 	Invoke-MSBuild $p /t:Restore /t:Build /p:Configuration=$configuration
 	Copy-Item (Join-Path $dir "VisualStudio/VS2019Extension/bin/$configuration/CodegenCS.VisualStudio.VS2019Extension.vsix") (Join-Path $dir "packages-local") -Force
 

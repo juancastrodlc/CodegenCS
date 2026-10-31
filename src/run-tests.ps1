@@ -3,7 +3,7 @@
 param(
     [ValidateSet('Release', 'Debug')]
     [string]$Configuration = 'Debug',
-    [string]$Source = './packages-local',
+    [string[]]$Source = @(),
     # Where tests download CodegenCS templates (and sample models) from. Defaults to $env:CODEGENCS_TEMPLATES_URI,
     # or to the online repository (https://raw.githubusercontent.com/CodegenCS/Templates/main/) when the variable isn't defined.
     # Can be a URI or a local directory (mirror of https://github.com/CodegenCS/Templates).
@@ -16,6 +16,8 @@ param(
 #   pwsh ./run-tests.ps1                      (templates are downloaded from GitHub)
 #   pwsh ./run-tests.ps1 -Offline             (templates are read from ./artifacts/OnlineTemplates)
 #   pwsh ./run-tests.ps1 -TemplatesUri <uri or local folder>
+#   pwsh ./run-tests.ps1 -Source 'https://feed.example/v3/index.json','./packages-local'
+#   Omit -Source to use NuGet.config.
 
 $ErrorActionPreference = 'Stop'
 $artifactsDirectory = Join-Path $PSScriptRoot 'artifacts'
@@ -46,6 +48,19 @@ if ($IsLinux) {
 }
 
 $solutionPath = Join-Path $PSScriptRoot $solutionFile
+$sourceArguments = @(
+    foreach ($source in $Source) {
+        $resolvedSource = if ($source -match '^(https?|file)://') {
+            $source
+        } elseif ([System.IO.Path]::IsPathRooted($source)) {
+            $source
+        } else {
+            [System.IO.Path]::GetFullPath($source, $PSScriptRoot)
+        }
+        '--source'
+        $resolvedSource
+    }
+)
 
 New-Item -ItemType Directory -Force -Path $artifactsDirectory | Out-Null
 New-Item -ItemType Directory -Force -Path $resultsDirectory | Out-Null
@@ -60,7 +75,7 @@ Push-Location $PSScriptRoot
 try {
     Write-Host "Running tests from $solutionFile..." -ForegroundColor Cyan
     try {
-        & dotnet restore $solutionPath --source $Source
+        & dotnet restore $solutionPath @sourceArguments
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet restore failed with exit code $LASTEXITCODE"
         }
@@ -89,7 +104,7 @@ foreach ($report in $reports) {
     $reportPath = $report.FullName
     $displayName = [System.IO.Path]::GetFileNameWithoutExtension($report.Name)
     try {
-        [xml]$trx = Get-Content -Path $report.FullName -Raw
+        [xml]$trx = Get-Content -LiteralPath $report.FullName -Raw
         $counters = $trx.SelectSingleNode("//*[local-name()='ResultSummary']/*[local-name()='Counters']")
         if (-not $counters) {
             throw 'TRX report does not contain test counters.'

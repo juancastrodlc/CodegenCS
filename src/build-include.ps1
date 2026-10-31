@@ -3,14 +3,26 @@
 # both Windows and Linux. Sourced by all other build-*.ps1 scripts.
 [CmdletBinding()]
 param(
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
-$global:nugetSourcePath = if ([System.IO.Path]::IsPathRooted($Source)) {
-    $Source
-} else {
-    Join-Path $PSScriptRoot $Source
-}
+$global:nugetSourcePath = @(
+    foreach ($source in $Source) {
+        if ($source -match '^(https?|file)://') {
+            $source
+        } elseif ([System.IO.Path]::IsPathRooted($source)) {
+            $source
+        } else {
+            Join-Path $PSScriptRoot $source
+        }
+    }
+)
+$global:nugetSourceArguments = @(
+    foreach ($source in $global:nugetSourcePath) {
+        '--source'
+        $source
+    }
+)
 
 # PowerShell (Windows PowerShell 5.x) does not define $IsWindows/$IsLinux, so define them.
 if ($null -eq (Get-Variable -Name IsWindows -ErrorAction Ignore)) {
@@ -43,7 +55,9 @@ if ($IsWindows) {
 # Uses full msbuild.exe when available, otherwise "dotnet msbuild".
 function Invoke-MSBuild {
     param([Parameter(ValueFromRemainingArguments=$true)] [string[]] $Arguments)
-    $Arguments += "/p:RestoreSources=$global:nugetSourcePath"
+    if ($global:nugetSourcePath.Count -gt 0) {
+        $Arguments += "/p:RestoreSources=$($global:nugetSourcePath -join ';')"
+    }
     if ($global:msbuildExe) {
         & $global:msbuildExe @Arguments
     } else {

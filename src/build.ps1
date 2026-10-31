@@ -5,12 +5,14 @@ param(
     [ValidateSet('Release','Debug')]
     [string]$configuration="Debug",
     [switch] $RunTests = $false,
-    [string] $Source = './packages-local'
+    [string[]] $Source = @()
 )
 
 # How to run:
 #   Windows: .\build.ps1
 #   Linux/macOS: pwsh ./build.ps1
+#   Multiple NuGet sources: .\build.ps1 -Source 'https://feed.example/v3/index.json','./packages-local'
+#   Omit -Source to use NuGet.config.
 
 $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath

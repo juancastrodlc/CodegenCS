@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local',
+    [string[]]$Source = @(),
     [switch]$SkipSampleBuild = $false
 )
 
@@ -43,7 +43,7 @@ try {
 	Get-ChildItem (Join-Path $dir "packages-local") -Filter "CodegenCS.SourceGenerator.*nupkg" -ErrorAction Ignore | Remove-Item -Force -ErrorAction Ignore
 
 	$sg = Join-Path $dir "SourceGenerator/CodegenCS.SourceGenerator/CodegenCS.SourceGenerator.csproj"
-	dotnet restore $sg --source $global:nugetSourcePath -p:Configuration=$configuration
+	dotnet restore $sg @global:nugetSourceArguments -p:Configuration=$configuration
 	if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed (exit code $LASTEXITCODE)" }
 	Invoke-MSBuild $sg `
 		/t:Build /t:Pack `

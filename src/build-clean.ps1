@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 [CmdletBinding()]
 param(
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
 $scriptpath = $MyInvocation.MyCommand.Path

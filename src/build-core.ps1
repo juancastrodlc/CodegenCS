@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
 # How to run:
@@ -32,7 +32,7 @@ try {
 
 	foreach ($project in $projects) {
 		$projectPath = Join-Path $dir $project
-		dotnet restore $projectPath --source $global:nugetSourcePath
+		dotnet restore $projectPath @global:nugetSourceArguments
 		Invoke-MSBuild $projectPath `
 			/t:Restore /t:Build /t:Pack `
 			"/p:PackageOutputPath=$(Join-Path $dir packages-local)" `

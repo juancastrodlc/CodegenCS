@@ -2,7 +2,7 @@
 [cmdletbinding()]
 param(
     [Parameter(Mandatory=$False)][ValidateSet('Release','Debug')][string]$configuration,
-    [string]$Source = './packages-local'
+    [string[]]$Source = @()
 )
 
 # DEPRECATED: This script used to build the customized System.CommandLine "2.0.0-codegencs"
